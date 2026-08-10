@@ -37,6 +37,27 @@ export interface StoreLink {
   storeType: "ml" | "shopee";
 }
 
+// ── Security Helpers & Input Sanitization ─────────────────────────────────────
+
+export function sanitizeText(input: string, maxLen = 300): string {
+  if (!input) return "";
+  return input
+    .replace(/<[^>]*>?/gm, "")
+    .replace(/javascript:/gi, "")
+    .replace(/data:/gi, "")
+    .trim()
+    .slice(0, maxLen);
+}
+
+export function sanitizeUrl(url: string): string {
+  if (!url) return "https://www.mercadolivre.com.br";
+  const trimmed = url.trim();
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(trimmed)) {
+    return trimmed.slice(0, 1000);
+  }
+  return "https://" + trimmed.replace(/^[a-z]+:/i, "").slice(0, 1000);
+}
+
 // ── Default Links Initial State ─────────────────────────────────────────────
 
 export const DEFAULT_ML_LOJAS: StoreLink[] = [
@@ -136,10 +157,10 @@ export async function saveLead(data: {
 }): Promise<Lead> {
   const newLead: Lead = {
     id: "lead_" + Math.random().toString(36).substring(2, 9),
-    name: data.name,
-    whatsapp: data.whatsapp,
-    email: data.email,
-    message: data.message,
+    name: sanitizeText(data.name, 100),
+    whatsapp: sanitizeText(data.whatsapp, 30),
+    email: sanitizeText(data.email, 100),
+    message: sanitizeText(data.message, 1000),
     status: "Novo",
     createdAt: Date.now(),
   };
@@ -243,7 +264,13 @@ export function getStoredShopeeStoreLinks(): StoreLink[] {
 
 export function saveStoredMLStoreLinks(links: StoreLink[]) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_ML, JSON.stringify(links));
+    const sanitized = links.map((l) => ({
+      ...l,
+      name: sanitizeText(l.name || (l as any).nome || "", 100),
+      desc: sanitizeText(l.desc, 150),
+      href: sanitizeUrl(l.href),
+    }));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_ML, JSON.stringify(sanitized));
   } catch (e) {
     console.error(e);
   }
@@ -251,7 +278,13 @@ export function saveStoredMLStoreLinks(links: StoreLink[]) {
 
 export function saveStoredShopeeStoreLinks(links: StoreLink[]) {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_SP, JSON.stringify(links));
+    const sanitized = links.map((l) => ({
+      ...l,
+      name: sanitizeText(l.name || (l as any).nome || "", 100),
+      desc: sanitizeText(l.desc, 150),
+      href: sanitizeUrl(l.href),
+    }));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_SP, JSON.stringify(sanitized));
   } catch (e) {
     console.error(e);
   }

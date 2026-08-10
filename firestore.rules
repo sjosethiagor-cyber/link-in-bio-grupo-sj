@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if the user is the authorized administrator
+    function isAdmin() {
+      return request.auth != null && 
+             request.auth.token.email != null && 
+             request.auth.token.email.toLowerCase() == "sjosethiago.r@gmail.com";
+    }
+
+    // Regras para a coleção de cliques (Analytics)
+    match /clicks/{document} {
+      // Qualquer visitante pode registrar um clique (gravação)
+      allow create: if true;
+      // Apenas o administrador autorizado pode visualizar ou modificar o histórico
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Regras para a coleção de Leads (Formulário de Solicitação)
+    match /leads/{document} {
+      // Qualquer visitante pode enviar um novo lead
+      allow create: if true;
+      // Apenas o administrador autorizado pode visualizar ou alterar o status do lead
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Regras para a coleção de Links do CMS
+    match /links/{document} {
+      // Todos os visitantes podem ler os links para navegar no site
+      allow read: if true;
+      // Apenas o administrador autorizado pode criar, editar ou apagar links
+      allow write: if isAdmin();
+    }
+  }
+}
