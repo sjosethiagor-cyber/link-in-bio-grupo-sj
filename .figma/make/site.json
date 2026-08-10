@@ -1,0 +1,12 @@
+{
+  "title": "Grupo SJ | Lojas Oficiais & Contato",
+  "description": "Grupo SJ — acesse nossas lojas oficiais no Mercado Livre e Shopee e fale com nosso time.",
+  "language": "pt-BR",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
