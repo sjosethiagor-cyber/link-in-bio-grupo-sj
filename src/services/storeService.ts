@@ -130,7 +130,7 @@ export const DEFAULT_SHOPEE_LOJAS: StoreLink[] = [
 export interface SocialLinks {
   instagram: string
   facebook: string
-  linkedin: string
+  youtube: string
   whatsapp: string
   email: string
 }
@@ -138,7 +138,7 @@ export interface SocialLinks {
 export const DEFAULT_SOCIAL_LINKS: SocialLinks = {
   instagram: "https://instagram.com/gruposj",
   facebook: "https://facebook.com/gruposj",
-  linkedin: "https://linkedin.com/company/gruposj",
+  youtube: "https://youtube.com/@gruposj",
   whatsapp: "https://wa.me/5511999999999",
   email: "contato@gruposj.com.br",
 }
@@ -366,7 +366,7 @@ export function getStoredSocialLinks(): SocialLinks {
         parsed.instagram || DEFAULT_SOCIAL_LINKS.instagram,
       ),
       facebook: sanitizeUrl(parsed.facebook || DEFAULT_SOCIAL_LINKS.facebook),
-      linkedin: sanitizeUrl(parsed.linkedin || DEFAULT_SOCIAL_LINKS.linkedin),
+      youtube: sanitizeUrl(parsed.youtube || DEFAULT_SOCIAL_LINKS.youtube),
       whatsapp: sanitizeUrl(parsed.whatsapp || DEFAULT_SOCIAL_LINKS.whatsapp),
       email: sanitizeText(parsed.email || DEFAULT_SOCIAL_LINKS.email, 150),
     }
@@ -380,7 +380,7 @@ export function saveStoredSocialLinks(socialLinks: SocialLinks) {
     const sanitized: SocialLinks = {
       instagram: sanitizeUrl(socialLinks.instagram),
       facebook: sanitizeUrl(socialLinks.facebook),
-      linkedin: sanitizeUrl(socialLinks.linkedin),
+      youtube: sanitizeUrl(socialLinks.youtube),
       whatsapp: sanitizeUrl(socialLinks.whatsapp),
       email: sanitizeText(socialLinks.email, 150),
     }

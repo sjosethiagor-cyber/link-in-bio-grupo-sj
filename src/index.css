@@ -302,21 +302,21 @@
   box-shadow: 0 0 16px rgba(24, 119, 242, 0.4);
 }
 
-.social-pill-li .social-pill-icon-box {
-  background: rgba(10, 102, 194, 0.15);
-  border-color: rgba(10, 102, 194, 0.35);
-  color: #3897f0;
+.social-pill-yt .social-pill-icon-box {
+  background: rgba(255, 0, 0, 0.15);
+  border-color: rgba(255, 0, 0, 0.35);
+  color: #ff0000;
 }
-.social-pill-li:hover {
-  background: rgba(10, 102, 194, 0.08);
-  border-color: rgba(10, 102, 194, 0.4);
-  box-shadow: 0 8px 24px rgba(10, 102, 194, 0.18);
+.social-pill-yt:hover {
+  background: rgba(255, 0, 0, 0.08);
+  border-color: rgba(255, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(255, 0, 0, 0.18);
 }
-.social-pill-li:hover .social-pill-icon-box {
-  background: rgba(10, 102, 194, 0.3);
-  border-color: rgba(10, 102, 194, 0.6);
+.social-pill-yt:hover .social-pill-icon-box {
+  background: rgba(255, 0, 0, 0.3);
+  border-color: rgba(255, 0, 0, 0.6);
   color: #ffffff;
-  box-shadow: 0 0 16px rgba(10, 102, 194, 0.4);
+  box-shadow: 0 0 16px rgba(255, 0, 0, 0.4);
 }
 
 .social-pill-wa .social-pill-icon-box {

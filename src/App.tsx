@@ -26,7 +26,7 @@ import shopeeLogo from "./imports/shopee-logo.svg"
 const LINKS = {
   instagram: "https://instagram.com/[@instagram]",
   facebook: "https://facebook.com/[@facebook]",
-  linkedin: "https://linkedin.com/company/[@linkedin]",
+  youtube: "https://youtube.com/@gruposj",
   whatsapp: "https://wa.me/[numero whatsapp]",
   email: "contato@gruposj.com.br",
 }
@@ -122,11 +122,10 @@ function IcoFacebook({ s = 22 }: { s?: number }) {
   )
 }
 
-function IcoLinkedIn({ s = 22 }: { s?: number }) {
+function IcoYouTube({ s = 22 }: { s?: number }) {
   return (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
-      <circle cx="4" cy="4" r="2" />
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
     </svg>
   )
 }
@@ -880,10 +879,10 @@ export default function App() {
                 cls="social-pill-fb"
               />
               <SocialPill
-                href={socialLinks.linkedin}
-                icon={<IcoLinkedIn s={22} />}
-                label="LinkedIn"
-                cls="social-pill-li"
+                href={socialLinks.youtube}
+                icon={<IcoYouTube s={22} />}
+                label="YouTube"
+                cls="social-pill-yt"
               />
               <SocialPill
                 href={socialLinks.whatsapp}

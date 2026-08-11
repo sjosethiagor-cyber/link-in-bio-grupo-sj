@@ -1082,23 +1082,23 @@ export default function AdminDashboard({
                       style={{
                         padding: "10px 12px",
                         borderRadius: 10,
-                        background: "rgba(10,102,194,0.06)",
-                        border: "1px solid rgba(10,102,194,0.18)",
+                        background: "rgba(255,0,0,0.06)",
+                        border: "1px solid rgba(255,0,0,0.18)",
                       }}
                     >
                       <span
                         style={{
                           fontSize: 11,
                           fontWeight: 700,
-                          color: "#0A66C2",
+                          color: "#FF0000",
                         }}
                       >
-                        LinkedIn
+                        YouTube
                       </span>
                       <div
                         style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}
                       >
-                        {getSocialClicks("LinkedIn")}
+                        {getSocialClicks("YouTube")}
                       </div>
                     </div>
                     <div
@@ -1970,13 +1970,13 @@ export default function AdminDashboard({
                         />
                       </div>
 
-                      {/* LinkedIn */}
+                      {/* YouTube */}
                       <div
                         style={{
                           padding: "12px 14px",
                           borderRadius: 10,
-                          background: "rgba(10,102,194,0.04)",
-                          border: "1px solid rgba(10,102,194,0.2)",
+                          background: "rgba(255,0,0,0.04)",
+                          border: "1px solid rgba(255,0,0,0.2)",
                         }}
                       >
                         <label
@@ -1985,18 +1985,18 @@ export default function AdminDashboard({
                             fontSize: 11,
                             fontWeight: 700,
                             marginBottom: 4,
-                            color: "#3897f0",
+                            color: "#FF0000",
                           }}
                         >
-                          💼 LinkedIn URL
+                          ▶️ YouTube URL
                         </label>
                         <input
                           type="url"
-                          value={socialLinks.linkedin}
+                          value={socialLinks.youtube}
                           onChange={(e) =>
                             setSocialLinks({
                               ...socialLinks,
-                              linkedin: e.target.value,
+                              youtube: e.target.value,
                             })
                           }
                           style={{
