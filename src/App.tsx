@@ -670,10 +670,26 @@ export default function App() {
   const [socialLinks, setSocialLinks] =
     useState<SocialLinks>(DEFAULT_SOCIAL_LINKS)
 
-  const refreshLinks = () => {
+  const refreshLinks = async () => {
+    // 1. Show cached values immediately for fast visual loading
     setMlLojas(getStoredMLStoreLinks())
     setShopeeLojas(getStoredShopeeStoreLinks())
     setSocialLinks(getStoredSocialLinks())
+
+    // 2. Fetch fresh values from Firebase Firestore in the background
+    try {
+      const { getMLStoreLinks, getShopeeStoreLinks, getSocialLinks } = await import("./services/storeService")
+      const [ml, sp, sc] = await Promise.all([
+        getMLStoreLinks(),
+        getShopeeStoreLinks(),
+        getSocialLinks(),
+      ])
+      setMlLojas(ml)
+      setShopeeLojas(sp)
+      setSocialLinks(sc)
+    } catch (e) {
+      console.warn("Error reloading links from cloud:", e)
+    }
   }
 
   useEffect(() => {

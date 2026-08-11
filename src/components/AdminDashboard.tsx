@@ -185,9 +185,16 @@ export default function AdminDashboard({
       const fetchedLeads = await getLeads()
       setClicks(fetchedClicks)
       setLeads(fetchedLeads)
-      setMlLinks(getStoredMLStoreLinks())
-      setShopeeLinks(getStoredShopeeStoreLinks())
-      setSocialLinks(getStoredSocialLinks())
+
+      const { getMLStoreLinks, getShopeeStoreLinks, getSocialLinks } = await import("../services/storeService")
+      const [ml, sp, sc] = await Promise.all([
+        getMLStoreLinks(),
+        getShopeeStoreLinks(),
+        getSocialLinks(),
+      ])
+      setMlLinks(ml)
+      setShopeeLinks(sp)
+      setSocialLinks(sc)
     } catch (err) {
       console.error(err)
     } finally {
