@@ -222,7 +222,7 @@ export async function saveLead(data: {
   const newLead: Lead = {
     id: "lead_" + Math.random().toString(36).substring(2, 9),
     name: sanitizeText(data.name, 100),
-    whatsapp: sanitizeText(data.whatsapp, 30),
+    whatsapp: sanitizeText(data.whatsapp, 50),
     email: sanitizeText(data.email, 100),
     message: sanitizeText(data.message, 1000),
     status: "Novo",

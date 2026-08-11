@@ -15,6 +15,7 @@ service cloud.firestore {
     match /clicks/{document} {
       // Qualquer visitante pode registrar um clique com dados válidos
       allow create: if request.resource.data.keys().hasAll(['linkId', 'linkName', 'category', 'timestamp']) &&
+                       request.resource.data.keys().hasOnly(['id', 'linkId', 'linkName', 'category', 'timestamp', 'serverTime']) &&
                        request.resource.data.linkId is string && request.resource.data.linkId.size() <= 100 &&
                        request.resource.data.linkName is string && request.resource.data.linkName.size() <= 200 &&
                        request.resource.data.category in ['Mercado Livre', 'Shopee', 'Rede Social', 'Contato'] &&
@@ -27,8 +28,9 @@ service cloud.firestore {
     match /leads/{document} {
       // Qualquer visitante pode enviar um novo lead com schema válido
       allow create: if request.resource.data.keys().hasAll(['name', 'whatsapp', 'createdAt', 'status']) &&
-                       request.resource.data.name is string && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 100 &&
-                       request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() >= 8 && request.resource.data.whatsapp.size() <= 30 &&
+                       request.resource.data.keys().hasOnly(['id', 'name', 'whatsapp', 'email', 'message', 'createdAt', 'createdAtServer', 'status']) &&
+                       request.resource.data.name is string && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 200 &&
+                       request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() >= 8 && request.resource.data.whatsapp.size() <= 60 &&
                        request.resource.data.status == 'Novo';
       // Apenas o administrador autorizado pode visualizar ou alterar o status do lead
       allow read, update, delete: if isAdmin();
