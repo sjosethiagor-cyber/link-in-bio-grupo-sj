@@ -111,6 +111,9 @@ export default function AdminDashboard({
     useState<SocialLinks>(DEFAULT_SOCIAL_LINKS)
   const [loading, setLoading] = useState(true)
   const [cmsSavedSuccess, setCmsSavedSuccess] = useState(false)
+  const [leadSearch, setLeadSearch] = useState("")
+  const [leadStatusFilter, setLeadStatusFilter] = useState<"Todos" | "Novo" | "Em Atendimento" | "Concluído">("Todos")
+
 
   // Authentication State
   const [user, setUser] = useState<User | null>(null)
@@ -296,7 +299,7 @@ export default function AdminDashboard({
     >
       <div
         className="store-drawer-panel"
-        style={{ maxWidth: 820, width: "95%", maxHeight: "90dvh" }}
+        style={{ maxWidth: 1360, width: "96%", maxHeight: "95dvh", height: "95dvh", display: "flex", flexDirection: "column" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -632,6 +635,10 @@ export default function AdminDashboard({
               </button>
             </div>
 
+            {/* Content Body (Scrollable container) */}
+            <div style={{ flex: 1, overflowY: "auto", minHeight: 0, paddingRight: 6, display: "flex", flexDirection: "column", gap: 18 }}>
+
+
             {/* TAB 1: METRICS & ANALYTICS */}
             {activeTab === "metrics" && (
               <div
@@ -766,15 +773,25 @@ export default function AdminDashboard({
                   </div>
                 </div>
 
-                {/* Mercado Livre Sub-links Detailed Section */}
+                {/* 2-Column Responsive Layout for Detailed Analytics */}
                 <div
                   style={{
-                    padding: "16px",
-                    borderRadius: 16,
-                    background: "rgba(255, 230, 0, 0.04)",
-                    border: "1px solid rgba(255, 230, 0, 0.2)",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(480px, 1fr))",
+                    gap: 16,
                   }}
                 >
+                  {/* Column A: Lojas / Stores */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Mercado Livre Sub-links Detailed Section */}
+                    <div
+                      style={{
+                        padding: "16px",
+                        borderRadius: 16,
+                        background: "rgba(255, 230, 0, 0.04)",
+                        border: "1px solid rgba(255, 230, 0, 0.2)",
+                      }}
+                    >
                   <div
                     style={{
                       display: "flex",
@@ -1006,7 +1023,11 @@ export default function AdminDashboard({
                   </div>
                 </div>
 
-                {/* Redes Sociais & Contato */}
+                  </div>
+
+                  {/* Column B: Social & Logs */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Redes Sociais & Contato */}
                 <div
                   style={{
                     padding: "16px",
@@ -1135,7 +1156,7 @@ export default function AdminDashboard({
                 </h4>
                 <div
                   style={{
-                    maxHeight: 180,
+                    maxHeight: 260,
                     overflowY: "auto",
                     border: "1px solid var(--border)",
                     borderRadius: 12,
@@ -1155,7 +1176,7 @@ export default function AdminDashboard({
                       Nenhum clique registrado ainda.
                     </p>
                   ) : (
-                    clicks.slice(0, 30).map((c, idx) => (
+                    clicks.slice(0, 50).map((c, idx) => (
                       <div
                         key={idx}
                         style={{
@@ -1193,180 +1214,239 @@ export default function AdminDashboard({
                     ))
                   )}
                 </div>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* TAB 2: LEADS CAPTURADOS */}
-            {activeTab === "leads" && (
-              <div>
-                <h4
-                  style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 800 }}
-                >
-                  Leads Solicitados pelo Site
-                </h4>
-                {leads.length === 0 ? (
-                  <p
-                    style={{
-                      margin: 0,
-                      padding: 32,
-                      fontSize: 13,
-                      color: "var(--muted-foreground)",
-                      textAlign: "center",
-                    }}
-                  >
-                    Nenhum lead capturado ainda.
-                  </p>
-                ) : (
+            {activeTab === "leads" && (() => {
+              const filteredLeads = leads.filter((lead) => {
+                const matchesStatus = leadStatusFilter === "Todos" || lead.status === leadStatusFilter
+                const searchLower = leadSearch.toLowerCase()
+                return matchesStatus && (
+                  lead.name.toLowerCase().includes(searchLower) ||
+                  lead.whatsapp.includes(searchLower) ||
+                  (lead.email || "").toLowerCase().includes(searchLower) ||
+                  lead.message.toLowerCase().includes(searchLower)
+                )
+              })
+
+              return (
+                <div>
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "space-between",
                       gap: 12,
-                      maxHeight: 420,
-                      overflowY: "auto",
+                      marginBottom: 14,
+                      flexWrap: "wrap",
                     }}
                   >
-                    {leads.map((lead) => (
-                      <div
-                        key={lead.id}
+                    <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>
+                      Leads Solicitados pelo Site
+                    </h4>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                      <input
+                        type="text"
+                        placeholder="🔍 Buscar lead..."
+                        value={leadSearch}
+                        onChange={(e) => setLeadSearch(e.target.value)}
                         style={{
-                          padding: "16px",
-                          borderRadius: 12,
-                          background: "rgba(255,255,255,0.03)",
+                          padding: "8px 12px",
+                          borderRadius: 8,
+                          background: "rgba(255,255,255,0.05)",
                           border: "1px solid var(--border)",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 10,
+                          color: "var(--foreground)",
+                          fontSize: 13,
+                          width: 220,
+                        }}
+                      />
+                      <select
+                        value={leadStatusFilter}
+                        onChange={(e) => setLeadStatusFilter(e.target.value as any)}
+                        style={{
+                          padding: "8px 12px",
+                          borderRadius: 8,
+                          background: "rgba(255,255,255,0.05)",
+                          border: "1px solid var(--border)",
+                          color: "var(--foreground)",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: "pointer",
                         }}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <div>
-                            <h5
-                              style={{
-                                margin: 0,
-                                fontSize: 16,
-                                fontWeight: 800,
-                              }}
-                            >
-                              {lead.name}
-                            </h5>
-                            <p
-                              style={{
-                                margin: "2px 0 0",
-                                fontSize: 12,
-                                color: "var(--muted-foreground)",
-                              }}
-                            >
-                              {lead.email || "Sem e-mail registrado"} ·{" "}
-                              {new Date(lead.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-
-                          <select
-                            value={lead.status}
-                            onChange={(e) =>
-                              handleStatusChange(lead.id, e.target.value as any)
-                            }
-                            style={{
-                              padding: "4px 8px",
-                              borderRadius: 6,
-                              background:
-                                lead.status === "Novo"
-                                  ? "rgba(232,69,31,0.2)"
-                                  : lead.status === "Em Atendimento"
-                                    ? "rgba(255,193,7,0.2)"
-                                    : "rgba(37,211,102,0.2)",
-                              color:
-                                lead.status === "Novo"
-                                  ? "#e8451f"
-                                  : lead.status === "Em Atendimento"
-                                    ? "#FFC107"
-                                    : "#25D366",
-                              border: "none",
-                              fontSize: 12,
-                              fontWeight: 700,
-                              cursor: "pointer",
-                            }}
-                          >
-                            <option
-                              value="Novo"
-                              style={{ background: "#121217", color: "#fff" }}
-                            >
-                              Novo
-                            </option>
-                            <option
-                              value="Em Atendimento"
-                              style={{ background: "#121217", color: "#fff" }}
-                            >
-                              Em Atendimento
-                            </option>
-                            <option
-                              value="Concluído"
-                              style={{ background: "#121217", color: "#fff" }}
-                            >
-                              Concluído
-                            </option>
-                          </select>
-                        </div>
-
-                        <p
-                          style={{
-                            margin: 0,
-                            fontSize: 13,
-                            color: "var(--foreground)",
-                            background: "rgba(0,0,0,0.2)",
-                            padding: 10,
-                            borderRadius: 8,
-                          }}
-                        >
-                          "{lead.message}"
-                        </p>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: "#25D366",
-                            }}
-                          >
-                            📱 {lead.whatsapp}
-                          </span>
-                          <a
-                            href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              padding: "6px 12px",
-                              borderRadius: 8,
-                              background: "#25D366",
-                              color: "#000",
-                              textDecoration: "none",
-                              fontSize: 12,
-                              fontWeight: 800,
-                            }}
-                          >
-                            Falar no WhatsApp ➔
-                          </a>
-                        </div>
-                      </div>
-                    ))}
+                        <option value="Todos" style={{ background: "#121217" }}>Status: Todos</option>
+                        <option value="Novo" style={{ background: "#121217" }}>Novo</option>
+                        <option value="Em Atendimento" style={{ background: "#121217" }}>Em Atendimento</option>
+                        <option value="Concluído" style={{ background: "#121217" }}>Concluído</option>
+                      </select>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {filteredLeads.length === 0 ? (
+                    <p
+                      style={{
+                        margin: 0,
+                        padding: 32,
+                        fontSize: 13,
+                        color: "var(--muted-foreground)",
+                        textAlign: "center",
+                      }}
+                    >
+                      Nenhum lead encontrado para os filtros selecionados.
+                    </p>
+                  ) : (
+                    <>
+                      {/* Desktop Table View */}
+                      <div className="admin-desktop-leads-table-container">
+                        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--muted-foreground)", fontSize: 12 }}>
+                              <th style={{ padding: "10px", fontWeight: 700 }}>Nome</th>
+                              <th style={{ padding: "10px", fontWeight: 700 }}>WhatsApp</th>
+                              <th style={{ padding: "10px", fontWeight: 700 }}>E-mail</th>
+                              <th style={{ padding: "10px", fontWeight: 700 }}>Mensagem</th>
+                              <th style={{ padding: "10px", fontWeight: 700 }}>Data</th>
+                              <th style={{ padding: "10px", fontWeight: 700 }}>Status</th>
+                              <th style={{ padding: "10px", fontWeight: 700, textAlign: "right" }}>Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredLeads.map((lead) => (
+                              <tr key={lead.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)", fontSize: 13 }}>
+                                <td style={{ padding: "12px 10px", fontWeight: 700, color: "var(--foreground)" }}>{lead.name}</td>
+                                <td style={{ padding: "12px 10px", color: "#25D366", fontWeight: 700 }}>{lead.whatsapp}</td>
+                                <td style={{ padding: "12px 10px", color: "var(--muted-foreground)" }}>{lead.email || "-"}</td>
+                                <td style={{ padding: "12px 10px", maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={lead.message}>
+                                  {lead.message}
+                                </td>
+                                <td style={{ padding: "12px 10px", color: "var(--muted-foreground)" }}>{new Date(lead.createdAt).toLocaleDateString()}</td>
+                                <td style={{ padding: "12px 10px" }}>
+                                  <select
+                                    value={lead.status}
+                                    onChange={(e) => handleStatusChange(lead.id, e.target.value as any)}
+                                    style={{
+                                      padding: "4px 8px",
+                                      borderRadius: 6,
+                                      background: lead.status === "Novo" ? "rgba(232,69,31,0.2)" : lead.status === "Em Atendimento" ? "rgba(255,193,7,0.2)" : "rgba(37,211,102,0.2)",
+                                      color: lead.status === "Novo" ? "#e8451f" : lead.status === "Em Atendimento" ? "#FFC107" : "#25D366",
+                                      border: "none",
+                                      fontSize: 12,
+                                      fontWeight: 700,
+                                      cursor: "pointer"
+                                    }}
+                                  >
+                                    <option value="Novo" style={{ background: "#121217", color: "#fff" }}>Novo</option>
+                                    <option value="Em Atendimento" style={{ background: "#121217", color: "#fff" }}>Em Atendimento</option>
+                                    <option value="Concluído" style={{ background: "#121217", color: "#fff" }}>Concluído</option>
+                                  </select>
+                                </td>
+                                <td style={{ padding: "12px 10px", textAlign: "right" }}>
+                                  <a
+                                    href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, "")}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: "5px 10px",
+                                      borderRadius: 6,
+                                      background: "#25D366",
+                                      color: "#000",
+                                      textDecoration: "none",
+                                      fontSize: 11,
+                                      fontWeight: 800,
+                                    }}
+                                  >
+                                    Falar ➔
+                                  </a>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Mobile Cards View */}
+                      <div className="admin-mobile-leads-cards-container">
+                        {filteredLeads.map((lead) => (
+                          <div
+                            key={lead.id}
+                            style={{
+                              padding: "14px",
+                              borderRadius: 12,
+                              background: "rgba(255,255,255,0.03)",
+                              border: "1px solid var(--border)",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 10,
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <div>
+                                <h5 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>
+                                  {lead.name}
+                                </h5>
+                                <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--muted-foreground)" }}>
+                                  {lead.email || "Sem e-mail"} · {new Date(lead.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <select
+                                value={lead.status}
+                                onChange={(e) => handleStatusChange(lead.id, e.target.value as any)}
+                                style={{
+                                  padding: "4px 6px",
+                                  borderRadius: 6,
+                                  background: lead.status === "Novo" ? "rgba(232,69,31,0.2)" : lead.status === "Em Atendimento" ? "rgba(255,193,7,0.2)" : "rgba(37,211,102,0.2)",
+                                  color: lead.status === "Novo" ? "#e8451f" : lead.status === "Em Atendimento" ? "#FFC107" : "#25D366",
+                                  border: "none",
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                <option value="Novo" style={{ background: "#121217", color: "#fff" }}>Novo</option>
+                                <option value="Em Atendimento" style={{ background: "#121217", color: "#fff" }}>Em Atendimento</option>
+                                <option value="Concluído" style={{ background: "#121217", color: "#fff" }}>Concluído</option>
+                              </select>
+                            </div>
+                            <p style={{ margin: 0, fontSize: 12, color: "var(--foreground)", background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6 }}>
+                              "{lead.message}"
+                            </p>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontSize: 12, fontWeight: 700, color: "#25D366" }}>
+                                📱 {lead.whatsapp}
+                              </span>
+                              <a
+                                href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, "")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  padding: "5px 10px",
+                                  borderRadius: 6,
+                                  background: "#25D366",
+                                  color: "#000",
+                                  textDecoration: "none",
+                                  fontSize: 11,
+                                  fontWeight: 800,
+                                }}
+                              >
+                                Conversar ➔
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* TAB 3: GERENCIAR LINKS (CMS) */}
             {activeTab === "cms" && (
@@ -1865,7 +1945,11 @@ export default function AdminDashboard({
                     </div>
                   </div>
 
-                  {/* Redes Sociais & Contato CMS */}
+                  </div>
+
+                  {/* Column B: Redes Sociais & Contatos */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* Redes Sociais & Contato CMS */}
                   <div>
                     <h5
                       style={{
@@ -2098,6 +2182,7 @@ export default function AdminDashboard({
                 </div>
               </div>
             )}
+            </div>
           </>
         )}
       </div>
