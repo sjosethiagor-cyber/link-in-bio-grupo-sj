@@ -209,7 +209,7 @@
 .social-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 
 .social-pill {
@@ -217,39 +217,124 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 96px;
-  padding: 18px 10px;
+  gap: 10px;
+  min-height: 100px;
+  padding: 16px 12px;
   border-radius: var(--radius);
   text-decoration: none;
-  color: var(--secondary-foreground);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: var(--foreground);
   cursor: pointer;
   border: 1px solid var(--border);
-  background: var(--secondary);
-  transition: background 0.18s ease,
-              color 0.18s ease,
-              border-color 0.18s ease,
-              transform 0.18s cubic-bezier(0.22,1,0.36,1),
-              box-shadow 0.18s ease;
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.2s ease,
+              transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.2s ease;
 }
 
 .social-pill:hover {
-  color: var(--foreground);
   transform: translateY(-3px);
+  border-color: var(--border-strong);
 }
 
-.social-pill:active { transform: translateY(0); }
+.social-pill:active {
+  transform: translateY(-1px);
+}
 
-.social-pill-ig:hover  { background: rgba(225,48,108,0.12); border-color: rgba(225,48,108,0.35); }
-.social-pill-tt:hover  { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.28); }
-.social-pill-wa:hover  { background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.35); }
-.social-pill-fb:hover  { background: rgba(24,119,242,0.1); border-color: rgba(24,119,242,0.35); }
-.social-pill-li:hover  { background: rgba(10,102,194,0.1); border-color: rgba(10,102,194,0.35); }
-.social-pill-yt:hover  { background: rgba(255,0,0,0.1); border-color: rgba(255,0,0,0.35); }
+.social-pill-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-pill:hover .social-pill-icon-box {
+  transform: scale(1.08);
+}
+
+.social-pill-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+/* Redes Sociais Brand Highlights */
+.social-pill-ig .social-pill-icon-box {
+  background: rgba(225, 48, 108, 0.15);
+  border-color: rgba(225, 48, 108, 0.35);
+  color: #f45ca5;
+}
+.social-pill-ig:hover {
+  background: rgba(225, 48, 108, 0.08);
+  border-color: rgba(225, 48, 108, 0.4);
+  box-shadow: 0 8px 24px rgba(225, 48, 108, 0.18);
+}
+.social-pill-ig:hover .social-pill-icon-box {
+  background: rgba(225, 48, 108, 0.3);
+  border-color: rgba(225, 48, 108, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(225, 48, 108, 0.4);
+}
+
+.social-pill-fb .social-pill-icon-box {
+  background: rgba(24, 119, 242, 0.15);
+  border-color: rgba(24, 119, 242, 0.35);
+  color: #4c9aff;
+}
+.social-pill-fb:hover {
+  background: rgba(24, 119, 242, 0.08);
+  border-color: rgba(24, 119, 242, 0.4);
+  box-shadow: 0 8px 24px rgba(24, 119, 242, 0.18);
+}
+.social-pill-fb:hover .social-pill-icon-box {
+  background: rgba(24, 119, 242, 0.3);
+  border-color: rgba(24, 119, 242, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(24, 119, 242, 0.4);
+}
+
+.social-pill-li .social-pill-icon-box {
+  background: rgba(10, 102, 194, 0.15);
+  border-color: rgba(10, 102, 194, 0.35);
+  color: #3897f0;
+}
+.social-pill-li:hover {
+  background: rgba(10, 102, 194, 0.08);
+  border-color: rgba(10, 102, 194, 0.4);
+  box-shadow: 0 8px 24px rgba(10, 102, 194, 0.18);
+}
+.social-pill-li:hover .social-pill-icon-box {
+  background: rgba(10, 102, 194, 0.3);
+  border-color: rgba(10, 102, 194, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(10, 102, 194, 0.4);
+}
+
+.social-pill-wa .social-pill-icon-box {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.35);
+  color: #25d366;
+}
+.social-pill-wa:hover {
+  background: rgba(37, 211, 102, 0.08);
+  border-color: rgba(37, 211, 102, 0.4);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.18);
+}
+.social-pill-wa:hover .social-pill-icon-box {
+  background: rgba(37, 211, 102, 0.3);
+  border-color: rgba(37, 211, 102, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(37, 211, 102, 0.4);
+}
 
 .store-card button:focus-visible,
 .store-card a:focus-visible,
@@ -369,15 +454,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 48px 20px 44px;
+  padding: 36px 16px 40px;
 }
 
 .content-col {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 26px;
 }
 
 .store-grid {
@@ -387,15 +472,15 @@
 }
 
 @media (min-width: 520px) {
-  .page-wrapper { padding: 56px 28px 48px; }
-  .content-col  { max-width: 520px; }
+  .page-wrapper { padding: 48px 24px 48px; }
+  .content-col  { max-width: 540px; gap: 28px; }
   .social-grid  { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-  .store-card   { padding: 24px 22px; gap: 16px; }
+  .store-card   { padding: 20px 20px; gap: 14px; }
 }
 
 @media (min-width: 768px) {
-  .page-wrapper { padding: 72px 40px 64px; }
-  .content-col  { max-width: 680px; gap: 32px; }
+  .page-wrapper { padding: 64px 32px 56px; }
+  .content-col  { max-width: 620px; gap: 32px; }
   .store-grid   { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .social-pill  { min-height: 104px; }
 }

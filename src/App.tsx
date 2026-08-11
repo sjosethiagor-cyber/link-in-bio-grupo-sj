@@ -1,12 +1,26 @@
-import { Component, useState, useEffect, type ReactNode } from "react"
+import {
+  Component,
+  lazy,
+  Suspense,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react"
 import {
   recordClick,
   getStoredMLStoreLinks,
   getStoredShopeeStoreLinks,
+  getStoredSocialLinks,
   type StoreLink,
+  type SocialLinks,
+  DEFAULT_SOCIAL_LINKS,
 } from "./services/storeService"
-import LeadModal from "./components/LeadModal"
-import AdminDashboard from "./components/AdminDashboard"
+import grupoSjLogo from "./imports/grupo-sj-logo.png"
+
+const LeadModal = lazy(() => import("./components/LeadModal"))
+const AdminDashboard = lazy(() => import("./components/AdminDashboard"))
+import mercadoLivreLogo from "./imports/mercado-livre-logo.svg"
+import shopeeLogo from "./imports/shopee-logo.svg"
 
 // ─── Links Estáticos por Padrão ──────────────────────────────────────────────
 const LINKS = {
@@ -48,44 +62,37 @@ class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
-function IcoML({ s = 28 }: { s?: number }) {
+function IcoML({ s = 32 }: { s?: number }) {
   return (
-    <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="24" fill="#FFE600" />
-      <ellipse cx="24" cy="20" rx="10" ry="8" fill="white" />
-      <path d="M14 28c0-4.4 4.5-8 10-8s10 3.6 10 8" fill="#009EE3" />
-      <circle cx="19" cy="19" r="2.5" fill="#009EE3" />
-      <circle cx="29" cy="19" r="2.5" fill="#009EE3" />
-      <path
-        d="M20 23c1.1 1.2 2.9 1.2 4 0"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
+    <img
+      src={mercadoLivreLogo}
+      alt="Mercado Livre"
+      aria-hidden="true"
+      style={{
+        display: "block",
+        width: "100%",
+        height: "100%",
+        maxHeight: s,
+        objectFit: "contain",
+      }}
+    />
   )
 }
 
-function IcoShopee({ s = 28 }: { s?: number }) {
+function IcoShopee({ s = 32 }: { s?: number }) {
   return (
-    <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <rect width="48" height="48" rx="10" fill="#EE4D2D" />
-      <path
-        d="M24 9c-4.97 0-9 4.03-9 9h3c0-3.31 2.69-6 6-6s6 2.69 6 6h3c0-4.97-4.03-9-9-9z"
-        fill="white"
-      />
-      <rect x="11" y="18" width="26" height="21" rx="3" fill="white" />
-      <circle cx="19" cy="25" r="2" fill="#EE4D2D" />
-      <circle cx="29" cy="25" r="2" fill="#EE4D2D" />
-      <path
-        d="M20 30c2.2 2 5.8 2 8 0"
-        stroke="#EE4D2D"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
+    <img
+      src={shopeeLogo}
+      alt="Shopee"
+      aria-hidden="true"
+      style={{
+        display: "block",
+        width: "100%",
+        height: "100%",
+        maxHeight: s,
+        objectFit: "contain",
+      }}
+    />
   )
 }
 
@@ -204,32 +211,19 @@ function IcoShield({ s = 14 }: { s?: number }) {
 
 function SJMark({ size = 96 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 80 80" fill="none">
-      <rect width="80" height="80" rx="22" fill="#e8451f" />
-      <path
-        d="M19 27c0-4.418 3.582-8 8-8h8c4.418 0 8 3.582 8 8s-3.582 8-8 8h-8c-4.418 0-8 3.582-8 8s3.582 8 8 8h10"
-        stroke="white"
-        strokeWidth="4.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path
-        d="M47 19v27c0 4.418-3.582 8-8 8"
-        stroke="white"
-        strokeWidth="4.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path
-        d="M56 37l7 6-7 6M63 43H48"
-        stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <img
+      src={grupoSjLogo}
+      alt="Logo Grupo SJ"
+      width={size}
+      height={size}
+      style={{
+        display: "block",
+        width: size,
+        height: size,
+        borderRadius: 22,
+        objectFit: "cover",
+      }}
+    />
   )
 }
 
@@ -308,11 +302,13 @@ function StoreCardTrigger({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: 46,
-            height: 46,
-            borderRadius: 13,
+            width: 48,
+            height: 48,
+            borderRadius: 14,
             background: iconBg,
             flexShrink: 0,
+            padding: 8,
+            border: "1px solid rgba(255, 255, 255, 0.08)",
           }}
         >
           {icon}
@@ -385,10 +381,7 @@ function StoreDrawerModal({
       aria-modal="true"
       aria-label={`Lojas oficiais de ${data.name}`}
     >
-      <div
-        className="store-drawer-panel"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="store-drawer-panel" onClick={(e) => e.stopPropagation()}>
         {/* Header do Painel */}
         <div
           style={{
@@ -582,8 +575,8 @@ function SocialPill({
       className={`social-pill ${cls}`}
       onClick={() => recordClick(label, label, "Rede Social")}
     >
-      <span style={{ display: "flex" }}>{icon}</span>
-      <span>{label}</span>
+      <span className="social-pill-icon-box">{icon}</span>
+      <span className="social-pill-label">{label}</span>
     </a>
   )
 }
@@ -669,14 +662,19 @@ function ContactRow({
 export default function App() {
   const [activeStore, setActiveStore] = useState<StoreModalData | null>(null)
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
+  const [hasOpenedLeadModal, setHasOpenedLeadModal] = useState(false)
   const [isAdminOpen, setIsAdminOpen] = useState(false)
+  const [hasOpenedAdmin, setHasOpenedAdmin] = useState(false)
 
   const [mlLojas, setMlLojas] = useState<StoreLink[]>([])
   const [shopeeLojas, setShopeeLojas] = useState<StoreLink[]>([])
+  const [socialLinks, setSocialLinks] =
+    useState<SocialLinks>(DEFAULT_SOCIAL_LINKS)
 
   const refreshLinks = () => {
     setMlLojas(getStoredMLStoreLinks())
     setShopeeLojas(getStoredShopeeStoreLinks())
+    setSocialLinks(getStoredSocialLinks())
   }
 
   useEffect(() => {
@@ -745,42 +743,22 @@ export default function App() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 14,
+                gap: 12,
               }}
             >
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "clamp(34px, 9vw, 48px)",
-                  fontWeight: 900,
-                  letterSpacing: "-0.04em",
-                  lineHeight: 1,
-                  color: "var(--foreground)",
-                }}
-              >
-                {"Grupo SJ"}
-              </h1>
-
               <p
                 style={{
                   margin: 0,
-                  fontSize: "clamp(14px, 3.8vw, 17px)",
-                  fontWeight: 500,
-                  color: "var(--muted-foreground)",
-                  lineHeight: 1.6,
-                  maxWidth: 300,
+                  fontSize: "clamp(14px, 3.8vw, 16px)",
+                  fontWeight: 600,
+                  color: "#d8d4cb",
+                  lineHeight: 1.5,
+                  maxWidth: 320,
+                  textAlign: "center",
+                  letterSpacing: "-0.01em",
                 }}
               >
-                <span>{"Um grupo. Muitas soluções. "}</span>
-                <span
-                  style={{
-                    color: "rgba(232,69,31,0.9)",
-                    fontWeight: 700,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {"A mesma confiança."}
-                </span>
+                Um grupo. Muitas soluções. A mesma confiança.
               </p>
 
               {/* Trust badge */}
@@ -798,7 +776,12 @@ export default function App() {
             <button
               type="button"
               onClick={() => {
-                recordClick("btn_lead_cta", "Solicitar Orçamento Button", "Contato")
+                recordClick(
+                  "btn_lead_cta",
+                  "Solicitar Orçamento Button",
+                  "Contato",
+                )
+                setHasOpenedLeadModal(true)
                 setIsLeadModalOpen(true)
               }}
               style={{
@@ -819,8 +802,12 @@ export default function App() {
                 boxShadow: "0 8px 32px rgba(232,69,31,0.28)",
                 transition: "transform 0.2s ease, box-shadow 0.2s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "translateY(-2px)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "translateY(0)")
+              }
             >
               <span>⚡ Solicitar Orçamento / Atendimento</span>
               <IcoArrow s={16} />
@@ -832,17 +819,21 @@ export default function App() {
             <p className="section-label">{"Nossas lojas"}</p>
             <div className="store-grid">
               <StoreCardTrigger
-                icon={<IcoML s={28} />}
+                icon={<IcoML s={42} />}
                 name="Mercado Livre"
                 subtitle={`${mlLojas.length} lojas oficiais`}
                 cls="store-card-ml"
                 iconBg="rgba(255,230,0,0.18)"
                 onClick={() => {
-                  recordClick("btn_ml_stores", "Mercado Livre Modal Open", "Mercado Livre")
+                  recordClick(
+                    "btn_ml_stores",
+                    "Mercado Livre Modal Open",
+                    "Mercado Livre",
+                  )
                   setActiveStore({
                     name: "Mercado Livre",
                     subtitle: "Lojas oficiais no Mercado Livre",
-                    icon: <IcoML s={26} />,
+                    icon: <IcoML s={38} />,
                     iconBg: "rgba(255,230,0,0.18)",
                     tagColor: "#ffe600",
                     category: "Mercado Livre",
@@ -851,7 +842,7 @@ export default function App() {
                 }}
               />
               <StoreCardTrigger
-                icon={<IcoShopee s={28} />}
+                icon={<IcoShopee s={42} />}
                 name="Shopee"
                 subtitle={`${shopeeLojas.length} lojas oficiais`}
                 cls="store-card-sp"
@@ -861,7 +852,7 @@ export default function App() {
                   setActiveStore({
                     name: "Shopee",
                     subtitle: "Lojas oficiais na Shopee",
-                    icon: <IcoShopee s={26} />,
+                    icon: <IcoShopee s={38} />,
                     iconBg: "rgba(238,77,45,0.18)",
                     tagColor: "#ee4d2d",
                     category: "Shopee",
@@ -877,25 +868,25 @@ export default function App() {
             <p className="section-label">{"Redes sociais"}</p>
             <div className="social-grid">
               <SocialPill
-                href={LINKS.instagram}
+                href={socialLinks.instagram}
                 icon={<IcoInstagram s={22} />}
                 label="Instagram"
                 cls="social-pill-ig"
               />
               <SocialPill
-                href={LINKS.facebook}
+                href={socialLinks.facebook}
                 icon={<IcoFacebook s={22} />}
                 label="Facebook"
                 cls="social-pill-fb"
               />
               <SocialPill
-                href={LINKS.linkedin}
+                href={socialLinks.linkedin}
                 icon={<IcoLinkedIn s={22} />}
                 label="LinkedIn"
                 cls="social-pill-li"
               />
               <SocialPill
-                href={LINKS.whatsapp}
+                href={socialLinks.whatsapp}
                 icon={<IcoWhatsApp s={22} />}
                 label="WhatsApp"
                 cls="social-pill-wa"
@@ -916,13 +907,13 @@ export default function App() {
               }}
             >
               <ContactRow
-                href={`mailto:${LINKS.email}`}
+                href={`mailto:${socialLinks.email}`}
                 icon={<IcoEmail s={18} />}
                 label="E-mail comercial"
-                sub={LINKS.email}
+                sub={socialLinks.email}
               />
               <ContactRow
-                href={LINKS.whatsapp}
+                href={socialLinks.whatsapp}
                 icon={<IcoWhatsApp s={18} />}
                 label="WhatsApp"
                 sub="Atendimento direto"
@@ -977,7 +968,10 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => setIsAdminOpen(true)}
+              onClick={() => {
+                setHasOpenedAdmin(true)
+                setIsAdminOpen(true)
+              }}
               style={{
                 marginTop: 10,
                 padding: "6px 14px",
@@ -1013,18 +1007,26 @@ export default function App() {
         />
       )}
 
-      {/* Modal de Captura de Leads */}
-      <LeadModal
-        isOpen={isLeadModalOpen}
-        onClose={() => setIsLeadModalOpen(false)}
-      />
+      {(hasOpenedLeadModal || hasOpenedAdmin) && (
+        <Suspense fallback={null}>
+          {/* Modal de Captura de Leads */}
+          {hasOpenedLeadModal && (
+            <LeadModal
+              isOpen={isLeadModalOpen}
+              onClose={() => setIsLeadModalOpen(false)}
+            />
+          )}
 
-      {/* Modal do Painel Administrativo & Métricas */}
-      <AdminDashboard
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        onLinksUpdated={refreshLinks}
-      />
+          {/* Modal do Painel Administrativo & Métricas */}
+          {hasOpenedAdmin && (
+            <AdminDashboard
+              isOpen={isAdminOpen}
+              onClose={() => setIsAdminOpen(false)}
+              onLinksUpdated={refreshLinks}
+            />
+          )}
+        </Suspense>
+      )}
     </ErrorBoundary>
   )
 }

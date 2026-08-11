@@ -1,69 +1,99 @@
-import { useState, useEffect } from "react";
-import { saveLead } from "../services/storeService";
+import { useState, useEffect } from "react"
+import { saveLead } from "../services/storeService"
 
 interface LeadModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 function formatWhatsApp(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  const digits = value.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
 }
 
 export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
-  const [name, setName] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [name, setName] = useState("")
+  const [whatsapp, setWhatsapp] = useState("")
+  const [email, setEmail] = useState("")
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+      if (e.key === "Escape") onClose()
+    }
     if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown)
+      document.body.style.overflow = "hidden"
     }
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [isOpen, onClose]);
+      window.removeEventListener("keydown", handleKeyDown)
+      document.body.style.overflow = ""
+    }
+  }, [isOpen, onClose])
 
-  if (!isOpen) return null;
+  const [formError, setFormError] = useState<string | null>(null)
+
+  if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !whatsapp) return;
+    e.preventDefault()
+    setFormError(null)
 
-    setLoading(true);
+    // Rate Limiting Cooldown (15 seconds)
+    const lastSubmit = sessionStorage.getItem("grupo_sj_last_lead_submit")
+    if (lastSubmit && Date.now() - parseInt(lastSubmit) < 15000) {
+      setFormError("Por favor, aguarde alguns segundos antes de enviar outra solicitação.")
+      return
+    }
+
+    const trimmedName = name.trim()
+    const rawDigits = whatsapp.replace(/\D/g, "")
+    const trimmedEmail = email.trim()
+
+    if (trimmedName.length < 2) {
+      setFormError("Por favor, insira o seu nome completo.")
+      return
+    }
+
+    if (rawDigits.length < 10 || rawDigits.length > 11) {
+      setFormError("Por favor, insira um número de WhatsApp válido com DDD.")
+      return
+    }
+
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setFormError("Por favor, insira um endereço de e-mail válido.")
+      return
+    }
+
+    setLoading(true)
     try {
       await saveLead({
-        name,
+        name: trimmedName,
         whatsapp,
-        email,
-        message: message || "Solicitação de contato via Link na Bio",
-      });
-      setSuccess(true);
+        email: trimmedEmail,
+        message: message.trim() || "Solicitação de contato via Link na Bio",
+      })
+      sessionStorage.setItem("grupo_sj_last_lead_submit", Date.now().toString())
+      setSuccess(true)
       setTimeout(() => {
-        setSuccess(false);
-        setName("");
-        setWhatsapp("");
-        setEmail("");
-        setMessage("");
-        onClose();
-      }, 2000);
+        setSuccess(false)
+        setName("")
+        setWhatsapp("")
+        setEmail("")
+        setMessage("")
+        onClose()
+      }, 2000)
     } catch (err) {
-      console.error(err);
+      console.error(err)
+      setFormError("Ocorreu um erro ao enviar sua solicitação. Tente novamente.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div
@@ -105,10 +135,23 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             >
               Atendimento Especial
             </span>
-            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--foreground)" }}>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: 18,
+                fontWeight: 800,
+                color: "var(--foreground)",
+              }}
+            >
               Solicitar Orçamento
             </h3>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted-foreground)" }}>
+            <p
+              style={{
+                margin: "2px 0 0",
+                fontSize: 12,
+                color: "var(--muted-foreground)",
+              }}
+            >
               Preencha os dados abaixo e nossa equipe entrará em contato.
             </p>
           </div>
@@ -156,14 +199,51 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             <h4 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 800 }}>
               Solicitação Enviada!
             </h4>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--muted-foreground)" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                color: "var(--muted-foreground)",
+              }}
+            >
               Obrigado! Entraremos em contato via WhatsApp em breve.
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 18 }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              paddingTop: 18,
+            }}
+          >
+            {formError && (
+              <div
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  background: "rgba(238, 77, 45, 0.12)",
+                  border: "1px solid rgba(238, 77, 45, 0.3)",
+                  color: "#EE4D2D",
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                ⚠️ {formError}
+              </div>
+            )}
             <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  color: "var(--foreground)",
+                }}
+              >
                 Nome completo *
               </label>
               <input
@@ -186,7 +266,15 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  color: "var(--foreground)",
+                }}
+              >
                 WhatsApp *
               </label>
               <input
@@ -209,7 +297,15 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  color: "var(--foreground)",
+                }}
+              >
                 E-mail (Opcional)
               </label>
               <input
@@ -231,7 +327,15 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  color: "var(--foreground)",
+                }}
+              >
                 Como podemos ajudar?
               </label>
               <textarea
@@ -277,5 +381,5 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -5,23 +5,31 @@ service cloud.firestore {
 
     // Helper function to check if the user is the authorized administrator
     function isAdmin() {
-      return request.auth != null && 
-             request.auth.token.email != null && 
+      return request.auth != null &&
+             request.auth.token.email != null &&
+             request.auth.token.email_verified == true &&
              request.auth.token.email.toLowerCase() == "sjosethiago.r@gmail.com";
     }
 
     // Regras para a coleção de cliques (Analytics)
     match /clicks/{document} {
-      // Qualquer visitante pode registrar um clique (gravação)
-      allow create: if true;
+      // Qualquer visitante pode registrar um clique com dados válidos
+      allow create: if request.resource.data.keys().hasAll(['linkId', 'linkName', 'category', 'timestamp']) &&
+                       request.resource.data.linkId is string && request.resource.data.linkId.size() <= 100 &&
+                       request.resource.data.linkName is string && request.resource.data.linkName.size() <= 200 &&
+                       request.resource.data.category in ['Mercado Livre', 'Shopee', 'Rede Social', 'Contato'] &&
+                       request.resource.data.timestamp is number;
       // Apenas o administrador autorizado pode visualizar ou modificar o histórico
       allow read, update, delete: if isAdmin();
     }
 
     // Regras para a coleção de Leads (Formulário de Solicitação)
     match /leads/{document} {
-      // Qualquer visitante pode enviar um novo lead
-      allow create: if true;
+      // Qualquer visitante pode enviar um novo lead com schema válido
+      allow create: if request.resource.data.keys().hasAll(['name', 'whatsapp', 'createdAt', 'status']) &&
+                       request.resource.data.name is string && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 100 &&
+                       request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() >= 8 && request.resource.data.whatsapp.size() <= 30 &&
+                       request.resource.data.status == 'Novo';
       // Apenas o administrador autorizado pode visualizar ou alterar o status do lead
       allow read, update, delete: if isAdmin();
     }
