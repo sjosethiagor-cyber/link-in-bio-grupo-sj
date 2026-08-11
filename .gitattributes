@@ -149,3 +149,4 @@ src/imports/* !filter !diff !merge
 
 # Exclude local UI image assets from Git LFS so Vercel builds include binary image files directly
 src/imports/* !filter !diff !merge
+public/* !filter !diff !merge
