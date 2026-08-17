@@ -36,6 +36,16 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
   }, [isOpen, onClose])
 
   const [formError, setFormError] = useState<string | null>(null)
+  // Anti-bot honeypot and timing
+  const [honeypot, setHoneypot] = useState("")
+  const [modalOpenTime, setModalOpenTime] = useState<number>(Date.now())
+
+  useEffect(() => {
+    if (isOpen) {
+      setModalOpenTime(Date.now())
+      setHoneypot("")
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -43,16 +53,34 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
     e.preventDefault()
     setFormError(null)
 
+    // Honeypot check: If filled, quietly reject bot
+    if (honeypot.trim().length > 0) {
+      setSuccess(true)
+      setTimeout(() => {
+        setSuccess(false)
+        onClose()
+      }, 1500)
+      return
+    }
+
+    // Bot submission speed check (must take at least 1.5 seconds)
+    if (Date.now() - modalOpenTime < 1500) {
+      setFormError("Por favor, preencha as informações com calma.")
+      return
+    }
+
     // Rate Limiting Cooldown (15 seconds)
     const lastSubmit = sessionStorage.getItem("grupo_sj_last_lead_submit")
     if (lastSubmit && Date.now() - parseInt(lastSubmit) < 15000) {
-      setFormError("Por favor, aguarde alguns segundos antes de enviar outra solicitação.")
+      setFormError(
+        "Por favor, aguarde alguns segundos antes de enviar outra solicitação.",
+      )
       return
     }
 
     const trimmedName = name.trim()
     const rawDigits = whatsapp.replace(/\D/g, "")
-    const trimmedEmail = email.trim()
+    const trimmedEmail = email.trim().toLowerCase()
 
     if (trimmedName.length < 2) {
       setFormError("Por favor, insira o seu nome completo.")
@@ -64,7 +92,13 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
       return
     }
 
-    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+    // RFC-compliant email regex
+    if (
+      trimmedEmail &&
+      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(
+        trimmedEmail,
+      )
+    ) {
       setFormError("Por favor, insira um endereço de e-mail válido.")
       return
     }
@@ -89,7 +123,9 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
       }, 2000)
     } catch (err) {
       console.error(err)
-      setFormError("Ocorreu um erro ao enviar sua solicitação. Tente novamente.")
+      setFormError(
+        "Ocorreu um erro ao enviar sua solicitação. Tente novamente.",
+      )
     } finally {
       setLoading(false)
     }
@@ -219,6 +255,29 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
               paddingTop: 18,
             }}
           >
+            {/* Honeypot field for bot/crawler spam protection */}
+            <div
+              aria-hidden="true"
+              style={{
+                opacity: 0,
+                position: "absolute",
+                top: 0,
+                left: 0,
+                height: 0,
+                width: 0,
+                zIndex: -1,
+                pointerEvents: "none",
+              }}
+            >
+              <input
+                type="text"
+                name="user_website_trap"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
             {formError && (
               <div
                 style={{

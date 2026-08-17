@@ -53,7 +53,13 @@ export function sanitizeUrl(url: string): string {
     return "https://www.mercadolivre.com.br"
   }
   try {
-    const parsed = new URL(trimmed.startsWith("http") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:") ? trimmed : "https://" + trimmed)
+    const parsed = new URL(
+      trimmed.startsWith("http") ||
+        trimmed.startsWith("mailto:") ||
+        trimmed.startsWith("tel:")
+        ? trimmed
+        : "https://" + trimmed,
+    )
     if (["http:", "https:", "mailto:", "tel:"].includes(parsed.protocol)) {
       return parsed.toString().slice(0, 1000)
     }
@@ -193,7 +199,8 @@ export async function getClicks(): Promise<ClickEvent[]> {
 
   try {
     const { getClicksFromFirebase } = await import("./firebaseStoreService")
-    firebaseClicks = await getClicksFromFirebase()
+    const result = await getClicksFromFirebase()
+    firebaseClicks = result.clicks
   } catch (err) {
     console.warn("Firestore getClicks fallback to localStorage:", err)
   }
@@ -229,12 +236,15 @@ export async function saveLead(data: {
     createdAt: Date.now(),
   }
 
-  // Local Storage
+  // Local Storage (limit to most recent 100 leads to prevent quota exhaustion)
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.LEADS)
     const existing: Lead[] = raw ? JSON.parse(raw) : []
     existing.unshift(newLead)
-    localStorage.setItem(LOCAL_STORAGE_KEYS.LEADS, JSON.stringify(existing))
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.LEADS,
+      JSON.stringify(existing.slice(0, 100)),
+    )
   } catch (err) {
     console.error("Local storage saveLead error:", err)
   }
@@ -337,9 +347,13 @@ export function saveStoredMLStoreLinks(links: StoreLink[]) {
       href: sanitizeUrl(l.href),
     }))
     localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_ML, JSON.stringify(sanitized))
-    import("./firebaseStoreService").then(({ saveMLStoreLinksInFirebase }) => {
-      saveMLStoreLinksInFirebase(sanitized)
-    }).catch(err => console.warn("Firestore saveMLStoreLinksInFirebase error:", err))
+    import("./firebaseStoreService")
+      .then(({ saveMLStoreLinksInFirebase }) => {
+        saveMLStoreLinksInFirebase(sanitized)
+      })
+      .catch((err) =>
+        console.warn("Firestore saveMLStoreLinksInFirebase error:", err),
+      )
   } catch (e) {
     console.error(e)
   }
@@ -348,7 +362,9 @@ export function saveStoredMLStoreLinks(links: StoreLink[]) {
 export async function getMLStoreLinks(): Promise<StoreLink[]> {
   const local = getStoredMLStoreLinks()
   try {
-    const { getMLStoreLinksFromFirebase } = await import("./firebaseStoreService")
+    const { getMLStoreLinksFromFirebase } = await import(
+      "./firebaseStoreService"
+    )
     const cloud = await getMLStoreLinksFromFirebase()
     if (cloud && cloud.length > 0) {
       localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_ML, JSON.stringify(cloud))
@@ -369,9 +385,13 @@ export function saveStoredShopeeStoreLinks(links: StoreLink[]) {
       href: sanitizeUrl(l.href),
     }))
     localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_SP, JSON.stringify(sanitized))
-    import("./firebaseStoreService").then(({ saveShopeeStoreLinksInFirebase }) => {
-      saveShopeeStoreLinksInFirebase(sanitized)
-    }).catch(err => console.warn("Firestore saveShopeeStoreLinksInFirebase error:", err))
+    import("./firebaseStoreService")
+      .then(({ saveShopeeStoreLinksInFirebase }) => {
+        saveShopeeStoreLinksInFirebase(sanitized)
+      })
+      .catch((err) =>
+        console.warn("Firestore saveShopeeStoreLinksInFirebase error:", err),
+      )
   } catch (e) {
     console.error(e)
   }
@@ -380,7 +400,9 @@ export function saveStoredShopeeStoreLinks(links: StoreLink[]) {
 export async function getShopeeStoreLinks(): Promise<StoreLink[]> {
   const local = getStoredShopeeStoreLinks()
   try {
-    const { getShopeeStoreLinksFromFirebase } = await import("./firebaseStoreService")
+    const { getShopeeStoreLinksFromFirebase } = await import(
+      "./firebaseStoreService"
+    )
     const cloud = await getShopeeStoreLinksFromFirebase()
     if (cloud && cloud.length > 0) {
       localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_SP, JSON.stringify(cloud))
@@ -424,9 +446,13 @@ export function saveStoredSocialLinks(socialLinks: SocialLinks) {
       LOCAL_STORAGE_KEYS.SOCIAL_LINKS,
       JSON.stringify(sanitized),
     )
-    import("./firebaseStoreService").then(({ saveSocialLinksInFirebase }) => {
-      saveSocialLinksInFirebase(sanitized)
-    }).catch(err => console.warn("Firestore saveSocialLinksInFirebase error:", err))
+    import("./firebaseStoreService")
+      .then(({ saveSocialLinksInFirebase }) => {
+        saveSocialLinksInFirebase(sanitized)
+      })
+      .catch((err) =>
+        console.warn("Firestore saveSocialLinksInFirebase error:", err),
+      )
   } catch (e) {
     console.error(e)
   }
@@ -435,10 +461,15 @@ export function saveStoredSocialLinks(socialLinks: SocialLinks) {
 export async function getSocialLinks(): Promise<SocialLinks> {
   const local = getStoredSocialLinks()
   try {
-    const { getSocialLinksFromFirebase } = await import("./firebaseStoreService")
+    const { getSocialLinksFromFirebase } = await import(
+      "./firebaseStoreService"
+    )
     const cloud = await getSocialLinksFromFirebase()
     if (cloud) {
-      localStorage.setItem(LOCAL_STORAGE_KEYS.SOCIAL_LINKS, JSON.stringify(cloud))
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.SOCIAL_LINKS,
+        JSON.stringify(cloud),
+      )
       return cloud
     }
   } catch (err) {

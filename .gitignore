@@ -12,3 +12,7 @@ logs/
 .claude-replay.*
 .tmp-*
 .kombai/
+.firebase/
+scratch/
+functions/node_modules/
+functions/lib/

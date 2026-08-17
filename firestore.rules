@@ -3,12 +3,33 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user is the authorized administrator
-    function isAdmin() {
+    // Helper: verifica se o usuário é o proprietário principal (Master)
+    function isOwner() {
       return request.auth != null &&
              request.auth.token.email != null &&
              request.auth.token.email_verified == true &&
              request.auth.token.email == "sjosethiago.r@gmail.com";
+    }
+
+    function isAdmin() {
+      return isOwner();
+    }
+
+    // Helper: verifica se o usuário autenticado possui acesso aprovado (como Leitor ou Administrador)
+    function isDashboardUser() {
+      return isOwner() ||
+             (request.auth != null &&
+              request.auth.token.email != null &&
+              request.auth.token.email_verified == true &&
+              exists(/databases/$(database)/documents/dashboard_users/$(request.auth.token.email)) &&
+              get(/databases/$(database)/documents/dashboard_users/$(request.auth.token.email)).data.status == 'approved');
+    }
+
+    // Helper: verifica se o usuário possui cargo de Administrador (pode editar links e leads)
+    function isDashboardAdmin() {
+      return isOwner() ||
+             (isDashboardUser() &&
+              get(/databases/$(database)/documents/dashboard_users/$(request.auth.token.email)).data.role == 'admin');
     }
 
     // Regras para a coleção de cliques (Analytics)
@@ -19,29 +40,67 @@ service cloud.firestore {
                        request.resource.data.linkId is string && request.resource.data.linkId.size() <= 100 &&
                        request.resource.data.linkName is string && request.resource.data.linkName.size() <= 200 &&
                        request.resource.data.category in ['Mercado Livre', 'Shopee', 'Rede Social', 'Contato'] &&
-                       request.resource.data.timestamp is number;
-      // Apenas o administrador autorizado pode visualizar ou modificar o histórico
-      allow read, update, delete: if isAdmin();
+                       request.resource.data.timestamp is number &&
+                       request.resource.data.timestamp > 1700000000000;
+      // Administradores e Leitores aprovados podem visualizar métricas
+      allow read: if isDashboardUser();
+      // Apenas administradores podem modificar ou deletar cliques
+      allow update, delete: if isDashboardAdmin();
     }
 
     // Regras para a coleção de Leads (Formulário de Solicitação)
     match /leads/{document} {
-      // Qualquer visitante pode enviar um novo lead com schema válido
+      // Qualquer visitante pode enviar um novo lead com schema válido e limites de tamanho
       allow create: if request.resource.data.keys().hasAll(['name', 'whatsapp', 'createdAt', 'status']) &&
                        request.resource.data.keys().hasOnly(['id', 'name', 'whatsapp', 'email', 'message', 'createdAt', 'createdAtServer', 'status']) &&
                        request.resource.data.name is string && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 200 &&
                        request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() >= 8 && request.resource.data.whatsapp.size() <= 60 &&
+                       (!('email' in request.resource.data) || (request.resource.data.email is string && request.resource.data.email.size() <= 150)) &&
+                       (!('message' in request.resource.data) || (request.resource.data.message is string && request.resource.data.message.size() <= 1500)) &&
+                       request.resource.data.createdAt is number &&
+                       request.resource.data.createdAt > 1700000000000 &&
                        request.resource.data.status == 'Novo';
-      // Apenas o administrador autorizado pode visualizar ou alterar o status do lead
-      allow read, update, delete: if isAdmin();
+      // Usuários com acesso aprovado (Leitores e Administradores) podem ler a lista de leads
+      allow read: if isDashboardUser();
+      // Apenas Administradores podem atualizar o status ou excluir leads
+      allow update, delete: if isDashboardAdmin();
     }
 
     // Regras para a coleção de Links do CMS
     match /links/{document} {
       // Todos os visitantes podem ler os links para navegar no site
       allow read: if true;
-      // Apenas o administrador autorizado pode criar, editar ou apagar links
-      allow write: if isAdmin();
+      // Apenas Administradores podem criar, editar ou apagar links
+      allow write: if isDashboardAdmin();
+    }
+
+    // Regras para a coleção de controle de acesso ao Dashboard
+    match /dashboard_users/{email} {
+      // O proprietário pode gerenciar todos os registros.
+      // Usuários autenticados podem ler o próprio registro para verificar status e cargo.
+      allow read: if isOwner() ||
+                     (request.auth != null &&
+                      request.auth.token.email != null &&
+                      request.auth.token.email_verified == true &&
+                      request.auth.token.email == email);
+
+      // Qualquer conta Google autenticada pode criar uma solicitação de acesso inicial com status 'pending' e role 'viewer'
+      allow create: if isOwner() ||
+                       (request.auth != null &&
+                        request.auth.token.email != null &&
+                        request.auth.token.email_verified == true &&
+                        request.auth.token.email == email &&
+                        request.resource.data.email == email &&
+                        request.resource.data.status == 'pending' &&
+                        (!('role' in request.resource.data) || request.resource.data.role == 'viewer'));
+
+      // Apenas o proprietário Master pode aprovar, conceder cargo (admin/viewer) ou remover acessos
+      allow update, delete: if isOwner();
+    }
+
+    // ── Catch-all: deny tudo que não foi explicitamente permitido ──
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

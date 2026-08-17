@@ -1,0 +1,1156 @@
+/* ─────────────────────────────────────────────────────────
+   DASHBOARD PORTAL PREMIUM THEME SYSTEM (LIGHT/DARK)
+   ───────────────────────────────────────────────────────── */
+
+.dashboard-portal-theme {
+  /* ── Elevation layers (light): each step is 2 Lch brighter ── */
+  --bg-main:    #eef2f7;   /* Page canvas — slate-100 tint */
+  --bg-sidebar: #f8fafc;   /* Sidebar — 1 step above canvas */
+  --bg-card:    #ffffff;   /* Cards — brightest surface */
+  --bg-input:   #f8fafc;   /* Input fields */
+  --bg-sunken:  #e2e8f0;   /* Sunken / inset areas */
+
+  /* ── Typography ── */
+  --text-title:  #0f172a;  /* Headings — slate-900 */
+  --text-main:   #1e293b;  /* Body — slate-800 */
+  --text-muted:  #475569;  /* Supporting — slate-600 */
+  --text-faint:  #94a3b8;  /* Placeholder — slate-400 */
+
+  /* ── Borders ── */
+  --border-color:  #cbd5e1; /* Default border — slate-300 */
+  --border-subtle: #e2e8f0; /* Subtle divider — slate-200 */
+  --border-focus:  #e8451f; /* Brand focus ring */
+
+  /* ── Interactive ── */
+  --hover-bg:  #f1f5f9;   /* Hover layer */
+  --active-bg: #e2e8f0;   /* Active / pressed layer */
+
+  /* ── Shadows ── */
+  --shadow-color:       rgba(15, 23, 42, 0.06);
+  --shadow-color-hover: rgba(15, 23, 42, 0.12);
+  --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.05);
+  --shadow-md:  0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+  --shadow-lg:  0 10px 24px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.05);
+  --shadow-card: 0 1px 4px rgba(15,23,42,0.06), 0 4px 16px rgba(15,23,42,0.05);
+
+  /* ── Sidebar ── */
+  --sidebar-active-bg:   #1e293b;
+  --sidebar-active-text: #ffffff;
+
+  /* ── Misc ── */
+  --search-bg:     #f1f5f9;
+  --chart-bar-dark: #334155;
+
+  /* ── Status badges — WCAG AA (≥4.5:1) ── */
+  --bg-completed:   #ecfdf5; --text-completed: #065f46; --border-completed: #a7f3d0;
+  --bg-pending:     #fffbeb; --text-pending:   #92400e; --border-pending:   #fde68a;
+  --bg-progress:    #eff6ff; --text-progress:  #1e40af; --border-progress:  #bfdbfe;
+
+  /* ── ad-gray scale ── */
+  --ad-gray-0:   #f1f5f9;
+  --ad-gray-25:  #ffffff;
+  --ad-gray-50:  #f8fafc;
+  --ad-gray-100: #cbd5e1;
+  --ad-gray-150: #94a3b8;
+  --ad-gray-200: #334155;
+  --ad-gray-300: #1e293b;
+  --ad-gray-400: #475569;
+  --ad-gray-600: #0f172a;
+  --ad-gray-700: #0f172a;
+  --ad-gray-900: #000000;
+
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.dashboard-portal-theme.dark-theme {
+  /* ── Elevation layers (dark): each step is brighter ── */
+  --bg-main:    #0d1117;   /* Deepest canvas — near black */
+  --bg-sidebar: #161b22;   /* Sidebar — 1 step up */
+  --bg-card:    #1f2937;   /* Cards — visible raised surface */
+  --bg-input:   #161b22;   /* Input fields */
+  --bg-sunken:  #0d1117;   /* Inset / sunken areas */
+
+  /* ── Typography ── */
+  --text-title:  #f8fafc;  /* Headings */
+  --text-main:   #e2e8f0;  /* Body */
+  --text-muted:  #94a3b8;  /* Supporting */
+  --text-faint:  #64748b;  /* Placeholder */
+
+  /* ── Borders ── */
+  --border-color:  #374151; /* Default */
+  --border-subtle: #1f2937; /* Subtle */
+  --border-focus:  #e8451f;
+
+  /* ── Interactive ── */
+  --hover-bg:  #1f2937;
+  --active-bg: #374151;
+
+  /* ── Shadows (dark — rely on elevation, not color) ── */
+  --shadow-color:       rgba(0, 0, 0, 0.3);
+  --shadow-color-hover: rgba(0, 0, 0, 0.5);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-lg:  0 10px 24px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.2);
+
+  /* ── Sidebar ── */
+  --sidebar-active-bg:   #1e293b;
+  --sidebar-active-text: #ffffff;
+
+  /* ── Misc ── */
+  --search-bg:     #161b22;
+  --chart-bar-dark: #e2e8f0;
+
+  /* ── Status badges — dark — WCAG AA ── */
+  --bg-completed:   rgba(16,185,129,0.12); --text-completed: #34d399; --border-completed: rgba(16,185,129,0.25);
+  --bg-pending:     rgba(245,158,11,0.12); --text-pending:   #fbbf24; --border-pending:   rgba(245,158,11,0.25);
+  --bg-progress:    rgba(59,130,246,0.12); --text-progress:  #60a5fa; --border-progress:  rgba(59,130,246,0.25);
+
+  /* ── ad-gray scale ── */
+  --ad-gray-0:   #0d1117;
+  --ad-gray-25:  #161b22;
+  --ad-gray-50:  #1f2937;
+  --ad-gray-100: #374151;
+  --ad-gray-150: #4b5563;
+  --ad-gray-200: #94a3b8;
+  --ad-gray-300: #cbd5e1;
+  --ad-gray-400: #94a3b8;
+  --ad-gray-600: #f1f5f9;
+  --ad-gray-700: #f1f5f9;
+  --ad-gray-900: #ffffff;
+}
+
+/* ── Sidebar Styling ── */
+.dashboard-portal-theme .dashboard-sidebar {
+  width: 90px;
+  background-color: var(--bg-sidebar);
+  border-right: 1.5px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0;
+  flex-shrink: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  box-shadow: 1px 0 0 var(--border-subtle);
+}
+
+.dashboard-portal-theme .sidebar-icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.dashboard-portal-theme .sidebar-icon-btn:hover {
+  color: var(--text-title);
+  background-color: var(--hover-bg);
+  transform: scale(1.04);
+}
+
+.dashboard-portal-theme .sidebar-icon-btn:active {
+  transform: scale(0.96);
+  background-color: var(--active-bg);
+}
+
+.dashboard-portal-theme .sidebar-icon-btn.active {
+  color: var(--sidebar-active-text);
+  background-color: var(--sidebar-active-bg);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.18);
+}
+
+.dashboard-portal-theme .sidebar-icon-btn.active::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, #ff7a59, #e8451f);
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── Header Styling ── */
+.dashboard-portal-theme .dashboard-header {
+  background-color: var(--bg-sidebar);
+  border-bottom: 1.5px solid var(--border-color);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 1px 0 var(--border-subtle), var(--shadow-sm);
+}
+
+.dashboard-portal-theme .dashboard-header h1 {
+  color: var(--text-title);
+}
+
+.dashboard-portal-theme .dashboard-search-bar {
+  background-color: var(--search-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 99px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 260px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.dashboard-portal-theme .dashboard-search-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-main);
+  width: 100%;
+}
+
+.dashboard-portal-theme .dashboard-search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Content View Grid Overhaul ── */
+.dashboard-portal-theme .dashboard-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard-portal-theme .metrics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-portal-theme .metrics-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-portal-theme .metrics-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-portal-theme .metrics-body-layout {
+  display: grid;
+  grid-template-columns: 2fr 1.1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-portal-theme .metrics-body-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Stat Card */
+.dashboard-portal-theme .stat-card {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 18px;
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.2s cubic-bezier(0.16,1,0.3,1),
+              background-color 0.3s ease,
+              border-color 0.3s ease;
+}
+
+.dashboard-portal-theme .stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-color);
+}
+
+.dashboard-portal-theme .stat-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.dashboard-portal-theme .stat-card:hover .stat-icon-wrapper {
+  transform: scale(1.12) rotate(6deg);
+}
+
+/* Avatars for Lead initials */
+.dashboard-portal-theme .avatar-initials {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  color: #ffffff;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.dashboard-portal-theme .premium-card {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.2s cubic-bezier(0.16,1,0.3,1),
+              background-color 0.3s ease,
+              border-color 0.3s ease;
+}
+
+.dashboard-portal-theme .premium-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-color);
+}
+
+.dashboard-portal-theme .premium-card h3,
+.dashboard-portal-theme .premium-card h4 {
+  color: var(--text-title);
+  font-weight: 800;
+}
+
+/* ── Custom Bar Chart ── */
+.dashboard-portal-theme .chart-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 200px;
+  padding: 16px 8px 8px;
+  position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: border-color 0.3s ease;
+}
+
+.dashboard-portal-theme .chart-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dashboard-portal-theme .chart-bar-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+}
+
+.dashboard-portal-theme .chart-bar-orange {
+  width: 10px;
+  background: linear-gradient(180deg, #ff7a59 0%, #e8451f 100%);
+  border-radius: 99px 99px 0 0;
+  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, filter 0.2s ease;
+  min-height: 4px;
+  cursor: pointer;
+}
+
+.dashboard-portal-theme .chart-bar-dark {
+  width: 10px;
+  background-color: var(--chart-bar-dark);
+  border-radius: 99px 99px 0 0;
+  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, transform 0.2s ease, filter 0.2s ease;
+  min-height: 4px;
+  cursor: pointer;
+}
+
+.dashboard-portal-theme .chart-bar-orange:hover,
+.dashboard-portal-theme .chart-bar-dark:hover {
+  filter: brightness(1.15);
+  transform: scaleY(1.05);
+}
+
+.dashboard-portal-theme .chart-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ── Mock Credit Card ── */
+.dashboard-portal-theme .credit-card {
+  height: 170px;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.dashboard-portal-theme .credit-card.card-black {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+.dashboard-portal-theme .credit-card.card-orange {
+  background: linear-gradient(135deg, #ff7a59 0%, #e8451f 100%);
+}
+
+.dashboard-portal-theme .credit-card .card-chip {
+  width: 32px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  position: relative;
+}
+
+.dashboard-portal-theme .credit-card .card-chip::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 10px;
+  right: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.dashboard-portal-theme .credit-card .card-number {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.dashboard-portal-theme .credit-card .card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-portal-theme .credit-card .card-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dashboard-portal-theme .credit-card .card-value {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Modern Table Styling ── */
+.dashboard-portal-theme .modern-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-portal-theme .modern-table th {
+  padding: 11px 16px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1.5px solid var(--border-color);
+  transition: border-color 0.3s ease;
+  background-color: var(--bg-sunken);
+}
+
+.dashboard-portal-theme .modern-table td {
+  padding: 13px 16px;
+  font-size: 13px;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: border-color 0.3s ease, color 0.3s ease;
+  vertical-align: middle;
+}
+
+.dashboard-portal-theme .modern-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.dashboard-portal-theme .modern-table tbody tr:hover {
+  background-color: var(--hover-bg);
+}
+
+/* ── Status Badges — WCAG AA compliant ── */
+.dashboard-portal-theme .badge-completed {
+  background-color: var(--bg-completed);
+  color: var(--text-completed);
+  border: 1.5px solid var(--border-completed);
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.dashboard-portal-theme .badge-pending {
+  background-color: var(--bg-pending);
+  color: var(--text-pending);
+  border: 1.5px solid var(--border-pending);
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.dashboard-portal-theme .badge-progress {
+  background-color: var(--bg-progress);
+  color: var(--text-progress);
+  border: 1.5px solid var(--border-progress);
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+/* ── Inputs / Selects / Textareas ── */
+.dashboard-portal-theme input,
+.dashboard-portal-theme select,
+.dashboard-portal-theme textarea {
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: background-color 0.2s ease, color 0.2s ease,
+              border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-portal-theme input::placeholder,
+.dashboard-portal-theme textarea::placeholder {
+  color: var(--text-faint);
+}
+
+.dashboard-portal-theme input:hover,
+.dashboard-portal-theme select:hover,
+.dashboard-portal-theme textarea:hover {
+  border-color: var(--border-color);
+}
+
+.dashboard-portal-theme input:focus,
+.dashboard-portal-theme select:focus,
+.dashboard-portal-theme textarea:focus {
+  border-color: #e8451f;
+  box-shadow: 0 0 0 3px rgba(232, 69, 31, 0.12);
+  background-color: var(--bg-card);
+}
+
+/* ─── CENTRAL DE ANUNCIOS LIGHT/DARK THEME OVERRIDES ─── */
+.dashboard-portal-theme .central-ads-wrapper {
+  --gray-0: var(--ad-gray-0);
+  --gray-25: var(--ad-gray-25);
+  --gray-50: var(--ad-gray-50);
+  --gray-100: var(--ad-gray-100);
+  --gray-150: var(--ad-gray-150);
+  --gray-200: var(--ad-gray-200);
+  --gray-300: var(--ad-gray-300);
+  --gray-400: var(--ad-gray-400);
+  --gray-600: var(--ad-gray-600);
+  --gray-700: var(--ad-gray-700);
+  --gray-900: var(--ad-gray-900);
+  
+  --surface-base: var(--gray-0);
+  --surface-raised: var(--gray-25);
+  --surface-sunken: var(--gray-50);
+  --surface-border: var(--gray-100);
+  --surface-border-subtle: rgba(0, 0, 0, 0.05);
+  
+  --text-primary: var(--gray-700);
+  --text-secondary: var(--gray-200);
+  --text-tertiary: var(--gray-300);
+  --text-disabled: var(--gray-400);
+
+  /* High contrast brand orange/red variables in Light Mode */
+  --blue-50:  #fff5f2;
+  --blue-100: #ffe4dc;
+  --blue-200: #ffc4b3;
+  --blue-400: #d03512; /* darker for text contrast */
+  --blue-500: #e8451f;
+  --blue-600: #c83214;
+  --blue-700: #a8240c;
+  
+  /* ── Marketplace — Light mode overrides ── */
+  /* These override the dark-mode defaults in CentralDeAnuncios.css */
+
+  /* ML logo color — amber-400 visible on light bg */
+  --ml-accent:  #f59e0b;  /* amber-400 */
+  --ml-text:    #ffffff;
+
+  /* ML active (light) — amber tones, dark text for WCAG AA */
+  --ml-active-border: #92400e;  /* amber-800: visible border */
+  --ml-active-bg:     #fef9c3;  /* yellow-100 */
+  --ml-active-shadow: rgba(146, 64, 14, 0.12);
+  --ml-active-text:   #78350f;  /* amber-900: 7:1 on yellow-100 */
+  --ml-badge-bg:      #fde68a;  /* amber-200 */
+  --ml-badge-text:    #78350f;  /* amber-900: 5.6:1 on amber-200 */
+  --ml-badge-border:  #d97706;  /* amber-600 */
+
+  /* Shopee active (light) — orange tones, dark text for WCAG AA */
+  --shopee-active-border: #c2410c;  /* orange-700 */
+  --shopee-active-bg:     #fff7ed;  /* orange-50 */
+  --shopee-active-shadow: rgba(194, 65, 12, 0.12);
+  --shopee-active-text:   #9a3412;  /* orange-800: 7.4:1 on orange-50 */
+  --shopee-badge-bg:      #fed7aa;  /* orange-200 */
+  --shopee-badge-text:    #7c2d12;  /* orange-900: 6.3:1 on orange-200 */
+  --shopee-badge-border:  #ea580c;  /* orange-600 */
+
+  /* Shopee logo stays orange-red */
+  --shopee-accent: #e03a1a;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.03);
+}
+
+.dashboard-portal-theme.dark-theme .central-ads-wrapper {
+  --gray-0: var(--ad-gray-0);
+  --gray-25: var(--ad-gray-25);
+  --gray-50: var(--ad-gray-50);
+  --gray-100: var(--ad-gray-100);
+  --gray-150: var(--ad-gray-150);
+  --gray-200: var(--ad-gray-200);
+  --gray-300: var(--ad-gray-300);
+  --gray-400: var(--ad-gray-400);
+  --gray-600: var(--ad-gray-600);
+  --gray-700: var(--ad-gray-700);
+  --gray-900: var(--ad-gray-900);
+  
+  --surface-base: var(--gray-0);
+  --surface-raised: var(--gray-25);
+  --surface-sunken: var(--gray-50);
+  --surface-border: var(--gray-100);
+  --surface-border-subtle: rgba(255, 255, 255, 0.04);
+  
+  --text-primary: var(--gray-700);
+  --text-secondary: var(--gray-200);
+  --text-tertiary: var(--gray-300);
+  --text-disabled: var(--gray-400);
+
+  /* Brand — Orange/Red values for Dark Theme */
+  --blue-50:  rgba(232, 69, 31, 0.15);
+  --blue-100: rgba(232, 69, 31, 0.25);
+  --blue-200: rgba(232, 69, 31, 0.4);
+  --blue-400: #ff8b6c;
+  --blue-500: #e8451f;
+  --blue-600: #c83214;
+  --blue-700: #a8240c;
+
+  /* Marketplace variables for Dark Theme */
+  --ml-bg:      rgba(255, 230, 0, 0.08);
+  --ml-accent:  #ffe600;
+  --ml-text:    #ffffff;
+
+  --shopee-bg:  rgba(238, 77, 45, 0.08);
+  --shopee-accent: #ee4d2d;
+  --shopee-text:   #ffffff;
+}
+
+/* Sidebar Product Search & Category Filters overrides */
+.dashboard-portal-theme .central-ads-wrapper .search {
+  background-color: var(--bg-input);
+  border: 1.5px solid var(--border-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .search input {
+  color: var(--text-main);
+}
+.dashboard-portal-theme .central-ads-wrapper .category-select {
+  background-color: var(--bg-input);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+}
+.dashboard-portal-theme .central-ads-wrapper .filter-row {
+  background-color: var(--bg-sunken);
+  border: 1.5px solid var(--border-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .filter {
+  color: var(--text-muted);
+}
+.dashboard-portal-theme .central-ads-wrapper .filter.active {
+  background-color: var(--bg-card);
+  color: #e8451f;
+  border: 1px solid var(--border-color);
+}
+
+/* Notice Box Override */
+.dashboard-portal-theme .central-ads-wrapper .notice {
+  background: #fff7ed;
+  border: 2px solid #fb923c; /* orange-400 */
+  color: #9a3412; /* orange-800: 7.1:1 contrast ratio */
+}
+.dashboard-portal-theme .central-ads-wrapper .notice span {
+  background: #e8451f;
+  color: #ffffff;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .notice {
+  background: rgba(232, 69, 31, 0.1);
+  border: 1px solid rgba(232, 69, 31, 0.3);
+  color: #ff8b6c;
+}
+
+/* ── Market Tabs: LIGHT MODE override ──────────────────
+   All active-state colors come from CSS variables already
+   set in .dashboard-portal-theme .central-ads-wrapper {}.
+   We only need to override the INACTIVE base style to be
+   light-theme appropriate (white card, visible gray border).
+   ─────────────────────────────────────────────────────── */
+.dashboard-portal-theme .central-ads-wrapper .market-tabs button {
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+/* Inactive tab label — readable dark */
+.dashboard-portal-theme .central-ads-wrapper .market-tabs button .market-tab-left strong {
+  color: var(--text-main);
+}
+
+/* Inactive badge pill — light gray, readable */
+.dashboard-portal-theme .central-ads-wrapper .market-tabs .market-tab-badge {
+  background: #f1f5f9;    /* slate-100 */
+  color: #475569;         /* slate-600: 4.6:1 */
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Dark theme: all colors come from the base token variables already — no overrides needed */
+
+
+/* Product Cards in Sidebar Override */
+.dashboard-portal-theme .central-ads-wrapper .product-item {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .product-item:hover {
+  border-color: #e8451f;
+  box-shadow: 0 4px 12px var(--shadow-color-hover);
+}
+.dashboard-portal-theme .central-ads-wrapper .product-item.selected {
+  background-color: var(--bg-sunken);
+  border-color: #e8451f;
+  border-width: 2px;
+  box-shadow: 0 4px 12px rgba(232, 69, 31, 0.08);
+}
+.dashboard-portal-theme .central-ads-wrapper .product-info strong {
+  color: var(--text-title);
+  font-weight: 750;
+}
+.dashboard-portal-theme .central-ads-wrapper .product-info small {
+  color: var(--text-muted);
+}
+
+/* Copy Cards Override */
+.dashboard-portal-theme .central-ads-wrapper .copy-card {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px var(--shadow-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .copy-card .card-heading-title h3 {
+  color: var(--text-title);
+  font-weight: 800;
+}
+
+/* SKU/EAN Code Row Override */
+.dashboard-portal-theme .central-ads-wrapper .sku-copy-row {
+  background-color: var(--bg-sunken);
+  border: 1.5px solid var(--border-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .sku-copy-row code {
+  color: #e8451f;
+}
+.dashboard-portal-theme .central-ads-wrapper .sku-copy-row button {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+.dashboard-portal-theme .central-ads-wrapper .sku-copy-row button:hover {
+  background-color: #e8451f;
+  color: white !important;
+  border-color: #e8451f;
+}
+
+/* Title list options Override */
+.dashboard-portal-theme .central-ads-wrapper .title-option-row {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .title-option-row:hover {
+  background-color: var(--bg-sunken);
+  border-color: #e8451f;
+}
+.dashboard-portal-theme .central-ads-wrapper .title-option-row.selected {
+  background-color: var(--blue-50);
+  border-color: var(--blue-400);
+  box-shadow: 0 0 0 1px var(--blue-400);
+}
+.dashboard-portal-theme .central-ads-wrapper .title-text {
+  color: var(--text-title);
+  font-weight: 700;
+}
+.dashboard-portal-theme .central-ads-wrapper .title-number {
+  background-color: var(--blue-100);
+  color: var(--blue-400);
+}
+
+/* Individual Copy Button Style for Title Rows */
+.dashboard-portal-theme .central-ads-wrapper .title-option-actions .copy-btn {
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.dashboard-portal-theme .central-ads-wrapper .title-option-actions .copy-btn:hover {
+  background-color: #e8451f;
+  color: white !important;
+  border-color: #e8451f;
+}
+.dashboard-portal-theme .central-ads-wrapper .title-option-actions .copy-btn.copied {
+  background-color: #10b981;
+  color: white !important;
+  border-color: #10b981;
+  animation: checkmark-pop var(--duration-base) var(--ease-out);
+}
+
+/* Validation badges contrast override in Light Mode */
+.dashboard-portal-theme .central-ads-wrapper .validation-badge.ok {
+  color: #047857; /* Emerald 700 */
+  background-color: #d1fae5; /* Emerald 100 */
+  border-color: #a7f3d0;
+}
+.dashboard-portal-theme .central-ads-wrapper .validation-badge.warning {
+  color: #b45309; /* Amber 700 */
+  background-color: #fef3c7; /* Amber 100 */
+  border-color: #fde68a;
+}
+.dashboard-portal-theme .central-ads-wrapper .validation-badge.error {
+  color: #b91c1c; /* Red 700 */
+  background-color: #fee2e2; /* Red 100 */
+  border-color: #fca5a5;
+}
+
+.dashboard-portal-theme .central-ads-wrapper .text-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .text-card label {
+  color: var(--text-muted);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .text-card input,
+.dashboard-portal-theme .central-ads-wrapper .text-card textarea {
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .toast {
+  background-color: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .toast.success {
+  background-color: #059669;
+}
+
+/* Modais na Central de Anúncios */
+.dashboard-portal-theme .central-ads-wrapper .modal-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .modal-panel .modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .modal-panel .modal-header h3 {
+  color: var(--text-title);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .modal-panel .modal-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .modal-panel button.secondary {
+  background: var(--hover-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.dashboard-portal-theme .central-ads-wrapper .modal-panel button.secondary:hover {
+  background: var(--border-color);
+}
+
+/* ─── CENTRAL DE ANÚNCIOS — DETAIL PANEL OVERRIDES (LIGHT MODE) ─── */
+
+/* Detail top — visible divider below product header */
+.dashboard-portal-theme .central-ads-wrapper .detail-top {
+  border-bottom: 1.5px solid var(--border-color);
+}
+
+/* Eyebrow (category label) */
+.dashboard-portal-theme .central-ads-wrapper .eyebrow {
+  color: #e8451f; /* brand orange with enough contrast on white bg */
+}
+
+/* Product title */
+.dashboard-portal-theme .central-ads-wrapper .detail-title h2 {
+  color: var(--text-title);
+}
+
+/* "10 títulos cadastrados neste canal" label */
+.dashboard-portal-theme .central-ads-wrapper .detail-count-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* "PUBLICADO" / Status version pill — was rgba white (invisible on light bg) */
+.dashboard-portal-theme .central-ads-wrapper .version {
+  background: #f1f5f9;           /* slate-100 */
+  color: #334155;                /* slate-700: 8.1:1 */
+  border: 1.5px solid #cbd5e1;  /* slate-300 */
+  font-weight: 800;
+}
+/* Override for "Publicado" specifically */
+.dashboard-portal-theme .central-ads-wrapper .version:has-text {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+/* "Editar produto" secondary button */
+.dashboard-portal-theme .central-ads-wrapper .secondary {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  font-weight: 700;
+}
+.dashboard-portal-theme .central-ads-wrapper .edit-button:hover {
+  border-color: #e8451f;
+  color: #e8451f;
+  background-color: #fff7ed;
+}
+
+/* "Abrir imagens no Drive" button */
+.dashboard-portal-theme .central-ads-wrapper .drive-button {
+  background: #ecfdf5;
+  border: 1.5px solid #6ee7b7; /* emerald-300 */
+  color: #065f46;               /* emerald-900: 7.5:1 on ecfdf5 */
+  font-weight: 700;
+}
+.dashboard-portal-theme .central-ads-wrapper .drive-button:hover {
+  background: #d1fae5;
+  border-color: #34d399;
+}
+
+/* "Gerar o código" barcode button */
+.dashboard-portal-theme .central-ads-wrapper .generate-barcode-btn {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  font-weight: 700;
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+.dashboard-portal-theme .central-ads-wrapper .generate-barcode-btn:hover {
+  border-color: #e8451f;
+  color: #e8451f;
+  background: #fff7ed;
+  box-shadow: 0 2px 8px rgba(232,69,31,0.12);
+}
+.dashboard-portal-theme .central-ads-wrapper .generate-barcode-btn.copied {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+/* "Copiar todas opções" / "Copiar descrição" — copy-all button */
+.dashboard-portal-theme .central-ads-wrapper .copy-all {
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+.dashboard-portal-theme .central-ads-wrapper .copy-all:hover {
+  background: #e8451f;
+  border-color: #e8451f;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232,69,31,0.2);
+}
+.dashboard-portal-theme .central-ads-wrapper .copy-all.copied {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff !important;
+}
+
+/* Collapse toggle chevron button */
+.dashboard-portal-theme .central-ads-wrapper .collapse-toggle-btn {
+  background: var(--bg-sunken);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-muted);
+}
+.dashboard-portal-theme .central-ads-wrapper .collapse-toggle-btn:hover {
+  background: #fff7ed;
+  border-color: #e8451f;
+  color: #e8451f;
+}
+
+/* Card heading title h3 */
+.dashboard-portal-theme .central-ads-wrapper .copy-card h3 {
+  color: var(--text-title);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* Empty text inside collapsed cards */
+.dashboard-portal-theme .central-ads-wrapper .empty-text {
+  color: var(--text-muted);
+}
+
+/* Description pre */
+.dashboard-portal-theme .central-ads-wrapper .description-pre {
+  color: var(--text-main);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* "first-product" empty state button */
+.dashboard-portal-theme .central-ads-wrapper .first-product button {
+  background: #e8451f;
+  color: #ffffff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.dashboard-portal-theme .central-ads-wrapper .first-product button:hover {
+  background: #c83214;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(232,69,31,0.3);
+}
+
+/* ─── GLOBAL BUTTON SYSTEM ─── */
+.dashboard-portal-theme button {
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-portal-theme button:active {
+  transform: scale(0.97);
+}
+
+/* Force high-contrast white text on dark background buttons */
+.dashboard-portal-theme button.bg-slate-900,
+.dashboard-portal-theme button.bg-slate-950,
+.dashboard-portal-theme button.bg-slate-800,
+.dashboard-portal-theme button.bg-\[\#e8451f\],
+.dashboard-portal-theme button.bg-\[\#c83214\] {
+  color: #ffffff !important;
+}
+
+/* Ensure proper text readability on light buttons */
+.dashboard-portal-theme button.bg-slate-100 {
+  color: #1e293b !important;
+}
+.dashboard-portal-theme.dark-theme button.bg-slate-100 {
+  color: #f8fafc !important;
+}
+
+/* ─── PREMIUM SCROLLBAR ─── */
+.dashboard-portal-theme *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dashboard-portal-theme *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-portal-theme *::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 99px;
+}
+.dashboard-portal-theme *::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+/* ─── FOCUS RING (accessibility) ─── */
+.dashboard-portal-theme *:focus-visible {
+  outline: 2.5px solid #e8451f;
+  outline-offset: 2px;
+  border-radius: 6px;
+}

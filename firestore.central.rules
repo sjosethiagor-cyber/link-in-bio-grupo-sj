@@ -1,0 +1,98 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// Firestore Rules para o projeto: central-de-anuncios-b62ca
+// Database: anuncio
+//
+// ATENÇÃO: Estas regras devem ser implantadas no console do Firebase
+// do projeto "central-de-anuncios-b62ca", na database "anuncio".
+//
+// Como implantar:
+//   1. Acesse o menu lateral esquerdo: "Firestore Database" (NÃO o Realtime Database)
+//   2. Selecione a aba "Regras" (Rules)
+//   3. Se houver mais de um banco, selecione a database "anuncio"
+//   4. Cole o conteúdo a partir da linha 14 (rules_version = '2';) e clique em Publicar.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: verifica se o usuário é o owner (administrador principal)
+    function isOwner() {
+      return request.auth != null &&
+             request.auth.token.email != null &&
+             request.auth.token.email_verified == true &&
+             request.auth.token.email == "sjosethiago.r@gmail.com";
+    }
+
+    // Helper: busca o role do usuário na coleção user_roles
+    function getUserRole() {
+      return get(/databases/$(database)/documents/user_roles/$(request.auth.token.email)).data.role;
+    }
+
+    // Helper: verifica se o usuário está autenticado com email verificado
+    function isAuthenticated() {
+      return request.auth != null &&
+             request.auth.token.email != null &&
+             request.auth.token.email_verified == true;
+    }
+
+    // Helper: verifica se o usuário tem um role registrado
+    function hasRole() {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/user_roles/$(request.auth.token.email));
+    }
+
+    // Helper: verifica se o usuário pode editar (owner, admin ou editor)
+    function canEdit() {
+      return isOwner() ||
+             (hasRole() && getUserRole() in ['admin', 'editor']);
+    }
+
+    // Helper: verifica se o usuário pode deletar (owner ou admin)
+    function canDelete() {
+      return isOwner() ||
+             (hasRole() && getUserRole() == 'admin');
+    }
+
+    // Helper: verifica se o usuário pode gerenciar users (owner ou admin)
+    function canManageUsers() {
+      return isOwner() ||
+             (hasRole() && getUserRole() == 'admin');
+    }
+
+    // ── Coleção de Produtos ───────────────────────────────────────────────────
+    match /products/{productId} {
+      // Qualquer usuário com role pode ler produtos
+      allow read: if isOwner() || hasRole();
+      // Owner, admin e editor podem criar e atualizar
+      allow create, update: if canEdit() &&
+                               request.resource.data.keys().hasAll(['name', 'sku', 'updatedAt']) &&
+                               request.resource.data.name is string &&
+                               request.resource.data.name.size() >= 1 &&
+                               request.resource.data.name.size() <= 500 &&
+                               request.resource.data.sku is string &&
+                               request.resource.data.sku.size() <= 100;
+      // Apenas owner e admin podem deletar
+      allow delete: if canDelete();
+    }
+
+    // ── Coleção de Roles de Usuário ───────────────────────────────────────────
+    match /user_roles/{email} {
+      // Owner e admin podem listar todos; usuário pode ler o próprio registro
+      allow read: if canManageUsers() ||
+                     (isAuthenticated() && request.auth.token.email == email);
+      // Apenas owner e admin podem conceder/modificar/revogar roles
+      allow write: if canManageUsers() &&
+                      request.resource.data.role in ['admin', 'editor', 'viewer'] &&
+                      request.resource.data.keys().hasAll(['role', 'updatedAt']);
+      // Apenas owner e admin podem remover
+      allow delete: if canManageUsers();
+    }
+
+    // ── Catch-all: negar tudo que não foi explicitamente permitido ─────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

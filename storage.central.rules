@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// Firebase Storage Rules para o projeto: central-de-anuncios-b62ca
+//
+// ATENÇÃO: Estas regras devem ser implantadas no console do Firebase
+// do projeto "central-de-anuncios-b62ca".
+//
+// Como implantar:
+//   1. Acesse https://console.firebase.google.com/project/central-de-anuncios-b62ca/storage/rules
+//   2. Cole o conteúdo abaixo e publique
+// ═══════════════════════════════════════════════════════════════════════════════
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper: verifica se o usuário é o owner
+    function isOwner() {
+      return request.auth != null &&
+             request.auth.token.email_verified == true &&
+             request.auth.token.email == "sjosethiago.r@gmail.com";
+    }
+
+    // Helper: verifica se o usuário está autenticado com email verificado
+    function isAuthenticated() {
+      return request.auth != null &&
+             request.auth.token.email_verified == true;
+    }
+
+    // ── Pasta de Covers ───────────────────────────────────────────────────────
+    match /covers/{fileName} {
+      // Qualquer usuário autenticado pode ler as imagens de capa
+      allow read: if isAuthenticated();
+
+      // Upload permitido apenas para usuários autenticados com restrições:
+      // - Máximo 10 MB
+      // - Apenas tipos de imagem permitidos
+      allow create: if isAuthenticated() &&
+                       request.resource.size < 10 * 1024 * 1024 &&
+                       request.resource.contentType.matches('image/.*');
+
+      // Apenas o owner pode deletar covers
+      allow delete: if isOwner();
+
+      // Não permitir atualizar arquivos — deletar e recriar
+      allow update: if false;
+    }
+
+    // ── Catch-all: negar acesso a qualquer outro caminho ──────────────────────
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -11,6 +11,9 @@ import {
   getStoredMLStoreLinks,
   getStoredShopeeStoreLinks,
   getStoredSocialLinks,
+  getMLStoreLinks,
+  getShopeeStoreLinks,
+  getSocialLinks,
   type StoreLink,
   type SocialLinks,
   DEFAULT_SOCIAL_LINKS,
@@ -18,9 +21,23 @@ import {
 import grupoSjLogo from "./imports/grupo-sj-logo.png"
 
 const LeadModal = lazy(() => import("./components/LeadModal"))
-const AdminDashboard = lazy(() => import("./components/AdminDashboard"))
-import mercadoLivreLogo from "./imports/mercado-livre-logo.svg"
-import shopeeLogo from "./imports/shopee-logo.svg"
+const DashboardPortal = lazy(() => import("./components/DashboardPortal"))
+
+import { SocialPill } from "./components/SocialPill"
+import { ContactRow } from "./components/ContactRow"
+import { StoreCardTrigger } from "./components/StoreCardTrigger"
+import { StoreDrawerModal, StoreModalData } from "./components/StoreDrawerModal"
+import {
+  IcoML,
+  IcoShopee,
+  IcoInstagram,
+  IcoFacebook,
+  IcoYouTube,
+  IcoWhatsApp,
+  IcoEmail,
+  IcoShield,
+  IcoArrow
+} from "./components/Icons"
 
 // ─── Links Estáticos por Padrão ──────────────────────────────────────────────
 const LINKS = {
@@ -60,152 +77,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
   }
 }
 
-// ─── Icons ───────────────────────────────────────────────────────────────────
-
-function IcoML({ s = 32 }: { s?: number }) {
-  return (
-    <img
-      src={mercadoLivreLogo}
-      alt="Mercado Livre"
-      aria-hidden="true"
-      style={{
-        display: "block",
-        width: "100%",
-        height: "100%",
-        maxHeight: s,
-        objectFit: "contain",
-      }}
-    />
-  )
-}
-
-function IcoShopee({ s = 32 }: { s?: number }) {
-  return (
-    <img
-      src={shopeeLogo}
-      alt="Shopee"
-      aria-hidden="true"
-      style={{
-        display: "block",
-        width: "100%",
-        height: "100%",
-        maxHeight: s,
-        objectFit: "contain",
-      }}
-    />
-  )
-}
-
-function IcoInstagram({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-      <rect
-        x="2"
-        y="2"
-        width="20"
-        height="20"
-        rx="6"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
-    </svg>
-  )
-}
-
-function IcoFacebook({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  )
-}
-
-function IcoYouTube({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-    </svg>
-  )
-}
-
-function IcoWhatsApp({ s = 22 }: { s?: number }) {
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413" />
-    </svg>
-  )
-}
-
-function IcoEmail({ s = 20 }: { s?: number }) {
-  return (
-    <svg
-      width={s}
-      height={s}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    >
-      <rect x="2" y="4" width="20" height="16" rx="3" />
-      <path d="m2 7 10 7 10-7" />
-    </svg>
-  )
-}
-
-function IcoArrow({ s = 15 }: { s?: number }) {
-  return (
-    <svg
-      width={s}
-      height={s}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14M12 5l7 7-7 7" />
-    </svg>
-  )
-}
-
-function IcoChevron({ s = 14 }: { s?: number }) {
-  return (
-    <svg
-      width={s}
-      height={s}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9 18l6-6-6-6" />
-    </svg>
-  )
-}
-
-function IcoShield({ s = 14 }: { s?: number }) {
-  return (
-    <svg
-      width={s}
-      height={s}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  )
-}
-
 // ─── Logo mark ───────────────────────────────────────────────────────────────
 
 function SJMark({ size = 96 }: { size?: number }) {
@@ -226,24 +97,6 @@ function SJMark({ size = 96 }: { size?: number }) {
   )
 }
 
-function IcoClose({ s = 20 }: { s?: number }) {
-  return (
-    <svg
-      width={s}
-      height={s}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  )
-}
-
 // ─── Ambient background ───────────────────────────────────────────────────────
 
 function Background() {
@@ -252,433 +105,44 @@ function Background() {
 
 // ─── Store Trigger Card & Drawer Modal ───────────────────────────────────────
 
-interface StoreModalData {
-  name: string
-  subtitle: string
-  icon: ReactNode
-  iconBg: string
-  tagColor: string
-  category: "Mercado Livre" | "Shopee"
-  lojas: StoreLink[]
-}
 
-interface StoreCardTriggerProps {
-  icon: ReactNode
-  name: string
-  subtitle: string
-  cls: string
-  iconBg: string
-  onClick: () => void
-}
-
-function StoreCardTrigger({
-  icon,
-  name,
-  subtitle,
-  cls,
-  iconBg,
-  onClick,
-}: StoreCardTriggerProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`store-card ${cls}`}
-      aria-haspopup="dialog"
-      aria-label={`Abrir lista de lojas ${name}`}
-    >
-      <span
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          flex: 1,
-          minWidth: 0,
-        }}
-      >
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 48,
-            height: 48,
-            borderRadius: 14,
-            background: iconBg,
-            flexShrink: 0,
-            padding: 8,
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-          }}
-        >
-          {icon}
-        </span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: 15,
-              fontWeight: 800,
-              letterSpacing: "-0.01em",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {name}
-          </span>
-          <span
-            style={{
-              display: "block",
-              fontSize: 12,
-              fontWeight: 500,
-              color: "var(--muted-foreground)",
-              marginTop: 2,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {subtitle}
-          </span>
-        </span>
-      </span>
-
-      <span className="store-card-action">
-        <span>Ver lojas</span>
-        <IcoArrow s={13} />
-      </span>
-    </button>
-  )
-}
-
-function StoreDrawerModal({
-  data,
-  onClose,
-}: {
-  data: StoreModalData
-  onClose: () => void
-}) {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    document.body.style.overflow = "hidden"
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = ""
-    }
-  }, [onClose])
-
-  const handleLinkClick = (loja: StoreLink) => {
-    recordClick(loja.id, `${data.name} - ${loja.name}`, data.category)
-  }
-
-  return (
-    <div
-      className="store-drawer-backdrop"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Lojas oficiais de ${data.name}`}
-    >
-      <div className="store-drawer-panel" onClick={(e) => e.stopPropagation()}>
-        {/* Header do Painel */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingBottom: 16,
-            borderBottom: "1px solid var(--border)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: data.iconBg,
-                flexShrink: 0,
-              }}
-            >
-              {data.icon}
-            </span>
-            <div>
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: "var(--foreground)",
-                }}
-              >
-                {data.name}
-              </h3>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: "var(--muted-foreground)",
-                  marginTop: 2,
-                }}
-              >
-                Selecione a loja que deseja acessar
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Fechar painel"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid var(--border)",
-              color: "var(--foreground)",
-              cursor: "pointer",
-              transition: "background 0.2s ease, transform 0.2s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.12)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.06)")
-            }
-          >
-            <IcoClose s={18} />
-          </button>
-        </div>
-
-        {/* Lista de Lojas */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            paddingTop: 18,
-          }}
-        >
-          {data.lojas.map((loja, i) => (
-            <a
-              key={loja.id || i}
-              href={loja.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => handleLinkClick(loja)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                padding: "16px 18px",
-                borderRadius: 14,
-                textDecoration: "none",
-                color: "var(--foreground)",
-                background: "rgba(255,255,255,0.035)",
-                border: "1px solid var(--border)",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.07)"
-                e.currentTarget.style.borderColor = "var(--border-strong)"
-                e.currentTarget.style.transform = "translateY(-2px)"
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.035)"
-                e.currentTarget.style.borderColor = "var(--border)"
-                e.currentTarget.style.transform = "translateY(0)"
-              }}
-            >
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  flexShrink: 0,
-                  background: data.tagColor,
-                  boxShadow: `0 0 10px ${data.tagColor}`,
-                }}
-              />
-              <span style={{ flex: 1 }}>
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: 15,
-                    fontWeight: 700,
-                  }}
-                >
-                  {loja.name}
-                </span>
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: 12,
-                    color: "var(--muted-foreground)",
-                    marginTop: 2,
-                  }}
-                >
-                  {loja.desc}
-                </span>
-              </span>
-              <span
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: data.tagColor,
-                  background: "rgba(255,255,255,0.06)",
-                  padding: "6px 12px",
-                  borderRadius: 8,
-                }}
-              >
-                <span>Acessar</span>
-                <IcoArrow s={13} />
-              </span>
-            </a>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Social pill ──────────────────────────────────────────────────────────────
-
-function SocialPill({
-  href,
-  icon,
-  label,
-  cls,
-}: {
-  href: string
-  icon: ReactNode
-  label: string
-  cls: string
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`social-pill ${cls}`}
-      onClick={() => recordClick(label, label, "Rede Social")}
-    >
-      <span className="social-pill-icon-box">{icon}</span>
-      <span className="social-pill-label">{label}</span>
-    </a>
-  )
-}
-
-// ─── Contact row ──────────────────────────────────────────────────────────────
-
-function ContactRow({
-  href,
-  icon,
-  label,
-  sub,
-  isLast = false,
-}: {
-  href: string
-  icon: ReactNode
-  label: string
-  sub: string
-  isLast?: boolean
-}) {
-  return (
-    <>
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="link-row"
-        onClick={() => recordClick(label, label, "Contato")}
-      >
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            background: "rgba(255,255,255,0.06)",
-            flexShrink: 0,
-          }}
-        >
-          {icon}
-        </span>
-        <span style={{ flex: 1 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: 15,
-              fontWeight: 700,
-              lineHeight: 1.3,
-            }}
-          >
-            {label}
-          </span>
-          <span
-            style={{
-              display: "block",
-              fontSize: 12,
-              fontWeight: 400,
-              color: "var(--muted-foreground)",
-              marginTop: 2,
-            }}
-          >
-            {sub}
-          </span>
-        </span>
-        <span
-          style={{
-            color: "var(--muted-foreground)",
-            opacity: 0.5,
-            display: "flex",
-          }}
-        >
-          <IcoChevron />
-        </span>
-      </a>
-      {!isLast && <div className="divider" />}
-    </>
-  )
-}
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname)
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname)
+    }
+    window.addEventListener("popstate", handleLocationChange)
+    return () => window.removeEventListener("popstate", handleLocationChange)
+  }, [])
+
+  const navigateTo = (path: string) => {
+    window.history.pushState({}, "", path)
+    setCurrentPath(path)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   const [activeStore, setActiveStore] = useState<StoreModalData | null>(null)
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
   const [hasOpenedLeadModal, setHasOpenedLeadModal] = useState(false)
-  const [isAdminOpen, setIsAdminOpen] = useState(false)
-  const [hasOpenedAdmin, setHasOpenedAdmin] = useState(false)
 
   const [mlLojas, setMlLojas] = useState<StoreLink[]>([])
   const [shopeeLojas, setShopeeLojas] = useState<StoreLink[]>([])
   const [socialLinks, setSocialLinks] =
     useState<SocialLinks>(DEFAULT_SOCIAL_LINKS)
 
-  const refreshLinks = async () => {
-    // 1. Show cached values immediately for fast visual loading
+  const refreshLocalLinks = () => {
     setMlLojas(getStoredMLStoreLinks())
     setShopeeLojas(getStoredShopeeStoreLinks())
     setSocialLinks(getStoredSocialLinks())
+  }
 
-    // 2. Fetch fresh values from Firebase Firestore in the background
+  const refreshCloudLinks = async () => {
     try {
-      const { getMLStoreLinks, getShopeeStoreLinks, getSocialLinks } = await import("./services/storeService")
       const [ml, sp, sc] = await Promise.all([
         getMLStoreLinks(),
         getShopeeStoreLinks(),
@@ -692,9 +156,46 @@ export default function App() {
     }
   }
 
+  const refreshLinks = async () => {
+    refreshLocalLinks()
+    await refreshCloudLinks()
+  }
+
   useEffect(() => {
-    refreshLinks()
+    refreshLocalLinks()
+    // Non-blocking background sync for fresh cloud links
+    const syncTimeout = window.setTimeout(() => {
+      void refreshCloudLinks()
+    }, 150)
+
+    return () => window.clearTimeout(syncTimeout)
   }, [])
+
+  if (currentPath === "/dashboard" || currentPath === "/admin") {
+    return (
+      <ErrorBoundary>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100vh",
+                color: "#f2f0ea",
+                background: "#0b0b0d",
+                fontFamily: "Montserrat, sans-serif",
+              }}
+            >
+              Carregando Painel Administrativo...
+            </div>
+          }
+        >
+          <DashboardPortal navigateBack={() => navigateTo("/")} />
+        </Suspense>
+      </ErrorBoundary>
+    )
+  }
 
   return (
     <ErrorBoundary>
@@ -984,8 +485,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => {
-                setHasOpenedAdmin(true)
-                setIsAdminOpen(true)
+                navigateTo("/dashboard")
               }}
               style={{
                 marginTop: 10,
@@ -1022,24 +522,13 @@ export default function App() {
         />
       )}
 
-      {(hasOpenedLeadModal || hasOpenedAdmin) && (
+      {hasOpenedLeadModal && (
         <Suspense fallback={null}>
           {/* Modal de Captura de Leads */}
-          {hasOpenedLeadModal && (
-            <LeadModal
-              isOpen={isLeadModalOpen}
-              onClose={() => setIsLeadModalOpen(false)}
-            />
-          )}
-
-          {/* Modal do Painel Administrativo & Métricas */}
-          {hasOpenedAdmin && (
-            <AdminDashboard
-              isOpen={isAdminOpen}
-              onClose={() => setIsAdminOpen(false)}
-              onLinksUpdated={refreshLinks}
-            />
-          )}
+          <LeadModal
+            isOpen={isLeadModalOpen}
+            onClose={() => setIsLeadModalOpen(false)}
+          />
         </Suspense>
       )}
     </ErrorBoundary>
