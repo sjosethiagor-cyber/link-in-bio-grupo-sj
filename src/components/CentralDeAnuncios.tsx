@@ -78,14 +78,39 @@ function formFromProduct(
 
 function cleanForMarketplace(value: string) {
   if (!value) return ""
-  return value
+
+  let text = value
     .normalize("NFC")
     .replace(/\u00a0/g, " ")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(/\r\n?/g, "\n")
+
+  // 1. Remove markdown headings (#, ##, ###, ####, etc.)
+  text = text.replace(/^#{1,6}\s*(.+)$/gm, "$1")
+
+  // 2. Convert markdown list items (* item, + item, - item) to clean bullets (• item)
+  text = text.replace(/^[\t ]*[\*\+\-]\s+/gm, "• ")
+  text = text.replace(/^[\t ]*\*([^\*\s])/gm, "• $1")
+
+  // 3. Remove bold / italic markdown (**bold**, __bold__, *italic*, _italic_)
+  text = text.replace(/\*\*([^*]+)\*\*/g, "$1")
+  text = text.replace(/__([^_]+)__/g, "$1")
+  text = text.replace(/(?<!\w)\*([^*\n]+)\*(?!\w)/g, "$1")
+  text = text.replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, "$1")
+
+  // 4. Remove markdown link syntax: [Label](url) -> Label
+  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+
+  // 5. Remove horizontal rules (---, ***, ___ on their own line)
+  text = text.replace(/^[-*_]{3,}\s*$/gm, "")
+
+  // 6. Clean multiple spaces and blank lines
+  text = text
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim()
+
+  return text
 }
 
 function parseTitleBlock(value: string) {
@@ -98,7 +123,7 @@ function parseTitleBlock(value: string) {
 
   return rawParts
     .map((line) =>
-      line
+      cleanForMarketplace(line)
         .replace(
           /^\s*(?:t[ií]tulo\s*(?:\d{1,2})?\s*[:.)-]\s*|\d{1,2}\s*[:.)-]\s*|[-•*]\s*)/i,
           "",

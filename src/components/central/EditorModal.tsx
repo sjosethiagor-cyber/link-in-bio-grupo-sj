@@ -332,8 +332,40 @@ export const EditorModal: React.FC<EditorModalProps> = ({
 
               {/* Description field */}
               <div className="description-editor" style={{ marginTop: 24 }}>
-                <label className="field full">
-                  <span>Descrição do produto</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                    Descrição do produto
+                  </span>
+                  {currentDescription && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((curr) => {
+                          const isML = curr.marketplace === "mercado-livre"
+                          const field = isML ? "mlDescription" : "shopeeDescription"
+                          return {
+                            ...curr,
+                            [field]: cleanForMarketplace(curr[field] || ""),
+                          }
+                        })
+                      }
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: "3px 8px",
+                        borderRadius: 6,
+                        border: "1px solid var(--border-color, #e2e8f0)",
+                        background: "var(--bg-sunken, #f8fafc)",
+                        color: "#e8451f",
+                        cursor: "pointer",
+                      }}
+                      title="Remove hashtags (#), asteriscos (*) e formata marcadores para Mercado Livre e Shopee"
+                    >
+                      ✨ Limpar formatação (# e *)
+                    </button>
+                  )}
+                </div>
+                <label className="field full" style={{ marginTop: 0 }}>
                   <textarea
                     rows={8}
                     value={currentDescription}
