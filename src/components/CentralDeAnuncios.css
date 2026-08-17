@@ -449,8 +449,9 @@ a { color: inherit; }
 }
 
 .search:focus-within {
-  border-color: var(--blue-500);
-  box-shadow: 0 0 0 3.5px var(--blue-100);
+  border-color: var(--surface-border-strong);
+  box-shadow: none;
+  outline: none;
 }
 
 .search .icon-svg {

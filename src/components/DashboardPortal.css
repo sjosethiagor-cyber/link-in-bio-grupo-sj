@@ -701,10 +701,23 @@
 /* Sidebar Product Search & Category Filters overrides */
 .dashboard-portal-theme .central-ads-wrapper .search {
   background-color: var(--bg-input);
-  border: 1.5px solid var(--border-color);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+.dashboard-portal-theme .central-ads-wrapper .search:focus-within {
+  border-color: #94a3b8;
+  box-shadow: none;
+  outline: none;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .search:focus-within {
+  border-color: #475569;
+  box-shadow: none;
+  outline: none;
 }
 .dashboard-portal-theme .central-ads-wrapper .search input {
   color: var(--text-main);
+  outline: none;
+  border: none;
 }
 .dashboard-portal-theme .central-ads-wrapper .category-select {
   background-color: var(--bg-input);
