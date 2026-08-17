@@ -3,16 +3,26 @@ import { initializeFirestore, type Firestore } from "firebase/firestore"
 import { getStorage, type FirebaseStorage } from "firebase/storage"
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth"
 
-// Secondary Firebase app configuration for Central de Anúncios
-// All values MUST come from environment variables — no hardcoded fallbacks
+// Secondary Firebase app configuration for Central de Anúncios (Database: anuncio)
 const centralFirebaseConfig = {
-  apiKey: import.meta.env.VITE_CENTRAL_FIREBASE_API_KEY || "",
-  authDomain: import.meta.env.VITE_CENTRAL_FIREBASE_AUTH_DOMAIN || "",
-  projectId: import.meta.env.VITE_CENTRAL_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_CENTRAL_FIREBASE_STORAGE_BUCKET || "",
+  apiKey:
+    import.meta.env.VITE_CENTRAL_FIREBASE_API_KEY ||
+    "AIzaSyCRvd-eRCbbF7zV2SBCB_f79FV1vLeZYOo",
+  authDomain:
+    import.meta.env.VITE_CENTRAL_FIREBASE_AUTH_DOMAIN ||
+    "central-de-anuncios-b62ca.firebaseapp.com",
+  projectId:
+    import.meta.env.VITE_CENTRAL_FIREBASE_PROJECT_ID ||
+    "central-de-anuncios-b62ca",
+  storageBucket:
+    import.meta.env.VITE_CENTRAL_FIREBASE_STORAGE_BUCKET ||
+    "central-de-anuncios-b62ca.firebasestorage.app",
   messagingSenderId:
-    import.meta.env.VITE_CENTRAL_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_CENTRAL_FIREBASE_APP_ID || "",
+    import.meta.env.VITE_CENTRAL_FIREBASE_MESSAGING_SENDER_ID ||
+    "154895857005",
+  appId:
+    import.meta.env.VITE_CENTRAL_FIREBASE_APP_ID ||
+    "1:154895857005:web:2078117b6db2cd0d001664",
 }
 
 // Check if the Central Firebase is configured with required keys
@@ -48,7 +58,7 @@ if (isCentralFirebaseConfigured) {
   }
 } else {
   console.warn(
-    "Central de Anúncios Firebase not configured. Set VITE_CENTRAL_FIREBASE_* environment variables in .env.local",
+    "Central de Anúncios Firebase not configured. Set VITE_CENTRAL_FIREBASE_* environment variables.",
   )
 }
 
