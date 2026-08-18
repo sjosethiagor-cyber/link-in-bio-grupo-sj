@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { saveLead } from "../services/storeService"
+import { LeadChatbot } from "./LeadChatbot"
 
 interface LeadModalProps {
   isOpen: boolean
@@ -14,6 +15,7 @@ function formatWhatsApp(value: string) {
 }
 
 export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
+  const [viewMode, setViewMode] = useState<"chat" | "form">("chat")
   const [name, setName] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [email, setEmail] = useState("")
@@ -44,6 +46,7 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
     if (isOpen) {
       setModalOpenTime(Date.now())
       setHoneypot("")
+      setSuccess(false)
     }
   }, [isOpen])
 
@@ -141,7 +144,7 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
     >
       <div
         className="store-drawer-panel"
-        style={{ maxWidth: 460 }}
+        style={{ maxWidth: 480 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -150,27 +153,81 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            paddingBottom: 16,
+            paddingBottom: 14,
             borderBottom: "1px solid var(--border)",
           }}
         >
           <div>
-            <span
-              style={{
-                display: "inline-block",
-                padding: "3px 10px",
-                borderRadius: 99,
-                background: "rgba(232, 69, 31, 0.15)",
-                color: "#e8451f",
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                marginBottom: 6,
-              }}
-            >
-              Atendimento Especial
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "3px 10px",
+                  borderRadius: 99,
+                  background: "rgba(232, 69, 31, 0.15)",
+                  color: "#e8451f",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Atendimento Rápido
+              </span>
+
+              {/* Mode Switcher Tabs */}
+              <div
+                style={{
+                  display: "flex",
+                  background: "rgba(255, 255, 255, 0.06)",
+                  padding: 2,
+                  borderRadius: 99,
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setViewMode("chat")}
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 99,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    border: "none",
+                    background:
+                      viewMode === "chat"
+                        ? "linear-gradient(135deg, #e8451f, #ff7a59)"
+                        : "transparent",
+                    color: viewMode === "chat" ? "#fff" : "var(--muted-foreground)",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  🤖 Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("form")}
+                  style={{
+                    padding: "2px 8px",
+                    borderRadius: 99,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    border: "none",
+                    background:
+                      viewMode === "form"
+                        ? "linear-gradient(135deg, #e8451f, #ff7a59)"
+                        : "transparent",
+                    color: viewMode === "form" ? "#fff" : "var(--muted-foreground)",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  📝 Formulário
+                </button>
+              </div>
+            </div>
+
             <h3
               style={{
                 margin: 0,
@@ -179,17 +236,8 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                 color: "var(--foreground)",
               }}
             >
-              Solicitar Orçamento
+              {viewMode === "chat" ? "Assistente Comercial SJ" : "Solicitar Orçamento"}
             </h3>
-            <p
-              style={{
-                margin: "2px 0 0",
-                fontSize: 12,
-                color: "var(--muted-foreground)",
-              }}
-            >
-              Preencha os dados abaixo e nossa equipe entrará em contato.
-            </p>
           </div>
 
           <button
@@ -214,7 +262,14 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
         </div>
 
         {/* Content */}
-        {success ? (
+        {viewMode === "chat" ? (
+          <div style={{ paddingTop: 14 }}>
+            <LeadChatbot
+              onClose={onClose}
+              onSwitchToForm={() => setViewMode("form")}
+            />
+          </div>
+        ) : success ? (
           <div style={{ padding: "36px 12px", textAlign: "center" }}>
             <div
               style={{
