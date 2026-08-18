@@ -179,8 +179,8 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
     const [statusFilter, setStatusFilter] =
       useState<"all" | "published" | "review">("all")
     const [categoryFilter, setCategoryFilter] = useState<string>("all")
-    const [titlesOpen, setTitlesOpen] = useState(true)
-    const [descriptionOpen, setDescriptionOpen] = useState(true)
+    const [titlesOpen, setTitlesOpen] = useState(false)
+    const [descriptionOpen, setDescriptionOpen] = useState(false)
     const [loading, setLoading] = useState<boolean>(true)
     const [loadError, setLoadError] = useState("")
     const [copied, setCopied] = useState<string | null>(null)

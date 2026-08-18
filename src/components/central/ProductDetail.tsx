@@ -251,11 +251,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       <article
         className={`copy-card titles-card ${!titlesOpen ? "collapsed" : ""}`}
       >
-        <div className="card-heading">
-          <div
-            className="card-heading-title"
-            onClick={() => setTitlesOpen(!titlesOpen)}
-          >
+        <div
+          className="card-heading"
+          onClick={() => setTitlesOpen(!titlesOpen)}
+          style={{ cursor: "pointer" }}
+        >
+          <div className="card-heading-title">
             <button
               type="button"
               className="collapse-toggle-btn"
@@ -280,16 +281,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </button>
             <h3>Títulos Otimizados</h3>
           </div>
-          {titles.length > 0 && (
-            <button
-              className={`copy-all ${copied === "all-titles" ? "copied" : ""}`}
-              onClick={() => copyText("all-titles", titles.join("\n"))}
-            >
-              {copied === "all-titles"
-                ? "Tudo Copiado! ✓"
-                : "Copiar todas opções"}
-            </button>
-          )}
         </div>
 
         <div className="card-content">
@@ -352,6 +343,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         <div
           className="card-heading"
           onClick={() => setDescriptionOpen(!descriptionOpen)}
+          style={{ cursor: "pointer" }}
         >
           <div className="card-heading-title">
             <button
