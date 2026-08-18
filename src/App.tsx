@@ -10,9 +10,11 @@ import {
   recordClick,
   getStoredMLStoreLinks,
   getStoredShopeeStoreLinks,
+  getStoredTikTokStoreLinks,
   getStoredSocialLinks,
   getMLStoreLinks,
   getShopeeStoreLinks,
+  getTikTokStoreLinks,
   getSocialLinks,
   type StoreLink,
   type SocialLinks,
@@ -30,6 +32,7 @@ import { StoreDrawerModal, StoreModalData } from "./components/StoreDrawerModal"
 import {
   IcoML,
   IcoShopee,
+  IcoTikTok,
   IcoInstagram,
   IcoFacebook,
   IcoYouTube,
@@ -123,24 +126,28 @@ export default function App() {
 
   const [mlLojas, setMlLojas] = useState<StoreLink[]>([])
   const [shopeeLojas, setShopeeLojas] = useState<StoreLink[]>([])
+  const [tiktokLojas, setTiktokLojas] = useState<StoreLink[]>([])
   const [socialLinks, setSocialLinks] =
     useState<SocialLinks>(DEFAULT_SOCIAL_LINKS)
 
   const refreshLocalLinks = () => {
     setMlLojas(getStoredMLStoreLinks())
     setShopeeLojas(getStoredShopeeStoreLinks())
+    setTiktokLojas(getStoredTikTokStoreLinks())
     setSocialLinks(getStoredSocialLinks())
   }
 
   const refreshCloudLinks = async () => {
     try {
-      const [ml, sp, sc] = await Promise.all([
+      const [ml, sp, tt, sc] = await Promise.all([
         getMLStoreLinks(),
         getShopeeStoreLinks(),
+        getTikTokStoreLinks(),
         getSocialLinks(),
       ])
       setMlLojas(ml)
       setShopeeLojas(sp)
+      setTiktokLojas(tt)
       setSocialLinks(sc)
     } catch (e) {
       console.warn("Error reloading links from cloud:", e)
@@ -364,6 +371,25 @@ export default function App() {
                     tagColor: "#ee4d2d",
                     category: "Shopee",
                     lojas: shopeeLojas,
+                  })
+                }}
+              />
+              <StoreCardTrigger
+                icon={<IcoTikTok s={38} />}
+                name="TikTok"
+                subtitle={`${tiktokLojas.length} lojas oficiais`}
+                cls="store-card-tt"
+                iconBg="rgba(254,44,85,0.18)"
+                onClick={() => {
+                  recordClick("btn_tt_stores", "TikTok Modal Open", "TikTok")
+                  setActiveStore({
+                    name: "TikTok",
+                    subtitle: "Lojas oficiais no TikTok",
+                    icon: <IcoTikTok s={34} />,
+                    iconBg: "rgba(254,44,85,0.18)",
+                    tagColor: "#fe2c55",
+                    category: "TikTok",
+                    lojas: tiktokLojas,
                   })
                 }}
               />

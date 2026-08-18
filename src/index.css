@@ -182,6 +182,17 @@
   box-shadow: 0 10px 30px rgba(238, 77, 45, 0.14);
 }
 
+.store-card-tt {
+  background: rgba(254, 44, 85, 0.05);
+  border: 1px solid rgba(254, 44, 85, 0.18);
+}
+
+.store-card-tt:hover {
+  background: rgba(254, 44, 85, 0.095);
+  border-color: rgba(254, 44, 85, 0.35);
+  box-shadow: 0 10px 30px rgba(254, 44, 85, 0.14);
+}
+
 /* ── Link rows ──────────────────────────────────────────────────────────────── */
 
 .link-row {
@@ -483,7 +494,7 @@
 @media (min-width: 768px) {
   .page-wrapper { padding: 64px 32px 56px; }
   .content-col  { max-width: 620px; gap: 32px; }
-  .store-grid   { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .store-grid   { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
   .social-pill  { min-height: 104px; }
 }
 

@@ -5,9 +5,11 @@ import {
   updateLeadStatus,
   getStoredMLStoreLinks,
   getStoredShopeeStoreLinks,
+  getStoredTikTokStoreLinks,
   getStoredSocialLinks,
   saveStoredMLStoreLinks,
   saveStoredShopeeStoreLinks,
+  saveStoredTikTokStoreLinks,
   saveStoredSocialLinks,
   type ClickEvent,
   type Lead,
@@ -78,6 +80,7 @@ export default function DashboardPortal({
   const [leads, setLeads] = useState<Lead[]>([])
   const [mlLinks, setMlLinks] = useState<StoreLink[]>([])
   const [shopeeLinks, setShopeeLinks] = useState<StoreLink[]>([])
+  const [tiktokLinks, setTiktokLinks] = useState<StoreLink[]>([])
   const [socialLinks, setSocialLinks] =
     useState<SocialLinks>(DEFAULT_SOCIAL_LINKS)
   const [theme, setTheme] = useState<"light" | "dark">("light")
@@ -335,9 +338,11 @@ export default function DashboardPortal({
 
       const ml = getStoredMLStoreLinks()
       const sp = getStoredShopeeStoreLinks()
+      const tt = getStoredTikTokStoreLinks()
       const sc = getStoredSocialLinks()
       setMlLinks(ml)
       setShopeeLinks(sp)
+      setTiktokLinks(tt)
       setSocialLinks(sc)
     } catch (err) {
       console.error(err)
@@ -398,6 +403,7 @@ export default function DashboardPortal({
     }
     saveStoredMLStoreLinks(mlLinks)
     saveStoredShopeeStoreLinks(shopeeLinks)
+    saveStoredTikTokStoreLinks(tiktokLinks)
     saveStoredSocialLinks(socialLinks)
     setCmsSavedSuccess(true)
     setTimeout(() => setCmsSavedSuccess(false), 2500)
@@ -761,6 +767,7 @@ export default function DashboardPortal({
                     leads={leads}
                     mlLinks={mlLinks}
                     shopeeLinks={shopeeLinks}
+                    tiktokLinks={tiktokLinks}
                     loadData={loadData}
                     setActiveTab={setActiveTab}
                   />
@@ -781,6 +788,8 @@ export default function DashboardPortal({
                     setMlLinks={setMlLinks}
                     shopeeLinks={shopeeLinks}
                     setShopeeLinks={setShopeeLinks}
+                    tiktokLinks={tiktokLinks}
+                    setTiktokLinks={setTiktokLinks}
                     socialLinks={socialLinks}
                     setSocialLinks={setSocialLinks}
                     handleSaveCms={handleSaveCms}

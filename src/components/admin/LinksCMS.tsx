@@ -6,6 +6,8 @@ interface LinksCMSProps {
   setMlLinks: React.Dispatch<React.SetStateAction<StoreLink[]>>
   shopeeLinks: StoreLink[]
   setShopeeLinks: React.Dispatch<React.SetStateAction<StoreLink[]>>
+  tiktokLinks: StoreLink[]
+  setTiktokLinks: React.Dispatch<React.SetStateAction<StoreLink[]>>
   socialLinks: SocialLinks
   setSocialLinks: React.Dispatch<React.SetStateAction<SocialLinks>>
   handleSaveCms: () => void
@@ -17,6 +19,8 @@ export function LinksCMS({
   setMlLinks,
   shopeeLinks,
   setShopeeLinks,
+  tiktokLinks,
+  setTiktokLinks,
   socialLinks,
   setSocialLinks,
   handleSaveCms,
@@ -50,6 +54,21 @@ export function LinksCMS({
 
   const handleDeleteShopeeStore = (id: string) => {
     setShopeeLinks((prev) => prev.filter((item) => item.id !== id))
+  }
+
+  const handleAddTiktokStore = () => {
+    const newStore: StoreLink = {
+      id: "tt_" + Date.now(),
+      name: "Nova Loja TikTok",
+      desc: "Loja oficial no TikTok",
+      href: "https://www.tiktok.com/@gruposj",
+      storeType: "tiktok",
+    }
+    setTiktokLinks((prev) => [...prev, newStore])
+  }
+
+  const handleDeleteTiktokStore = (id: string) => {
+    setTiktokLinks((prev) => prev.filter((item) => item.id !== id))
   }
 
   return (
@@ -219,6 +238,93 @@ export function LinksCMS({
               <button
                 type="button"
                 onClick={() => handleDeleteShopeeStore(store.id)}
+                className="self-end bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-150 dark:border-red-900/50 px-4 py-2.5 rounded-xl font-bold text-xs h-10 transition-colors cursor-pointer"
+              >
+                Remover
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* TikTok Links CMS */}
+      <div className="premium-card">
+        <div className="flex justify-between items-center mb-6">
+          <h4 className="text-md font-extrabold text-[#fe2c55] flex items-center gap-2">
+            🎵 Lojas TikTok ({tiktokLinks.length})
+          </h4>
+          <button
+            type="button"
+            onClick={handleAddTiktokStore}
+            className="bg-[#fe2c55]/10 hover:bg-[#fe2c55]/20 text-[#fe2c55] border border-[#fe2c55]/25 font-bold text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer"
+          >
+            + Adicionar Loja
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {tiktokLinks.map((store, idx) => (
+            <div
+              key={store.id}
+              className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row gap-4"
+            >
+              <label className="flex-1 flex flex-col gap-1">
+                <span className="text-[11px] font-bold text-slate-400 uppercase">
+                  Nome da Loja
+                </span>
+                <input
+                  type="text"
+                  value={store.name}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setTiktokLinks((prev) =>
+                      prev.map((item, i) =>
+                        i === idx ? { ...item, name: val } : item,
+                      ),
+                    )
+                  }}
+                  className="px-3 py-2 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-[#fe2c55]"
+                />
+              </label>
+              <label className="flex-1 flex flex-col gap-1">
+                <span className="text-[11px] font-bold text-slate-400 uppercase">
+                  Breve Descrição
+                </span>
+                <input
+                  type="text"
+                  value={store.desc}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setTiktokLinks((prev) =>
+                      prev.map((item, i) =>
+                        i === idx ? { ...item, desc: val } : item,
+                      ),
+                    )
+                  }}
+                  className="px-3 py-2 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-[#fe2c55]"
+                />
+              </label>
+              <label className="flex-[2] flex flex-col gap-1">
+                <span className="text-[11px] font-bold text-slate-400 uppercase">
+                  URL da Loja TikTok
+                </span>
+                <input
+                  type="url"
+                  value={store.href}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setTiktokLinks((prev) =>
+                      prev.map((item, i) =>
+                        i === idx ? { ...item, href: val } : item,
+                      ),
+                    )
+                  }}
+                  className="px-3 py-2 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-[#fe2c55]"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => handleDeleteTiktokStore(store.id)}
                 className="self-end bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-150 dark:border-red-900/50 px-4 py-2.5 rounded-xl font-bold text-xs h-10 transition-colors cursor-pointer"
               >
                 Remover

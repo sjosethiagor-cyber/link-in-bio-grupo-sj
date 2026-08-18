@@ -6,6 +6,7 @@ interface OverviewMetricsProps {
   leads: Lead[]
   mlLinks: StoreLink[]
   shopeeLinks: StoreLink[]
+  tiktokLinks?: StoreLink[]
   loadData: () => Promise<void>
   setActiveTab: (tab: "metrics" | "leads" | "cms" | "ads" | "users") => void
 }
@@ -17,6 +18,7 @@ export function OverviewMetrics({
   leads,
   mlLinks,
   shopeeLinks,
+  tiktokLinks = [],
   loadData,
   setActiveTab,
 }: OverviewMetricsProps) {
@@ -61,12 +63,14 @@ export function OverviewMetrics({
     totalLeads,
     mlClicks,
     shopeeClicks,
+    tiktokClicks,
     socialClicks,
     contactClicks,
     pctSocial,
     pctContact,
     pctML,
     pctShopee,
+    pctTikTok,
     activeLeadsCount,
     completedLeadsCount,
     leadsProgressPct,
@@ -75,14 +79,16 @@ export function OverviewMetrics({
     const tLeads = filteredLeads.length
     const ml = filteredClicks.filter((c) => c.category === "Mercado Livre").length
     const shopee = filteredClicks.filter((c) => c.category === "Shopee").length
+    const tiktok = filteredClicks.filter((c) => c.category === "TikTok").length
     const social = filteredClicks.filter((c) => c.category === "Rede Social").length
     const contact = filteredClicks.filter((c) => c.category === "Contato").length
 
-    const maxClicks = Math.max(social, contact, ml, shopee, 1)
+    const maxClicks = Math.max(social, contact, ml, shopee, tiktok, 1)
     const pSocial = Math.round((social / maxClicks) * 100)
     const pContact = Math.round((contact / maxClicks) * 100)
     const pML = Math.round((ml / maxClicks) * 100)
     const pShopee = Math.round((shopee / maxClicks) * 100)
+    const pTikTok = Math.round((tiktok / maxClicks) * 100)
 
     const active = filteredLeads.filter((l) => l.status === "Em Atendimento").length
     const completed = filteredLeads.filter((l) => l.status === "Concluído").length
@@ -94,12 +100,14 @@ export function OverviewMetrics({
       totalLeads: tLeads,
       mlClicks: ml,
       shopeeClicks: shopee,
+      tiktokClicks: tiktok,
       socialClicks: social,
       contactClicks: contact,
       pctSocial: pSocial,
       pctContact: pContact,
       pctML: pML,
       pctShopee: pShopee,
+      pctTikTok: pTikTok,
       activeLeadsCount: active,
       completedLeadsCount: completed,
       leadsProgressPct: progress,
@@ -118,6 +126,14 @@ export function OverviewMetrics({
     return filteredClicks.filter(
       (c) =>
         c.category === "Shopee" &&
+        c.linkName.toLowerCase().includes((subName || "").toLowerCase()),
+    ).length
+  }
+
+  const getTikTokSubLinkClicks = (subName: string) => {
+    return filteredClicks.filter(
+      (c) =>
+        c.category === "TikTok" &&
         c.linkName.toLowerCase().includes((subName || "").toLowerCase()),
     ).length
   }
@@ -346,11 +362,11 @@ export function OverviewMetrics({
               Distribuição de cliques nos links específicos de cada marketplace.
             </p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* ML Sub-stores */}
               <div className="p-4 bg-amber-50/20 dark:bg-amber-950/5 rounded-2xl border border-amber-100/30 dark:border-amber-900/10 flex flex-col gap-3">
                 <span className="text-[11px] font-extrabold text-amber-700 dark:text-amber-400 tracking-wider uppercase block">
-                  🛍️ Lojas Mercado Livre
+                  🛍️ Mercado Livre ({mlClicks})
                 </span>
                 <div className="flex flex-col gap-2">
                   {mlLinks.slice(0, 3).map((store) => (
@@ -375,7 +391,7 @@ export function OverviewMetrics({
               {/* Shopee Sub-stores */}
               <div className="p-4 bg-red-50/20 dark:bg-red-950/5 rounded-2xl border border-red-100/30 dark:border-red-900/10 flex flex-col gap-3">
                 <span className="text-[11px] font-extrabold text-red-700 dark:text-red-400 tracking-wider uppercase block">
-                  🛒 Lojas Shopee
+                  🛒 Shopee ({shopeeClicks})
                 </span>
                 <div className="flex flex-col gap-2">
                   {shopeeLinks.slice(0, 3).map((store) => (
@@ -390,6 +406,31 @@ export function OverviewMetrics({
                     </div>
                   ))}
                   {shopeeLinks.length === 0 && (
+                    <span className="text-xs text-slate-400 dark:text-slate-500 italic">
+                      Nenhuma cadastrada
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* TikTok Sub-stores */}
+              <div className="p-4 bg-rose-50/20 dark:bg-rose-950/5 rounded-2xl border border-rose-100/30 dark:border-rose-900/10 flex flex-col gap-3">
+                <span className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400 tracking-wider uppercase block">
+                  🎵 TikTok ({tiktokClicks})
+                </span>
+                <div className="flex flex-col gap-2">
+                  {tiktokLinks.slice(0, 3).map((store) => (
+                    <div
+                      key={store.id}
+                      className="text-xs font-bold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm flex items-center justify-between"
+                    >
+                      <span>{store.name}</span>
+                      <strong className="text-rose-600 dark:text-rose-400">
+                        {getTikTokSubLinkClicks(store.name)}
+                      </strong>
+                    </div>
+                  ))}
+                  {tiktokLinks.length === 0 && (
                     <span className="text-xs text-slate-400 dark:text-slate-500 italic">
                       Nenhuma cadastrada
                     </span>

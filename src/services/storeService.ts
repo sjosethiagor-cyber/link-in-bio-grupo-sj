@@ -2,7 +2,7 @@ export interface ClickEvent {
   id?: string
   linkId: string
   linkName: string
-  category: "Mercado Livre" | "Shopee" | "Rede Social" | "Contato"
+  category: "Mercado Livre" | "Shopee" | "TikTok" | "Rede Social" | "Contato"
   timestamp: number
 }
 
@@ -21,7 +21,7 @@ export interface StoreLink {
   name: string
   desc: string
   href: string
-  storeType: "ml" | "shopee"
+  storeType: "ml" | "shopee" | "tiktok"
 }
 
 // ── Security Helpers & Input Sanitization ─────────────────────────────────────
@@ -133,6 +133,16 @@ export const DEFAULT_SHOPEE_LOJAS: StoreLink[] = [
   },
 ]
 
+export const DEFAULT_TIKTOK_LOJAS: StoreLink[] = [
+  {
+    id: "tt_grupo_sj",
+    name: "Grupo SJ Oficial",
+    desc: "Loja oficial no TikTok",
+    href: "https://www.tiktok.com/@gruposj",
+    storeType: "tiktok",
+  },
+]
+
 export interface SocialLinks {
   instagram: string
   facebook: string
@@ -154,6 +164,7 @@ const LOCAL_STORAGE_KEYS = {
   LEADS: "grupo_sj_leads_v1",
   LINKS_ML: "grupo_sj_links_ml_v1",
   LINKS_SP: "grupo_sj_links_sp_v1",
+  LINKS_TT: "grupo_sj_links_tt_v1",
   SOCIAL_LINKS: "grupo_sj_social_links_v1",
 }
 
@@ -162,7 +173,7 @@ const LOCAL_STORAGE_KEYS = {
 export async function recordClick(
   linkId: string,
   linkName: string,
-  category: "Mercado Livre" | "Shopee" | "Rede Social" | "Contato",
+  category: "Mercado Livre" | "Shopee" | "TikTok" | "Rede Social" | "Contato",
 ) {
   const event: ClickEvent = {
     linkId,
@@ -410,6 +421,57 @@ export async function getShopeeStoreLinks(): Promise<StoreLink[]> {
     }
   } catch (err) {
     console.warn("Failed to fetch Shopee store links from Firebase:", err)
+  }
+  return local
+}
+
+export function getStoredTikTokStoreLinks(): StoreLink[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.LINKS_TT)
+    if (!raw) return DEFAULT_TIKTOK_LOJAS
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.length > 0
+      ? parsed
+      : DEFAULT_TIKTOK_LOJAS
+  } catch {
+    return DEFAULT_TIKTOK_LOJAS
+  }
+}
+
+export function saveStoredTikTokStoreLinks(links: StoreLink[]) {
+  try {
+    const sanitized = links.map((l) => ({
+      ...l,
+      name: sanitizeText(l.name || (l as any).nome || "", 100),
+      desc: sanitizeText(l.desc, 150),
+      href: sanitizeUrl(l.href),
+    }))
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_TT, JSON.stringify(sanitized))
+    import("./firebaseStoreService")
+      .then(({ saveTikTokStoreLinksInFirebase }) => {
+        saveTikTokStoreLinksInFirebase(sanitized)
+      })
+      .catch((err) =>
+        console.warn("Firestore saveTikTokStoreLinksInFirebase error:", err),
+      )
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+export async function getTikTokStoreLinks(): Promise<StoreLink[]> {
+  const local = getStoredTikTokStoreLinks()
+  try {
+    const { getTikTokStoreLinksFromFirebase } = await import(
+      "./firebaseStoreService"
+    )
+    const cloud = await getTikTokStoreLinksFromFirebase()
+    if (cloud && cloud.length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LINKS_TT, JSON.stringify(cloud))
+      return cloud
+    }
+  } catch (err) {
+    console.warn("Failed to fetch TikTok store links from Firebase:", err)
   }
   return local
 }

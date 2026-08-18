@@ -38,6 +38,21 @@ export function IcoShopee({ s = 32 }: { s?: number }) {
   )
 }
 
+export function IcoTikTok({ s = 32 }: { s?: number }) {
+  return (
+    <svg
+      width={s}
+      height={s}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      style={{ display: "block" }}
+    >
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.89 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.35 0 .68.06 1 .18V9.45a6.34 6.34 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.67a6.34 6.34 0 0 0 6.34 6.33 6.34 6.34 0 0 0 6.33-6.33V8.89a8.28 8.28 0 0 0 4.92 1.6V7.04a4.83 4.83 0 0 1-1-.35z" />
+    </svg>
+  )
+}
+
 // ─── Social and Action Icons ──────────────────────────────────────────────────
 
 export function IcoInstagram({ s = 22 }: { s?: number }) {

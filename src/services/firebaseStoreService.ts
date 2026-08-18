@@ -289,6 +289,32 @@ export async function getShopeeStoreLinksFromFirebase(): Promise<StoreLink[] | n
   }
 }
 
+export async function saveTikTokStoreLinksInFirebase(
+  links: StoreLink[],
+): Promise<void> {
+  if (!isFirebaseConfigured || !db) return
+  try {
+    await setDoc(doc(db, "links", "tiktok"), { list: links })
+  } catch (err) {
+    logger.error("saveTikTokStoreLinksInFirebase failed", err)
+  }
+}
+
+export async function getTikTokStoreLinksFromFirebase(): Promise<StoreLink[] | null> {
+  if (!isFirebaseConfigured || !db) return null
+  try {
+    const snap = await getDoc(doc(db, "links", "tiktok"))
+    if (snap.exists()) {
+      const data = snap.data()
+      return data.list || []
+    }
+    return null
+  } catch (err) {
+    logger.warn("getTikTokStoreLinksFromFirebase warning:", err)
+    return null
+  }
+}
+
 export async function saveSocialLinksInFirebase(
   social: SocialLinks,
 ): Promise<void> {
