@@ -333,9 +333,9 @@ export default function App() {
             <p className="section-label">{"Nossas lojas"}</p>
             <div className="store-grid">
               <StoreCardTrigger
-                icon={<IcoML s={42} />}
+                icon={<IcoML s={40} />}
                 name="Mercado Livre"
-                subtitle={`${mlLojas.length} lojas oficiais`}
+                subtitle={mlLojas.length === 1 ? "1 loja oficial" : `${mlLojas.length} lojas oficiais`}
                 cls="store-card-ml"
                 iconBg="rgba(255,230,0,0.18)"
                 onClick={() => {
@@ -356,9 +356,9 @@ export default function App() {
                 }}
               />
               <StoreCardTrigger
-                icon={<IcoShopee s={42} />}
+                icon={<IcoShopee s={40} />}
                 name="Shopee"
-                subtitle={`${shopeeLojas.length} lojas oficiais`}
+                subtitle={shopeeLojas.length === 1 ? "1 loja oficial" : `${shopeeLojas.length} lojas oficiais`}
                 cls="store-card-sp"
                 iconBg="rgba(238,77,45,0.18)"
                 onClick={() => {
@@ -375,9 +375,9 @@ export default function App() {
                 }}
               />
               <StoreCardTrigger
-                icon={<IcoTikTok s={38} />}
+                icon={<IcoTikTok s={36} />}
                 name="TikTok"
-                subtitle={`${tiktokLojas.length} lojas oficiais`}
+                subtitle={tiktokLojas.length === 1 ? "1 loja oficial" : `${tiktokLojas.length} lojas oficiais`}
                 cls="store-card-tt"
                 iconBg="rgba(254,44,85,0.18)"
                 onClick={() => {

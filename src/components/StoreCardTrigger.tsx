@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react"
+import { ReactNode } from "react"
 import { IcoArrow } from "./Icons"
 
 interface StoreCardTriggerProps {
@@ -26,64 +26,24 @@ export function StoreCardTrigger({
       aria-haspopup="dialog"
       aria-label={`Abrir lista de lojas ${name}`}
     >
-      <span
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          flex: 1,
-          minWidth: 0,
-        }}
-      >
+      <div className="store-card-top">
         <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 48,
-            height: 48,
-            borderRadius: 14,
-            background: iconBg,
-            flexShrink: 0,
-            padding: 8,
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-          }}
+          className="store-card-icon"
+          style={{ background: iconBg }}
         >
           {icon}
         </span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: 15,
-              fontWeight: 800,
-              letterSpacing: "-0.01em",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {name}
-          </span>
-          <span
-            style={{
-              display: "block",
-              fontSize: 12,
-              fontWeight: 500,
-              color: "var(--muted-foreground)",
-              marginTop: 2,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {subtitle}
-          </span>
+        <span className="store-card-action">
+          <span>Ver lojas</span>
+          <IcoArrow s={13} />
         </span>
-      </span>
+      </div>
 
-      <span className="store-card-action">
-        <span>Ver lojas</span>
-        <IcoArrow s={13} />
-      </span>
+      <div className="store-card-info">
+        <span className="store-card-title">{name}</span>
+        <span className="store-card-subtitle">{subtitle}</span>
+      </div>
     </button>
   )
 }
+
