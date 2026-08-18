@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Lead } from "../../services/storeService"
-import { IcoSearch } from "../Icons"
+import { IcoSearch, IcoWhatsApp } from "../Icons"
 
 interface LeadsManagerProps {
   leads: Lead[]
@@ -10,11 +10,26 @@ interface LeadsManagerProps {
   ) => Promise<void>
 }
 
+function getWhatsAppUrl(name: string, phone: string) {
+  const digits = phone.replace(/\D/g, "")
+  const fullPhone = digits.startsWith("55") ? digits : `55${digits}`
+  const firstName = name.trim().split(" ")[0] || "Cliente"
+  const message = `Olá, ${firstName}! Sou da equipe do Grupo SJ. Recebemos seu contato através da nossa página e estou à disposição para ajudar com seu orçamento e dúvidas.`
+  return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`
+}
+
 export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
   const [leadSearch, setLeadSearch] = useState("")
   const [leadStatusFilter, setLeadStatusFilter] = useState<
     "Todos" | "Novo" | "Em Atendimento" | "Concluído"
   >("Todos")
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const copyPhone = (id: string, phone: string) => {
+    navigator.clipboard.writeText(phone)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 2000)
+  }
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -30,7 +45,15 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
   const exportToCsv = () => {
     if (leads.length === 0) return
 
-    const headers = ["ID", "Nome", "WhatsApp", "E-mail", "Status", "Data", "Mensagem"]
+    const headers = [
+      "ID",
+      "Nome",
+      "WhatsApp",
+      "E-mail",
+      "Status",
+      "Data",
+      "Mensagem",
+    ]
     const rows = filteredLeads.map((l) => [
       `"${l.id}"`,
       `"${l.name.replace(/"/g, '""')}"`,
@@ -94,10 +117,18 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                 }
                 className="dashboard-select px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 text-xs font-bold focus:outline-none"
               >
-                <option value="Todos">Todos os Status</option>
-                <option value="Novo">Novo</option>
-                <option value="Em Atendimento">Em Atendimento</option>
-                <option value="Concluído">Concluído</option>
+                <option value="Todos">Todos os Status ({leads.length})</option>
+                <option value="Novo">
+                  Novo ({leads.filter((l) => l.status === "Novo").length})
+                </option>
+                <option value="Em Atendimento">
+                  Em Atendimento (
+                  {leads.filter((l) => l.status === "Em Atendimento").length})
+                </option>
+                <option value="Concluído">
+                  Concluído (
+                  {leads.filter((l) => l.status === "Concluído").length})
+                </option>
               </select>
             </div>
 
@@ -161,11 +192,13 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                 </div>
 
                 <div className="flex flex-col gap-1 text-xs text-slate-600 dark:text-slate-400">
-                  <div>
-                    <strong className="text-slate-800 dark:text-slate-300 font-bold">
-                      WhatsApp:
-                    </strong>{" "}
-                    {lead.whatsapp}
+                  <div className="flex items-center justify-between">
+                    <span>
+                      <strong className="text-slate-800 dark:text-slate-300 font-bold">
+                        WhatsApp:
+                      </strong>{" "}
+                      {lead.whatsapp}
+                    </span>
                   </div>
                   <div>
                     <strong className="text-slate-800 dark:text-slate-300 font-bold">
@@ -177,6 +210,35 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                     <div className="mt-1 p-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800/80 italic text-slate-500">
                       "{lead.message}"
                     </div>
+                  )}
+                </div>
+
+                {/* Quick actions for Mobile */}
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <a
+                    href={getWhatsAppUrl(lead.name, lead.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 no-underline shadow-sm transition-all"
+                  >
+                    <IcoWhatsApp s={14} />
+                    <span>WhatsApp</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => copyPhone(lead.id, lead.whatsapp)}
+                    className="py-2 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all cursor-pointer"
+                  >
+                    {copiedId === lead.id ? "✓ Copiado" : "📋 Copiar"}
+                  </button>
+                  {lead.email && (
+                    <a
+                      href={`mailto:${lead.email}`}
+                      className="py-2 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline"
+                      title="Enviar E-mail"
+                    >
+                      ✉️
+                    </a>
                   )}
                 </div>
               </div>
@@ -195,13 +257,14 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                 <th>Mensagem</th>
                 <th>Status</th>
                 <th>Data</th>
+                <th className="text-center">Ações Rápidas</th>
               </tr>
             </thead>
             <tbody>
               {filteredLeads.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="py-12 text-center text-slate-400 italic text-xs"
                   >
                     Nenhum lead encontrado com os filtros selecionados.
@@ -251,6 +314,37 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                     </td>
                     <td className="text-xs text-slate-400 font-semibold">
                       {new Date(lead.createdAt).toLocaleDateString("pt-BR")}
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <a
+                          href={getWhatsAppUrl(lead.name, lead.whatsapp)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold text-xs flex items-center gap-1 no-underline transition-all"
+                          title="Abrir conversa no WhatsApp"
+                        >
+                          <IcoWhatsApp s={14} />
+                          <span className="font-extrabold text-[11px]">Conversar</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => copyPhone(lead.id, lead.whatsapp)}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-all border border-slate-200 dark:border-slate-700 cursor-pointer"
+                          title="Copiar número"
+                        >
+                          {copiedId === lead.id ? "✓" : "📋"}
+                        </button>
+                        {lead.email && (
+                          <a
+                            href={`mailto:${lead.email}`}
+                            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-all border border-slate-200 dark:border-slate-700 no-underline"
+                            title="Enviar E-mail"
+                          >
+                            ✉️
+                          </a>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

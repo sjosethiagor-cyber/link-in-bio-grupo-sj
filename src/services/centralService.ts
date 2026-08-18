@@ -36,10 +36,30 @@ export interface ProductDoc {
   createdAt?: string
 }
 
+const PRODUCTS_CACHE_KEY = "grupo_sj_products_cache_v1"
+
+export function getCachedProducts(): ProductDoc[] {
+  try {
+    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch (e) {
+    console.warn("Failed to load cached products:", e)
+  }
+  return []
+}
+
+export function saveCachedProducts(products: ProductDoc[]): void {
+  try {
+    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(products))
+  } catch (e) {
+    console.warn("Failed to save cached products:", e)
+  }
+}
+
 // ─── Products Collection API ──────────────────────────────────────────────────
 
 export async function getProductsFromFirebase(): Promise<ProductDoc[]> {
-  if (!centralDb) return []
+  if (!centralDb) return getCachedProducts()
   try {
     const q = query(collection(centralDb, "products"), orderBy("name", "asc"))
     const snapshot = await getDocs(q)
@@ -78,9 +98,12 @@ export async function getProductsFromFirebase(): Promise<ProductDoc[]> {
     products.sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
     )
+    saveCachedProducts(products)
     return products
   } catch (error) {
-    console.error("Error getProductsFromFirebase:", error)
+    console.error("Error getProductsFromFirebase (falling back to cache):", error)
+    const cached = getCachedProducts()
+    if (cached.length > 0) return cached
     throw error
   }
 }

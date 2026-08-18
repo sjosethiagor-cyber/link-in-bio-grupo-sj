@@ -44,10 +44,8 @@ import { OverviewMetrics } from "./admin/OverviewMetrics"
 import { LeadsManager } from "./admin/LeadsManager"
 import { LinksCMS } from "./admin/LinksCMS"
 import { UserRolesManager } from "./admin/UserRolesManager"
+import CentralDeAnuncios from "./CentralDeAnuncios"
 import { DashboardRole, DashboardUserRecord } from "../types/dashboardUser"
-
-// Lazy loaded heavy components
-const CentralDeAnuncios = lazy(() => import("./CentralDeAnuncios"))
 
 // Import icons
 import {
@@ -94,6 +92,7 @@ export default function DashboardPortal({
   const [authError, setAuthError] = useState<string | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
   const [isMainAdminAuthorized, setIsMainAdminAuthorized] =
     useState<boolean>(false)
   const [currentUserRole, setCurrentUserRole] = useState<
@@ -484,12 +483,17 @@ export default function DashboardPortal({
           </button>
           <button
             onClick={() => setActiveTab("leads")}
-            className={`sidebar-icon-btn ${
+            className={`sidebar-icon-btn relative ${
               activeTab === "leads" ? "active" : ""
             }`}
             title="Leads Coletados"
           >
             <IcoInbox />
+            {leads.filter((l) => l.status === "Novo").length > 0 && (
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#e8451f] text-white text-[9px] font-black flex items-center justify-center ring-2 ring-white dark:ring-slate-900 shadow-sm animate-pulse">
+                {leads.filter((l) => l.status === "Novo").length}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab("cms")}
@@ -580,18 +584,96 @@ export default function DashboardPortal({
               <input type="text" placeholder="Buscar no painel..." />
             </div>
 
-            <button
-              className="text-slate-400 hover:text-slate-600 transition-colors relative"
-              aria-label="Notificações"
-            >
-              <IcoBell />
-              {leads.filter((l) => l.status === "Novo").length > 0 && (
-                <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            {/* Notification Bell with Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors relative p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 border-none bg-transparent cursor-pointer"
+                aria-label="Notificações"
+              >
+                <IcoBell />
+                {leads.filter((l) => l.status === "Novo").length > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#e8451f] ring-2 ring-white dark:ring-slate-900 animate-pulse"></span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowNotifications(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="px-4 pb-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                      <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                        Notificações de Leads
+                      </span>
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#e8451f]/10 text-[#e8451f]">
+                        {leads.filter((l) => l.status === "Novo").length} novos
+                      </span>
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                      {leads.filter((l) => l.status === "Novo").length === 0 ? (
+                        <div className="p-4 text-center text-xs text-slate-400 italic">
+                          Nenhum lead pendente no momento.
+                        </div>
+                      ) : (
+                        leads
+                          .filter((l) => l.status === "Novo")
+                          .slice(0, 5)
+                          .map((nLead) => (
+                            <div
+                              key={nLead.id}
+                              onClick={() => {
+                                setShowNotifications(false)
+                                setActiveTab("leads")
+                              }}
+                              className="p-3 hover:bg-slate-50 dark:hover:bg-slate-850 transition-colors cursor-pointer flex flex-col gap-1"
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                                  {nLead.name}
+                                </span>
+                                <span className="text-[9px] text-slate-400 font-semibold">
+                                  {new Date(nLead.createdAt).toLocaleDateString("pt-BR")}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                WhatsApp: {nLead.whatsapp}
+                              </span>
+                              {nLead.message && (
+                                <p className="text-[10px] text-slate-400 truncate italic">
+                                  "{nLead.message}"
+                                </p>
+                              )}
+                            </div>
+                          ))
+                      )}
+                    </div>
+
+                    <div className="pt-2 px-3 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        onClick={() => {
+                          setShowNotifications(false)
+                          setActiveTab("leads")
+                        }}
+                        className="w-full py-1.5 text-center text-xs font-extrabold text-[#e8451f] hover:underline bg-transparent border-none cursor-pointer"
+                      >
+                        Ver todos os leads →
+                      </button>
+                    </div>
+                  </div>
+                </>
               )}
-            </button>
+            </div>
+
             <button
               className="text-slate-400 hover:text-slate-600 transition-colors"
               aria-label="Informações"
+              onClick={() => {
+                alert("Grupo SJ Dashboard v1.2 · Painel de Gestão Integrada")
+              }}
             >
               <IcoInfo />
             </button>
@@ -708,18 +790,10 @@ export default function DashboardPortal({
 
                 {/* ── VIEW 4: ADS / CENTRAL DE ANUNCIOS ── */}
                 {activeTab === "ads" && (
-                  <Suspense
-                    fallback={
-                      <div className="flex justify-center items-center py-24 text-slate-400 font-bold">
-                        Carregando Central de Anúncios...
-                      </div>
-                    }
-                  >
-                    <CentralDeAnuncios
-                      ref={centralRef}
-                      onSessionChange={(session) => setCentralSession(session)}
-                    />
-                  </Suspense>
+                  <CentralDeAnuncios
+                    ref={centralRef}
+                    onSessionChange={(session) => setCentralSession(session)}
+                  />
                 )}
 
                 {/* ── VIEW 5: DASHBOARD USERS / ACCESS CONTROL ── */}

@@ -674,7 +674,7 @@ a { color: inherit; }
   border: 1px solid #bfdbfe;
 }
 
-.library-edit:hover { background: #dbeafe !important; }
+.library-edit:hover { background: #dbeafe; }
 
 .library-delete {
   color: #e11d48;
@@ -682,7 +682,7 @@ a { color: inherit; }
   border: 1px solid #fecdd3;
 }
 
-.library-delete:hover { background: #ffe4e6 !important; }
+.library-delete:hover { background: #ffe4e6; }
 .library-item-actions button:disabled { opacity: 0.55; cursor: wait; }
 
 .product-info {

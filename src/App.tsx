@@ -39,15 +39,6 @@ import {
   IcoArrow
 } from "./components/Icons"
 
-// ─── Links Estáticos por Padrão ──────────────────────────────────────────────
-const LINKS = {
-  instagram: "https://instagram.com/[@instagram]",
-  facebook: "https://facebook.com/[@facebook]",
-  youtube: "https://youtube.com/@gruposj",
-  whatsapp: "https://wa.me/[numero whatsapp]",
-  email: "contato@gruposj.com.br",
-}
-
 // ─── Error boundary ───────────────────────────────────────────────────────────
 
 interface EBState {

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { ClickEvent, Lead, StoreLink } from "../../services/storeService"
 
 interface OverviewMetricsProps {
@@ -10,6 +10,8 @@ interface OverviewMetricsProps {
   setActiveTab: (tab: "metrics" | "leads" | "cms" | "ads" | "users") => void
 }
 
+type TimeRange = "all" | "today" | "7days" | "30days" | "this_month"
+
 export function OverviewMetrics({
   clicks,
   leads,
@@ -18,7 +20,42 @@ export function OverviewMetrics({
   loadData,
   setActiveTab,
 }: OverviewMetricsProps) {
-  // Memoized calculations for fast re-renders
+  const [timeRange, setTimeRange] = useState<TimeRange>("all")
+
+  // Filter clicks and leads based on selected time range
+  const { filteredClicks, filteredLeads, timeRangeLabel } = useMemo(() => {
+    const now = new Date()
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    ).getTime()
+    const startOf7Days = startOfToday - 6 * 24 * 60 * 60 * 1000
+    const startOf30Days = startOfToday - 29 * 24 * 60 * 60 * 1000
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+
+    let label = "Todo o período"
+    const matchTime = (timestamp: number) => {
+      if (timeRange === "today") return timestamp >= startOfToday
+      if (timeRange === "7days") return timestamp >= startOf7Days
+      if (timeRange === "30days") return timestamp >= startOf30Days
+      if (timeRange === "this_month") return timestamp >= startOfMonth
+      return true
+    }
+
+    if (timeRange === "today") label = "Hoje"
+    else if (timeRange === "7days") label = "Últimos 7 dias"
+    else if (timeRange === "30days") label = "Últimos 30 dias"
+    else if (timeRange === "this_month") label = "Este mês"
+
+    return {
+      filteredClicks: clicks.filter((c) => matchTime(c.timestamp)),
+      filteredLeads: leads.filter((l) => matchTime(l.createdAt)),
+      timeRangeLabel: label,
+    }
+  }, [clicks, leads, timeRange])
+
+  // Memoized calculations for fast re-renders based on filtered data
   const {
     totalClicks,
     totalLeads,
@@ -34,12 +71,12 @@ export function OverviewMetrics({
     completedLeadsCount,
     leadsProgressPct,
   } = useMemo(() => {
-    const tClicks = clicks.length
-    const tLeads = leads.length
-    const ml = clicks.filter((c) => c.category === "Mercado Livre").length
-    const shopee = clicks.filter((c) => c.category === "Shopee").length
-    const social = clicks.filter((c) => c.category === "Rede Social").length
-    const contact = clicks.filter((c) => c.category === "Contato").length
+    const tClicks = filteredClicks.length
+    const tLeads = filteredLeads.length
+    const ml = filteredClicks.filter((c) => c.category === "Mercado Livre").length
+    const shopee = filteredClicks.filter((c) => c.category === "Shopee").length
+    const social = filteredClicks.filter((c) => c.category === "Rede Social").length
+    const contact = filteredClicks.filter((c) => c.category === "Contato").length
 
     const maxClicks = Math.max(social, contact, ml, shopee, 1)
     const pSocial = Math.round((social / maxClicks) * 100)
@@ -47,8 +84,8 @@ export function OverviewMetrics({
     const pML = Math.round((ml / maxClicks) * 100)
     const pShopee = Math.round((shopee / maxClicks) * 100)
 
-    const active = leads.filter((l) => l.status === "Em Atendimento").length
-    const completed = leads.filter((l) => l.status === "Concluído").length
+    const active = filteredLeads.filter((l) => l.status === "Em Atendimento").length
+    const completed = filteredLeads.filter((l) => l.status === "Concluído").length
     const progress =
       tLeads > 0 ? Math.round(((active + completed) / tLeads) * 100) : 0
 
@@ -67,10 +104,10 @@ export function OverviewMetrics({
       completedLeadsCount: completed,
       leadsProgressPct: progress,
     }
-  }, [clicks, leads])
+  }, [filteredClicks, filteredLeads])
 
   const getMlSubLinkClicks = (subName: string) => {
-    return clicks.filter(
+    return filteredClicks.filter(
       (c) =>
         c.category === "Mercado Livre" &&
         c.linkName.toLowerCase().includes((subName || "").toLowerCase()),
@@ -78,7 +115,7 @@ export function OverviewMetrics({
   }
 
   const getShopeeSubLinkClicks = (subName: string) => {
-    return clicks.filter(
+    return filteredClicks.filter(
       (c) =>
         c.category === "Shopee" &&
         c.linkName.toLowerCase().includes((subName || "").toLowerCase()),
@@ -86,22 +123,65 @@ export function OverviewMetrics({
   }
 
   return (
-    <div className="dashboard-metrics-container">
+    <div className="dashboard-metrics-container flex flex-col gap-6">
+      {/* ── Time Range Filter Bar ── */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">📅</span>
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+              Período de Análise
+            </h4>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+              Filtrando métricas por: <strong className="text-[#e8451f]">{timeRangeLabel}</strong> ({totalClicks} cliques · {totalLeads} leads)
+            </p>
+          </div>
+        </div>
+
+        {/* Time range pills */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl flex-wrap">
+          {(
+            [
+              { id: "all", label: "Todo o histórico" },
+              { id: "today", label: "Hoje" },
+              { id: "7days", label: "7 dias" },
+              { id: "30days", label: "30 dias" },
+              { id: "this_month", label: "Este mês" },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setTimeRange(item.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                timeRange === item.id
+                  ? "bg-white dark:bg-slate-900 text-[#e8451f] shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* 1. TOP ROW: Stat Cards */}
       <div className="metrics-summary-grid">
         {/* CARD 1: Clicks Totais */}
         <div className="stat-card">
           <div>
             <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-              Cliques Totais
+              Cliques no Período
             </span>
             <div className="flex items-baseline gap-2 mt-1">
               <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100">
                 {totalClicks}
               </h3>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded">
-                ↑ 14%
-              </span>
+              {timeRange !== "all" && (
+                <span className="text-[10px] font-bold text-slate-400">
+                  de {clicks.length} total
+                </span>
+              )}
             </div>
           </div>
           <div className="stat-icon-wrapper bg-orange-50 dark:bg-orange-950/20 text-[#e8451f]">

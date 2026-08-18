@@ -45,6 +45,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onEditProduct,
   onDeleteProduct,
 }) => {
+  const exportProductsToCsv = () => {
+    if (products.length === 0) return
+    const headers = [
+      "ID",
+      "SKU",
+      "Nome",
+      "Categoria",
+      "Status",
+      "Titulos_Mercado_Livre",
+      "Titulos_Shopee",
+      "Descricao_ML",
+      "Descricao_Shopee",
+      "Link_Drive",
+      "Data_Atualizacao",
+    ]
+    const rows = products.map((p) => [
+      `"${p.id}"`,
+      `"${p.sku}"`,
+      `"${p.name.replace(/"/g, '""')}"`,
+      `"${p.category}"`,
+      `"${p.status}"`,
+      `"${(p.mlTitles || []).filter(Boolean).join(" | ").replace(/"/g, '""')}"`,
+      `"${(p.shopeeTitles || []).filter(Boolean).join(" | ").replace(/"/g, '""')}"`,
+      `"${(p.mlDescription || "").replace(/"/g, '""')}"`,
+      `"${(p.shopeeDescription || "").replace(/"/g, '""')}"`,
+      `"${p.driveUrl || ""}"`,
+      `"${p.updatedAt || ""}"`,
+    ])
+    const csvContent =
+      "data:text/csv;charset=utf-8,\uFEFF" +
+      [headers.join(";"), ...rows.map((e) => e.join(";"))].join("\n")
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute(
+      "download",
+      `catalogo_grupo_sj_${new Date().toISOString().slice(0, 10)}.csv`,
+    )
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <aside className="library" aria-label="Biblioteca de produtos">
       <div className="library-heading">
@@ -52,7 +95,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <p className="eyebrow">Biblioteca</p>
           <h1>Produtos</h1>
         </div>
-        <span className="count">{products.length}</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={exportProductsToCsv}
+            disabled={products.length === 0}
+            className="p-1.5 px-2.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 cursor-pointer disabled:opacity-50"
+            title="Exportar todos os produtos para planilha CSV"
+          >
+            📥 CSV
+          </button>
+          <span className="count">{products.length}</span>
+        </div>
       </div>
 
       <label className="search">

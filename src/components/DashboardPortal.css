@@ -787,23 +787,147 @@
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-color);
   box-shadow: 0 2px 4px var(--shadow-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 .dashboard-portal-theme .central-ads-wrapper .product-item:hover {
   border-color: #e8451f;
   box-shadow: 0 4px 12px var(--shadow-color-hover);
+  transform: translateY(-1px);
 }
 .dashboard-portal-theme .central-ads-wrapper .product-item.selected {
   background-color: var(--bg-sunken);
   border-color: #e8451f;
   border-width: 2px;
-  box-shadow: 0 4px 12px rgba(232, 69, 31, 0.08);
+  box-shadow: 0 4px 14px rgba(232, 69, 31, 0.15);
 }
 .dashboard-portal-theme .central-ads-wrapper .product-info strong {
   color: var(--text-title);
-  font-weight: 750;
+  font-weight: 800;
+  font-size: 14px;
 }
 .dashboard-portal-theme .central-ads-wrapper .product-info small {
   color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* Card Action Buttons (Editar / Excluir) — Light Mode */
+.dashboard-portal-theme .central-ads-wrapper .library-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.dashboard-portal-theme .central-ads-wrapper .library-item-actions button {
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.15s ease;
+}
+.dashboard-portal-theme .central-ads-wrapper .library-edit {
+  color: #1d4ed8;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+.dashboard-portal-theme .central-ads-wrapper .library-edit:hover {
+  background-color: #dbeafe !important;
+  border-color: #93c5fd !important;
+}
+.dashboard-portal-theme .central-ads-wrapper .library-delete {
+  color: #b91c1c;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+}
+.dashboard-portal-theme .central-ads-wrapper .library-delete:hover {
+  background-color: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+
+/* Card Status Badges — Light Mode */
+.dashboard-portal-theme .central-ads-wrapper .status {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dashboard-portal-theme .central-ads-wrapper .status.live {
+  color: #065f46;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+.dashboard-portal-theme .central-ads-wrapper .status.review {
+  color: #92400e;
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DARK THEME: HIGH CONTRAST & CLEAN PRODUCT CARDS
+   ════════════════════════════════════════════════════════════ */
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .product-item {
+  background-color: #161f2e;
+  border: 1.5px solid #283548;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .product-item:hover {
+  background-color: #1c2738;
+  border-color: #e8451f;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .product-item.selected {
+  background-color: rgba(232, 69, 31, 0.08);
+  border: 2px solid #e8451f;
+  box-shadow: 0 0 0 1px #e8451f, 0 8px 24px rgba(232, 69, 31, 0.18);
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .product-thumb {
+  background-color: #0f1623;
+  border-right: 1.5px solid #283548;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .product-info strong {
+  color: #f8fafc;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .product-info small {
+  color: #94a3b8;
+}
+
+/* Dark Theme Action Buttons (Editar / Excluir) */
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .library-edit {
+  background-color: rgba(59, 130, 246, 0.18) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(96, 165, 250, 0.4) !important;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .library-edit:hover {
+  background-color: rgba(59, 130, 246, 0.35) !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .library-delete {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(248, 113, 113, 0.4) !important;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .library-delete:hover {
+  background-color: rgba(239, 68, 68, 0.35) !important;
+  color: #ffffff !important;
+  border-color: #f87171 !important;
+}
+
+/* Dark Theme Status Badges */
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .status.live {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(52, 211, 153, 0.4) !important;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .status.review {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(251, 191, 36, 0.4) !important;
 }
 
 /* Copy Cards Override */
@@ -978,18 +1102,26 @@
   font-weight: 600;
 }
 
-/* "PUBLICADO" / Status version pill — was rgba white (invisible on light bg) */
-.dashboard-portal-theme .central-ads-wrapper .version {
-  background: #f1f5f9;           /* slate-100 */
-  color: #334155;                /* slate-700: 8.1:1 */
-  border: 1.5px solid #cbd5e1;  /* slate-300 */
+/* "PUBLICADO" / Status version pill — Light Mode */
+.dashboard-portal-theme.light-theme .central-ads-wrapper .version {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1.5px solid #cbd5e1;
   font-weight: 800;
 }
-/* Override for "Publicado" specifically */
-.dashboard-portal-theme .central-ads-wrapper .version:has-text {
+.dashboard-portal-theme.light-theme .central-ads-wrapper .version.published,
+.dashboard-portal-theme.light-theme .central-ads-wrapper .version[data-status="Publicado"] {
   background: #ecfdf5;
   color: #065f46;
   border-color: #a7f3d0;
+}
+
+/* "PUBLICADO" / Status version pill — Dark Mode */
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .version {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  font-weight: 800;
 }
 
 /* "Editar produto" secondary button */
@@ -999,22 +1131,40 @@
   color: var(--text-main);
   font-weight: 700;
 }
-.dashboard-portal-theme .central-ads-wrapper .edit-button:hover {
+.dashboard-portal-theme.light-theme .central-ads-wrapper .edit-button:hover {
   border-color: #e8451f;
   color: #e8451f;
   background-color: #fff7ed;
 }
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .edit-button:hover {
+  border-color: #e8451f;
+  color: #ff8b6c;
+  background-color: rgba(232, 69, 31, 0.15);
+}
 
-/* "Abrir imagens no Drive" button */
-.dashboard-portal-theme .central-ads-wrapper .drive-button {
+/* "Abrir imagens no Drive" button — Light Mode */
+.dashboard-portal-theme.light-theme .central-ads-wrapper .drive-button {
   background: #ecfdf5;
-  border: 1.5px solid #6ee7b7; /* emerald-300 */
-  color: #065f46;               /* emerald-900: 7.5:1 on ecfdf5 */
+  border: 1.5px solid #6ee7b7;
+  color: #065f46;
   font-weight: 700;
 }
-.dashboard-portal-theme .central-ads-wrapper .drive-button:hover {
+.dashboard-portal-theme.light-theme .central-ads-wrapper .drive-button:hover {
   background: #d1fae5;
   border-color: #34d399;
+}
+
+/* "Abrir imagens no Drive" button — Dark Mode */
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .drive-button {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  color: #34d399;
+  font-weight: 700;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .drive-button:hover {
+  background: rgba(16, 185, 129, 0.28);
+  border-color: #34d399;
+  color: #ffffff;
 }
 
 /* "Gerar o código" barcode button */
@@ -1025,16 +1175,27 @@
   font-weight: 700;
   box-shadow: 0 1px 3px var(--shadow-color);
 }
-.dashboard-portal-theme .central-ads-wrapper .generate-barcode-btn:hover {
+.dashboard-portal-theme.light-theme .central-ads-wrapper .generate-barcode-btn:hover {
   border-color: #e8451f;
   color: #e8451f;
   background: #fff7ed;
   box-shadow: 0 2px 8px rgba(232,69,31,0.12);
 }
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .generate-barcode-btn:hover {
+  border-color: #e8451f;
+  color: #ff8b6c;
+  background: rgba(232, 69, 31, 0.15);
+  box-shadow: 0 2px 8px rgba(232,69,31,0.2);
+}
 .dashboard-portal-theme .central-ads-wrapper .generate-barcode-btn.copied {
   background: #ecfdf5;
   color: #065f46;
   border-color: #6ee7b7;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .generate-barcode-btn.copied {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.4);
 }
 
 /* "Copiar todas opções" / "Copiar descrição" — copy-all button */
@@ -1069,10 +1230,15 @@
   border: 1.5px solid var(--border-color);
   color: var(--text-muted);
 }
-.dashboard-portal-theme .central-ads-wrapper .collapse-toggle-btn:hover {
+.dashboard-portal-theme.light-theme .central-ads-wrapper .collapse-toggle-btn:hover {
   background: #fff7ed;
   border-color: #e8451f;
   color: #e8451f;
+}
+.dashboard-portal-theme.dark-theme .central-ads-wrapper .collapse-toggle-btn:hover {
+  background: rgba(232, 69, 31, 0.15);
+  border-color: #e8451f;
+  color: #ff8b6c;
 }
 
 /* Card heading title h3 */
