@@ -79,7 +79,9 @@ export function OverviewMetrics({
     const tLeads = filteredLeads.length
     const ml = filteredClicks.filter((c) => c.category === "Mercado Livre").length
     const shopee = filteredClicks.filter((c) => c.category === "Shopee").length
-    const tiktok = filteredClicks.filter((c) => c.category === "TikTok").length
+    const tiktok = filteredClicks.filter(
+      (c) => c.category === "TikTok" || c.category === "TikTok Shop",
+    ).length
     const social = filteredClicks.filter((c) => c.category === "Rede Social").length
     const contact = filteredClicks.filter((c) => c.category === "Contato").length
 
@@ -133,7 +135,7 @@ export function OverviewMetrics({
   const getTikTokSubLinkClicks = (subName: string) => {
     return filteredClicks.filter(
       (c) =>
-        c.category === "TikTok" &&
+        (c.category === "TikTok" || c.category === "TikTok Shop") &&
         c.linkName.toLowerCase().includes((subName || "").toLowerCase()),
     ).length
   }
@@ -416,7 +418,7 @@ export function OverviewMetrics({
               {/* TikTok Sub-stores */}
               <div className="p-4 bg-rose-50/20 dark:bg-rose-950/5 rounded-2xl border border-rose-100/30 dark:border-rose-900/10 flex flex-col gap-3">
                 <span className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400 tracking-wider uppercase block">
-                  🎵 TikTok ({tiktokClicks})
+                  🎵 TikTok Shop ({tiktokClicks})
                 </span>
                 <div className="flex flex-col gap-2">
                   {tiktokLinks.slice(0, 3).map((store) => (

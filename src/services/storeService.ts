@@ -2,7 +2,7 @@ export interface ClickEvent {
   id?: string
   linkId: string
   linkName: string
-  category: "Mercado Livre" | "Shopee" | "TikTok" | "Rede Social" | "Contato"
+  category: "Mercado Livre" | "Shopee" | "TikTok" | "TikTok Shop" | "Rede Social" | "Contato"
   timestamp: number
 }
 
@@ -29,11 +29,6 @@ export interface StoreLink {
 export function sanitizeText(input: string, maxLen = 300): string {
   if (!input) return ""
   return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;")
     .replace(/\//g, "&#x2F;")
     .replace(/javascript:/gi, "")
     .replace(/vbscript:/gi, "")
@@ -137,7 +132,7 @@ export const DEFAULT_TIKTOK_LOJAS: StoreLink[] = [
   {
     id: "tt_grupo_sj",
     name: "Grupo SJ Oficial",
-    desc: "Loja oficial no TikTok",
+    desc: "Loja oficial no TikTok Shop",
     href: "https://www.tiktok.com/@gruposj",
     storeType: "tiktok",
   },

@@ -59,8 +59,8 @@ export function LinksCMS({
   const handleAddTiktokStore = () => {
     const newStore: StoreLink = {
       id: "tt_" + Date.now(),
-      name: "Nova Loja TikTok",
-      desc: "Loja oficial no TikTok",
+      name: "Nova Loja TikTok Shop",
+      desc: "Loja oficial no TikTok Shop",
       href: "https://www.tiktok.com/@gruposj",
       storeType: "tiktok",
     }
@@ -251,7 +251,7 @@ export function LinksCMS({
       <div className="premium-card">
         <div className="flex justify-between items-center mb-6">
           <h4 className="text-md font-extrabold text-[#fe2c55] flex items-center gap-2">
-            🎵 Lojas TikTok ({tiktokLinks.length})
+            🎵 Lojas TikTok Shop ({tiktokLinks.length})
           </h4>
           <button
             type="button"

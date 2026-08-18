@@ -376,19 +376,19 @@ export default function App() {
               />
               <StoreCardTrigger
                 icon={<IcoTikTok s={36} />}
-                name="TikTok"
+                name="TikTok Shop"
                 subtitle={tiktokLojas.length === 1 ? "1 loja oficial" : `${tiktokLojas.length} lojas oficiais`}
                 cls="store-card-tt"
                 iconBg="rgba(254,44,85,0.18)"
                 onClick={() => {
-                  recordClick("btn_tt_stores", "TikTok Modal Open", "TikTok")
+                  recordClick("btn_tt_stores", "TikTok Shop Modal Open", "TikTok Shop")
                   setActiveStore({
-                    name: "TikTok",
-                    subtitle: "Lojas oficiais no TikTok",
+                    name: "TikTok Shop",
+                    subtitle: "Lojas oficiais no TikTok Shop",
                     icon: <IcoTikTok s={34} />,
                     iconBg: "rgba(254,44,85,0.18)",
                     tagColor: "#fe2c55",
-                    category: "TikTok",
+                    category: "TikTok Shop",
                     lojas: tiktokLojas,
                   })
                 }}
