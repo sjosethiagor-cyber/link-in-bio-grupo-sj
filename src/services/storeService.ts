@@ -168,7 +168,7 @@ const LOCAL_STORAGE_KEYS = {
 export async function recordClick(
   linkId: string,
   linkName: string,
-  category: "Mercado Livre" | "Shopee" | "TikTok" | "Rede Social" | "Contato",
+  category: "Mercado Livre" | "Shopee" | "TikTok" | "TikTok Shop" | "Rede Social" | "Contato",
 ) {
   const event: ClickEvent = {
     linkId,

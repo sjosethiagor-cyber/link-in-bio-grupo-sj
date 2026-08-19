@@ -8,7 +8,7 @@ export interface StoreModalData {
   icon: ReactNode
   iconBg: string
   tagColor: string
-  category: "Mercado Livre" | "Shopee"
+  category: "Mercado Livre" | "Shopee" | "TikTok" | "TikTok Shop"
   lojas: StoreLink[]
 }
 

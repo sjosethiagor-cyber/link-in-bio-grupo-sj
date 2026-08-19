@@ -147,123 +147,176 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
         style={{ maxWidth: 480 }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Unified Premium Header */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            paddingBottom: 14,
-            borderBottom: "1px solid var(--border)",
+            paddingBottom: 16,
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <span
-                style={{
-                  display: "inline-block",
-                  padding: "3px 10px",
-                  borderRadius: 99,
-                  background: "rgba(232, 69, 31, 0.15)",
-                  color: "#e8451f",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Atendimento Rápido
-              </span>
-
-              {/* Mode Switcher Tabs */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ position: "relative" }}>
               <div
                 style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #ff7a59, #e8451f)",
                   display: "flex",
-                  background: "rgba(255, 255, 255, 0.06)",
-                  padding: 2,
-                  borderRadius: 99,
-                  border: "1px solid var(--border)",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  fontWeight: 900,
+                  fontSize: 14,
+                  boxShadow: "0 4px 14px rgba(232, 69, 31, 0.35)",
                 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setViewMode("chat")}
-                  style={{
-                    padding: "2px 8px",
-                    borderRadius: 99,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    border: "none",
-                    background:
-                      viewMode === "chat"
-                        ? "linear-gradient(135deg, #e8451f, #ff7a59)"
-                        : "transparent",
-                    color: viewMode === "chat" ? "#fff" : "var(--muted-foreground)",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  🤖 Chat
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("form")}
-                  style={{
-                    padding: "2px 8px",
-                    borderRadius: 99,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    border: "none",
-                    background:
-                      viewMode === "form"
-                        ? "linear-gradient(135deg, #e8451f, #ff7a59)"
-                        : "transparent",
-                    color: viewMode === "form" ? "#fff" : "var(--muted-foreground)",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  📝 Formulário
-                </button>
+                SJ
               </div>
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#10b981",
+                  border: "2px solid #0f172a",
+                }}
+              />
             </div>
-
-            <h3
-              style={{
-                margin: 0,
-                fontSize: 18,
-                fontWeight: 800,
-                color: "var(--foreground)",
-              }}
-            >
-              {viewMode === "chat" ? "Assistente Comercial SJ" : "Solicitar Orçamento"}
-            </h3>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: "var(--foreground)",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Assistente Loja SJ
+                </h3>
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "2px 8px",
+                    borderRadius: 99,
+                    background: "rgba(16, 185, 129, 0.15)",
+                    color: "#34d399",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    border: "1px solid rgba(16, 185, 129, 0.25)",
+                  }}
+                >
+                  09h às 17h
+                </span>
+              </div>
+              <p
+                style={{
+                  margin: "2px 0 0",
+                  fontSize: 11,
+                  color: "var(--muted-foreground)",
+                  fontWeight: 500,
+                }}
+              >
+                Av. Portugal, 6759 · Umuarama - PR
+              </p>
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Fechar formulário"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid var(--border)",
-              color: "var(--foreground)",
-              cursor: "pointer",
-            }}
-          >
-            ✕
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Mode Switcher Tabs */}
+            <div
+              style={{
+                display: "flex",
+                background: "rgba(255, 255, 255, 0.05)",
+                padding: 3,
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode("chat")}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 9,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  border: "none",
+                  background:
+                    viewMode === "chat"
+                      ? "linear-gradient(135deg, #e8451f, #ff7a59)"
+                      : "transparent",
+                  color: viewMode === "chat" ? "#fff" : "rgba(255,255,255,0.6)",
+                  boxShadow:
+                    viewMode === "chat"
+                      ? "0 2px 8px rgba(232, 69, 31, 0.3)"
+                      : "none",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                Chat
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("form")}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 9,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  border: "none",
+                  background:
+                    viewMode === "form"
+                      ? "linear-gradient(135deg, #e8451f, #ff7a59)"
+                      : "transparent",
+                  color: viewMode === "form" ? "#fff" : "rgba(255,255,255,0.6)",
+                  boxShadow:
+                    viewMode === "form"
+                      ? "0 2px 8px rgba(232, 69, 31, 0.3)"
+                      : "none",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                Formulário
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Fechar"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "var(--foreground)",
+                cursor: "pointer",
+                transition: "background 0.2s ease",
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Content */}
         {viewMode === "chat" ? (
-          <div style={{ paddingTop: 14 }}>
+          <div style={{ paddingTop: 10 }}>
             <LeadChatbot
               onClose={onClose}
               onSwitchToForm={() => setViewMode("form")}
