@@ -483,8 +483,10 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
         setSaveSuccess(true)
         window.setTimeout(() => setSaveSuccess(false), 2800)
         void loadProducts(savedId)
-      } catch (error) {
-        setSaveError("Erro ao salvar produto no Firestore.")
+      } catch (error: any) {
+        console.error("saveProductInFirebase error:", error)
+        const detail = error?.code || error?.message || ""
+        setSaveError(`Erro ao salvar produto no Firestore.${detail ? ` (${detail})` : ""}`)
       } finally {
         setSaving(false)
       }
