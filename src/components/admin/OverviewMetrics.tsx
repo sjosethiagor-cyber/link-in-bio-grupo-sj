@@ -371,7 +371,7 @@ export function OverviewMetrics({
                   🛍️ Mercado Livre ({mlClicks})
                 </span>
                 <div className="flex flex-col gap-2">
-                  {mlLinks.slice(0, 3).map((store) => (
+                  {mlLinks.map((store) => (
                     <div
                       key={store.id}
                       className="text-xs font-bold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm flex items-center justify-between"
@@ -396,7 +396,7 @@ export function OverviewMetrics({
                   🛒 Shopee ({shopeeClicks})
                 </span>
                 <div className="flex flex-col gap-2">
-                  {shopeeLinks.slice(0, 3).map((store) => (
+                  {shopeeLinks.map((store) => (
                     <div
                       key={store.id}
                       className="text-xs font-bold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm flex items-center justify-between"
@@ -421,7 +421,7 @@ export function OverviewMetrics({
                   🎵 TikTok Shop ({tiktokClicks})
                 </span>
                 <div className="flex flex-col gap-2">
-                  {tiktokLinks.slice(0, 3).map((store) => (
+                  {tiktokLinks.map((store) => (
                     <div
                       key={store.id}
                       className="text-xs font-bold bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm flex items-center justify-between"
