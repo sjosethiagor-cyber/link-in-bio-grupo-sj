@@ -147,170 +147,213 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
         style={{ maxWidth: 480 }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Unified Premium Header */}
+        {/* Unified Clean Header */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingBottom: 16,
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            flexDirection: "column",
+            gap: 6,
+            paddingBottom: 12,
+            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ position: "relative" }}>
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #ff7a59, #e8451f)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontWeight: 900,
-                  fontSize: 14,
-                  boxShadow: "0 4px 14px rgba(232, 69, 31, 0.35)",
-                }}
-              >
-                SJ
+          {/* Top Row: Avatar + Title & Badge in 1 straight line + Mode Tabs + Close Button */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
+            }}
+          >
+            {/* Left: Avatar + Title in one straight line */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #ff7a59, #e8451f)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: 13,
+                    boxShadow: "0 3px 10px rgba(232, 69, 31, 0.35)",
+                  }}
+                >
+                  SJ
+                </div>
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    backgroundColor: "#10b981",
+                    border: "2px solid #0f172a",
+                  }}
+                />
               </div>
-              <span
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  width: 12,
-                  height: 12,
-                  borderRadius: "50%",
-                  backgroundColor: "#10b981",
-                  border: "2px solid #0f172a",
-                }}
-              />
-            </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, whiteSpace: "nowrap" }}>
                 <h3
                   style={{
                     margin: 0,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: 800,
                     color: "var(--foreground)",
+                    whiteSpace: "nowrap",
                     letterSpacing: "-0.01em",
                   }}
                 >
                   Assistente Loja SJ
                 </h3>
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "2px 8px",
-                    borderRadius: 99,
-                    background: "rgba(16, 185, 129, 0.15)",
-                    color: "#34d399",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    border: "1px solid rgba(16, 185, 129, 0.25)",
-                  }}
-                >
-                  09h às 17h
-                </span>
               </div>
-              <p
+            </div>
+
+            {/* Right: Mode Tabs + Close Button */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+              <div
                 style={{
-                  margin: "2px 0 0",
-                  fontSize: 11,
-                  color: "var(--muted-foreground)",
-                  fontWeight: 500,
+                  display: "flex",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  padding: 2,
+                  borderRadius: 10,
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
                 }}
               >
-                Av. Portugal, 6759 · Umuarama - PR
-              </p>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("chat")}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 8,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    border: "none",
+                    background:
+                      viewMode === "chat"
+                        ? "linear-gradient(135deg, #e8451f, #ff7a59)"
+                        : "transparent",
+                    color: viewMode === "chat" ? "#fff" : "rgba(255, 255, 255, 0.6)",
+                    boxShadow:
+                      viewMode === "chat"
+                        ? "0 2px 8px rgba(232, 69, 31, 0.3)"
+                        : "none",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("form")}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 8,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    border: "none",
+                    background:
+                      viewMode === "form"
+                        ? "linear-gradient(135deg, #e8451f, #ff7a59)"
+                        : "transparent",
+                    color: viewMode === "form" ? "#fff" : "rgba(255, 255, 255, 0.6)",
+                    boxShadow:
+                      viewMode === "form"
+                        ? "0 2px 8px rgba(232, 69, 31, 0.3)"
+                        : "none",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  Formulário
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Fechar"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "var(--foreground)",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                }}
+              >
+                ✕
+              </button>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Mode Switcher Tabs */}
-            <div
+          {/* Sub Row: Info in one single straight line with address and working hours */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 11,
+              color: "var(--muted-foreground)",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              paddingLeft: 46,
+              marginTop: -2,
+            }}
+          >
+            <span
               style={{
-                display: "flex",
-                background: "rgba(255, 255, 255, 0.05)",
-                padding: 3,
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setViewMode("chat")}
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: 9,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  border: "none",
-                  background:
-                    viewMode === "chat"
-                      ? "linear-gradient(135deg, #e8451f, #ff7a59)"
-                      : "transparent",
-                  color: viewMode === "chat" ? "#fff" : "rgba(255,255,255,0.6)",
-                  boxShadow:
-                    viewMode === "chat"
-                      ? "0 2px 8px rgba(232, 69, 31, 0.3)"
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                Chat
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("form")}
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: 9,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  border: "none",
-                  background:
-                    viewMode === "form"
-                      ? "linear-gradient(135deg, #e8451f, #ff7a59)"
-                      : "transparent",
-                  color: viewMode === "form" ? "#fff" : "rgba(255,255,255,0.6)",
-                  boxShadow:
-                    viewMode === "form"
-                      ? "0 2px 8px rgba(232, 69, 31, 0.3)"
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                Formulário
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Fechar"
-              style={{
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                justifyContent: "center",
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "var(--foreground)",
-                cursor: "pointer",
-                transition: "background 0.2s ease",
+                gap: 4,
+                padding: "1px 7px",
+                borderRadius: 6,
+                background: "rgba(16, 185, 129, 0.12)",
+                color: "#34d399",
+                fontSize: 10,
+                fontWeight: 700,
+                border: "1px solid rgba(16, 185, 129, 0.25)",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
             >
-              ✕
-            </button>
+              <span
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  backgroundColor: "#34d399",
+                  display: "inline-block",
+                }}
+              />
+              09h às 17h
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+            <span
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: 11,
+                color: "var(--muted-foreground)",
+              }}
+            >
+              Av. Portugal, 6759 · Umuarama - PR
+            </span>
           </div>
         </div>
 

@@ -28,6 +28,7 @@ const DashboardPortal = lazy(() => import("./components/DashboardPortal"))
 import { SocialPill } from "./components/SocialPill"
 import { ContactRow } from "./components/ContactRow"
 import { StoreCardTrigger } from "./components/StoreCardTrigger"
+import { PWAInstallBanner } from "./components/PWAInstallBanner"
 import { StoreDrawerModal, StoreModalData } from "./components/StoreDrawerModal"
 import {
   IcoML,
@@ -548,6 +549,9 @@ export default function App() {
           />
         </Suspense>
       )}
+
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
     </ErrorBoundary>
   )
 }
