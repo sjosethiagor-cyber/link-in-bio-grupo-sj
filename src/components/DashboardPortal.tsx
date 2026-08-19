@@ -7,6 +7,10 @@ import {
   getStoredShopeeStoreLinks,
   getStoredTikTokStoreLinks,
   getStoredSocialLinks,
+  getMLStoreLinks,
+  getShopeeStoreLinks,
+  getTikTokStoreLinks,
+  getSocialLinks,
   saveStoredMLStoreLinks,
   saveStoredShopeeStoreLinks,
   saveStoredTikTokStoreLinks,
@@ -336,10 +340,12 @@ export default function DashboardPortal({
       setClicks(fetchedClicks)
       setLeads(fetchedLeads)
 
-      const ml = getStoredMLStoreLinks()
-      const sp = getStoredShopeeStoreLinks()
-      const tt = getStoredTikTokStoreLinks()
-      const sc = getStoredSocialLinks()
+      const [ml, sp, tt, sc] = await Promise.all([
+        getMLStoreLinks(),
+        getShopeeStoreLinks(),
+        getTikTokStoreLinks(),
+        getSocialLinks(),
+      ])
       setMlLinks(ml)
       setShopeeLinks(sp)
       setTiktokLinks(tt)
