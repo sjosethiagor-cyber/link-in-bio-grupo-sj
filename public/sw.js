@@ -1,5 +1,5 @@
 // Service Worker - Grupo SJ
-const CACHE_NAME = "grupo-sj-v2"
+const CACHE_NAME = "grupo-sj-v3"
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
