@@ -1,4 +1,5 @@
-import { centralDb, centralStorage } from "../lib/centralFirebase"
+import { centralDb, centralStorage, centralAuth } from "../lib/centralFirebase"
+import DOMPurify from "dompurify"
 import {
   collection,
   doc,
@@ -112,23 +113,26 @@ export async function saveProductInFirebase(
   product: Partial<Omit<ProductDoc, "id">> & { id?: string | number },
 ): Promise<string> {
   if (!centralDb) throw new Error("Database not connected")
+  if (!centralAuth?.currentUser) throw new Error("Usuário não autenticado na Central")
 
   const id = product.id
   const now = new Date().toISOString()
+  const uid = centralAuth.currentUser.uid
 
   const docData = {
-    name: product.name,
-    sku: product.sku,
-    category: product.category || "Geral",
+    name: DOMPurify.sanitize(product.name || ""),
+    sku: DOMPurify.sanitize(product.sku || ""),
+    category: DOMPurify.sanitize(product.category || "Geral"),
     status: product.status === "Em revisão" ? "Em revisão" : "Publicado",
-    driveUrl: product.driveUrl || null,
+    driveUrl: product.driveUrl ? DOMPurify.sanitize(product.driveUrl) : null,
     coverKey: product.coverKey || null,
     coverColor: product.coverColor || "#3159d9",
-    mlTitles: product.mlTitles || [],
-    mlDescription: product.mlDescription || "",
-    shopeeTitles: product.shopeeTitles || [],
-    shopeeDescription: product.shopeeDescription || "",
+    mlTitles: (product.mlTitles || []).map(t => DOMPurify.sanitize(t)),
+    mlDescription: DOMPurify.sanitize(product.mlDescription || ""),
+    shopeeTitles: (product.shopeeTitles || []).map(t => DOMPurify.sanitize(t)),
+    shopeeDescription: DOMPurify.sanitize(product.shopeeDescription || ""),
     updatedAt: now,
+    createdBy: uid,
   }
 
   if (id) {

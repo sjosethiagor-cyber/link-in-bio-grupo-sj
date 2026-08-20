@@ -5,24 +5,12 @@ import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth"
 
 // Secondary Firebase app configuration for Central de Anúncios (Database: anuncio)
 const centralFirebaseConfig = {
-  apiKey:
-    import.meta.env.VITE_CENTRAL_FIREBASE_API_KEY ||
-    "AIzaSyCRvd-eRCbbF7zV2SBCB_f79FV1vLeZYOo",
-  authDomain:
-    import.meta.env.VITE_CENTRAL_FIREBASE_AUTH_DOMAIN ||
-    "central-de-anuncios-b62ca.firebaseapp.com",
-  projectId:
-    import.meta.env.VITE_CENTRAL_FIREBASE_PROJECT_ID ||
-    "central-de-anuncios-b62ca",
-  storageBucket:
-    import.meta.env.VITE_CENTRAL_FIREBASE_STORAGE_BUCKET ||
-    "central-de-anuncios-b62ca.firebasestorage.app",
-  messagingSenderId:
-    import.meta.env.VITE_CENTRAL_FIREBASE_MESSAGING_SENDER_ID ||
-    "154895857005",
-  appId:
-    import.meta.env.VITE_CENTRAL_FIREBASE_APP_ID ||
-    "1:154895857005:web:2078117b6db2cd0d001664",
+  apiKey: import.meta.env.VITE_CENTRAL_FIREBASE_API_KEY || "",
+  authDomain: import.meta.env.VITE_CENTRAL_FIREBASE_AUTH_DOMAIN || "",
+  projectId: import.meta.env.VITE_CENTRAL_FIREBASE_PROJECT_ID || "",
+  storageBucket: import.meta.env.VITE_CENTRAL_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: import.meta.env.VITE_CENTRAL_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: import.meta.env.VITE_CENTRAL_FIREBASE_APP_ID || "",
 }
 
 // Check if the Central Firebase is configured with required keys

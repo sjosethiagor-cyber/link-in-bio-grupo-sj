@@ -16,11 +16,12 @@ service firebase.storage {
       allow read: if true;
 
       // Upload permitido com limites de segurança (máximo 10 MB e apenas imagens)
-      allow create: if request.resource.size < 10 * 1024 * 1024 &&
+      allow create: if request.auth != null && 
+                       request.resource.size < 10 * 1024 * 1024 &&
                        request.resource.contentType.matches('image/.*');
 
-      // Exclusão permitida
-      allow delete: if true;
+      // Exclusão permitida apenas para autenticados
+      allow delete: if request.auth != null;
 
       // Não permitir atualizar arquivos diretamente (deletar e recriar)
       allow update: if false;

@@ -11,26 +11,47 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isOwner() {
+      let isExplicitOwner = request.auth != null && request.auth.token.email == 'sjosethiago.r@gmail.com';
+      let hasRoleOwner = request.auth != null && exists(/databases/$(database)/documents/user_roles/$(request.auth.token.email)) && get(/databases/$(database)/documents/user_roles/$(request.auth.token.email)).data.role == 'owner';
+      return isExplicitOwner || hasRoleOwner;
+    }
+
     // ── Coleção de Produtos (Catálogo de Anúncios) ───────────────────────────
     match /products/{productId} {
       // Leitura pública/painel para exibir o catálogo de produtos
       allow read: if true;
 
-      // Criação e atualização com validação de schema e tamanho
-      allow create, update: if request.resource.data.keys().hasAll(['name', 'sku', 'updatedAt']) &&
-                               request.resource.data.name is string &&
-                               request.resource.data.name.size() >= 1 &&
-                               request.resource.data.name.size() <= 500 &&
-                               request.resource.data.sku is string &&
-                               request.resource.data.sku.size() <= 100;
+      // Criação permitida se for dono ou com user_roles (validação simplificada aqui, mantendo checagens de schema)
+      allow create: if request.auth != null && 
+                       (isOwner() || request.resource.data.createdBy == request.auth.uid) &&
+                       request.resource.data.keys().hasAll(['name', 'sku', 'updatedAt']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() >= 1 &&
+                       request.resource.data.name.size() <= 500 &&
+                       request.resource.data.sku is string &&
+                       request.resource.data.sku.size() <= 100;
 
-      // Exclusão permitida
-      allow delete: if true;
+      // Atualização permitida se for dono do documento ou admin (IDOR Fix)
+      allow update: if request.auth != null && 
+                       (isOwner() || resource.data.createdBy == request.auth.uid) &&
+                       request.resource.data.keys().hasAll(['name', 'sku', 'updatedAt']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() >= 1 &&
+                       request.resource.data.name.size() <= 500 &&
+                       request.resource.data.sku is string &&
+                       request.resource.data.sku.size() <= 100;
+
+      // Exclusão permitida apenas se for dono do documento ou admin (IDOR Fix)
+      allow delete: if request.auth != null && (isOwner() || resource.data.createdBy == request.auth.uid);
     }
 
     // ── Coleção de Roles de Usuário ───────────────────────────────────────────
     match /user_roles/{email} {
-      allow read, write: if true;
+      // Leitura permitida para o próprio usuário ou para admin
+      allow read: if request.auth != null && (request.auth.token.email == email || isOwner());
+      // Apenas o owner pode conceder/editar roles
+      allow write: if isOwner();
     }
 
     // ── Catch-all: negar acesso a qualquer outra coleção ──────────────────────

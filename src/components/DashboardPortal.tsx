@@ -27,6 +27,7 @@ import {
   isFirebaseConfigured,
   db,
 } from "../lib/firebase"
+import { centralAuth, centralGoogleProvider } from "../lib/centralFirebase"
 import {
   signInWithPopup,
   signOut,
@@ -313,6 +314,13 @@ export default function DashboardPortal({
     setAuthLoading(true)
     try {
       const result = await signInWithPopup(mainAuth, mainGoogleProvider)
+      if (centralAuth) {
+        try {
+          await signInWithPopup(centralAuth, centralGoogleProvider)
+        } catch (e) {
+          console.warn("Central Auth login failed:", e)
+        }
+      }
       setUser(result.user)
     } catch (err: any) {
       console.error("Google Auth error:", err)

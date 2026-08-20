@@ -107,7 +107,7 @@ export function PWAInstallBanner() {
                 }}
               >
                 {isIOS
-                  ? "Toque em Compartilhar ⎋ e depois "Adicionar à Tela de Início" +"
+                  ? 'Toque em Compartilhar ⎋ e depois "Adicionar à Tela de Início" +'
                   : "Adicione o atalho à tela inicial para acesso rápido"}
               </p>
             </div>

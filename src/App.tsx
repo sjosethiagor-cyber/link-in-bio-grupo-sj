@@ -201,7 +201,7 @@ export default function App() {
       <Background />
 
       <div className="page-wrapper">
-        <div className="content-col">
+        <main className="content-col">
           {/* ── Header ── */}
           <header
             className="fade-up"
@@ -261,7 +261,7 @@ export default function App() {
                 gap: 12,
               }}
             >
-              <p
+              <h1
                 style={{
                   margin: 0,
                   fontSize: "clamp(14px, 3.8vw, 16px)",
@@ -274,7 +274,7 @@ export default function App() {
                 }}
               >
                 Um grupo. Muitas soluções. A mesma confiança.
-              </p>
+              </h1>
 
               {/* Trust badge */}
               <span className="trust-badge" style={{ marginTop: 2 }}>
@@ -331,7 +331,7 @@ export default function App() {
 
           {/* ── Lojas ── */}
           <section className="fade-up delay-1">
-            <p className="section-label">{"Nossas lojas"}</p>
+            <h2 className="section-label">{"Nossas lojas"}</h2>
             <div className="store-grid">
               <StoreCardTrigger
                 icon={<IcoML s={40} />}
@@ -399,7 +399,7 @@ export default function App() {
 
           {/* ── Redes sociais ── */}
           <section className="fade-up delay-2">
-            <p className="section-label">{"Redes sociais"}</p>
+            <h2 className="section-label">{"Redes sociais"}</h2>
             <div className="social-grid">
               <SocialPill
                 href={socialLinks.instagram}
@@ -430,7 +430,7 @@ export default function App() {
 
           {/* ── Contato ── */}
           <section className="fade-up delay-3">
-            <p className="section-label">{"Contato direto"}</p>
+            <h2 className="section-label">{"Contato direto"}</h2>
             <div
               className="glass"
               style={{
@@ -529,7 +529,7 @@ export default function App() {
               🔒 Painel Admin & Métricas
             </button>
           </footer>
-        </div>
+        </main>
       </div>
 
       {/* Modal Suspenso (Drawer) de Lojas */}
