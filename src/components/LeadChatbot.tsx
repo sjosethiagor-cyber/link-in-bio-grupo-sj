@@ -40,15 +40,10 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   const [isTyping, setIsTyping] = useState(false)
 
   // Step state
-  const [step, setStep] = useState<
-    | "welcome"
-    | "chat"
-    | "collect_name"
-    | "collect_whatsapp"
-    | "collect_bairro"
-    | "collect_quantity"
-    | "completed"
-  >("welcome")
+  const [step, setStep] =
+    useState<"welcome" | "chat" | "collect_name" | "collect_whatsapp" | "collect_bairro" | "collect_quantity" | "completed">(
+      "welcome",
+    )
 
   // Lead structured data
   const [leadData, setLeadData] = useState<{
@@ -121,8 +116,14 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
         botReply(
           "Com certeza! Para qual produto ou linha você gostaria de solicitar orçamento?",
           [
-            { label: "🛡️ Impermeabilizantes", action: () => handleImpermeabilizacaoFlow() },
-            { label: "🎨 Tintas e Revestimentos", action: () => handleTintasFlow() },
+            {
+              label: "🛡️ Impermeabilizantes",
+              action: () => handleImpermeabilizacaoFlow(),
+            },
+            {
+              label: "🎨 Tintas e Revestimentos",
+              action: () => handleTintasFlow(),
+            },
             { label: "🧱 Cola Bloco", action: () => handleColaBlocoFlow() },
             { label: "Outro produto", action: () => handleBrowseCategories() },
           ],
@@ -233,209 +234,256 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   // Fluxo 1: Impermeabilização (Item 59)
   const handleImpermeabilizacaoFlow = () => {
     addUserMessage("Impermeabilização")
-    botReply(
-      "Onde você precisa impermeabilizar?",
-      [
-        {
-          label: "🏊 Piscina",
-          action: () => handlePiscinaFlow(),
+    botReply("Onde você precisa impermeabilizar?", [
+      {
+        label: "🏊 Piscina",
+        action: () => handlePiscinaFlow(),
+      },
+      {
+        label: "🏠 Laje / Telhado",
+        action: () => {
+          addUserMessage("Laje / Telhado")
+          setLeadData((p) => ({
+            ...p,
+            product: "Kit Blindamix 18kg + Manta VP50 (Laje/Telhado)",
+          }))
+          botReply(
+            "Para lajes e telhados trabalhamos com a Tinta Emborrachada Blindamix e o Kit Blindamix + Manta Estrutural VP50 para reforço contra fissuras e infiltrações.\n\nQual é a área aproximada em metros quadrados?",
+            [
+              {
+                label: "⚡ Solicitar Orçamento de Laje",
+                action: () =>
+                  startLeadCapture("Kit Blindamix 18kg + Manta VP50 (Laje)"),
+              },
+              {
+                label: "💬 Falar com Vendas sobre Laje",
+                url: WA_LINKS.produto(
+                  "Kit Blindamix 18kg + Manta Estrutural VP50 (Laje)",
+                  "orcamento",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "🏠 Laje / Telhado",
-          action: () => {
-            addUserMessage("Laje / Telhado")
-            setLeadData((p) => ({ ...p, product: "Kit Blindamix 18kg + Manta VP50 (Laje/Telhado)" }))
-            botReply(
-              "Para lajes e telhados trabalhamos com a Tinta Emborrachada Blindamix e o Kit Blindamix + Manta Estrutural VP50 para reforço contra fissuras e infiltrações.\n\nQual é a área aproximada em metros quadrados?",
-              [
-                {
-                  label: "⚡ Solicitar Orçamento de Laje",
-                  action: () => startLeadCapture("Kit Blindamix 18kg + Manta VP50 (Laje)"),
-                },
-                {
-                  label: "💬 Falar com Vendas sobre Laje",
-                  url: WA_LINKS.produto("Kit Blindamix 18kg + Manta Estrutural VP50 (Laje)", "orcamento"),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "🧱 Parede / Muro",
+        action: () => {
+          addUserMessage("Parede / Muro")
+          setLeadData((p) => ({
+            ...p,
+            product: "Tinta Emborrachada Blindamix (Parede/Muro)",
+          }))
+          botReply(
+            "A Tinta Emborrachada Blindamix (1kg, 3,6kg e 18kg) é excelente para proteção hidrorrepelente e elástica de paredes e alvenaria externa.\n\nDeseja consultar embalagens e valores com o setor de vendas?",
+            [
+              {
+                label: "SOLICITAR ORÇAMENTO BLINDAMIX",
+                url: WA_LINKS.produto(
+                  "Tinta Emborrachada Blindamix (Parede/Muro)",
+                  "orcamento",
+                ),
+              },
+              {
+                label: "FINALIZAR COMPRA BLINDAMIX",
+                url: WA_LINKS.produto(
+                  "Tinta Emborrachada Blindamix (Parede/Muro)",
+                  "compra",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "🧱 Parede / Muro",
-          action: () => {
-            addUserMessage("Parede / Muro")
-            setLeadData((p) => ({ ...p, product: "Tinta Emborrachada Blindamix (Parede/Muro)" }))
-            botReply(
-              "A Tinta Emborrachada Blindamix (1kg, 3,6kg e 18kg) é excelente para proteção hidrorrepelente e elástica de paredes e alvenaria externa.\n\nDeseja consultar embalagens e valores com o setor de vendas?",
-              [
-                {
-                  label: "SOLICITAR ORÇAMENTO BLINDAMIX",
-                  url: WA_LINKS.produto("Tinta Emborrachada Blindamix (Parede/Muro)", "orcamento"),
-                },
-                {
-                  label: "FINALIZAR COMPRA BLINDAMIX",
-                  url: WA_LINKS.produto("Tinta Emborrachada Blindamix (Parede/Muro)", "compra"),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "🪵 Pedras Decorativas (Jardim)",
+        action: () => {
+          addUserMessage("Pedras Decorativas")
+          setLeadData((p) => ({ ...p, product: "Trava Pedras Maximper" }))
+          botReply(
+            "Temos o Trava Pedras Maximper (1L, 5L e 18L) para fixar e estabilizar pedras soltas em jardins e caminhos.\n\n*Nota:* O Trava Pedras tem a função de estabilizar e unir as pedras (5L atende aprox. 3 a 5 sacos de 25 kg de pedras secas como referência).",
+            [
+              {
+                label: "SOLICITAR ORÇAMENTO TRAVA PEDRAS",
+                url: WA_LINKS.produto("Trava Pedras Maximper", "orcamento"),
+              },
+              {
+                label: "FALAR COM VENDAS TRAVA PEDRAS",
+                url: WA_LINKS.produto("Trava Pedras Maximper", "compra"),
+              },
+            ],
+          )
         },
-        {
-          label: "🪵 Pedras Decorativas (Jardim)",
-          action: () => {
-            addUserMessage("Pedras Decorativas")
-            setLeadData((p) => ({ ...p, product: "Trava Pedras Maximper" }))
-            botReply(
-              "Temos o Trava Pedras Maximper (1L, 5L e 18L) para fixar e estabilizar pedras soltas em jardins e caminhos.\n\n*Nota:* O Trava Pedras tem a função de estabilizar e unir as pedras (5L atende aprox. 3 a 5 sacos de 25 kg de pedras secas como referência).",
-              [
-                {
-                  label: "SOLICITAR ORÇAMENTO TRAVA PEDRAS",
-                  url: WA_LINKS.produto("Trava Pedras Maximper", "orcamento"),
-                },
-                {
-                  label: "FALAR COM VENDAS TRAVA PEDRAS",
-                  url: WA_LINKS.produto("Trava Pedras Maximper", "compra"),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "🛡️ Outra Superfície",
+        action: () => {
+          addUserMessage("Outra Superfície")
+          botReply(
+            "Para confirmar a compatibilidade com essa superfície específica, vou precisar verificar com nosso atendimento comercial.",
+            [
+              {
+                label: "💬 Consultar Especialista no WhatsApp",
+                url: WA_LINKS.produto(
+                  "Impermeabilização - Consulta de Superfície Específica",
+                  "duvida",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "🛡️ Outra Superfície",
-          action: () => {
-            addUserMessage("Outra Superfície")
-            botReply(
-              "Para confirmar a compatibilidade com essa superfície específica, vou precisar verificar com nosso atendimento comercial.",
-              [
-                {
-                  label: "💬 Consultar Especialista no WhatsApp",
-                  url: WA_LINKS.produto("Impermeabilização - Consulta de Superfície Específica", "duvida"),
-                },
-              ],
-            )
-          },
-        },
-      ],
-    )
+      },
+    ])
   }
 
   // Fluxo Piscina (Item 60)
   const handlePiscinaFlow = () => {
     addUserMessage("Piscina")
-    botReply(
-      "Sua piscina é de alvenaria ou fibra?",
-      [
-        {
-          label: "🏊 Alvenaria",
-          action: () => {
-            addUserMessage("Alvenaria")
-            setLeadData((p) => ({ ...p, product: "Acqua Protect Blindamix (Piscina Alvenaria)" }))
-            botReply(
-              "Temos a Acqua Protect Blindamix, desenvolvida especificamente para piscinas de alvenaria.\n\nDeseja solicitar um orçamento ou tirar dúvidas com nosso setor de vendas?",
-              [
-                {
-                  label: "SOLICITAR ORÇAMENTO ACQUA PROTECT",
-                  url: WA_LINKS.produto("Acqua Protect Blindamix (Piscina de Alvenaria)", "orcamento"),
-                },
-                {
-                  label: "COMPRAR ACQUA PROTECT NO WHATSAPP",
-                  url: WA_LINKS.produto("Acqua Protect Blindamix (Piscina de Alvenaria)", "compra"),
-                },
-              ],
-            )
-          },
+    botReply("Sua piscina é de alvenaria ou fibra?", [
+      {
+        label: "🏊 Alvenaria",
+        action: () => {
+          addUserMessage("Alvenaria")
+          setLeadData((p) => ({
+            ...p,
+            product: "Acqua Protect Blindamix (Piscina Alvenaria)",
+          }))
+          botReply(
+            "Temos a Acqua Protect Blindamix, desenvolvida especificamente para piscinas de alvenaria.\n\nDeseja solicitar um orçamento ou tirar dúvidas com nosso setor de vendas?",
+            [
+              {
+                label: "SOLICITAR ORÇAMENTO ACQUA PROTECT",
+                url: WA_LINKS.produto(
+                  "Acqua Protect Blindamix (Piscina de Alvenaria)",
+                  "orcamento",
+                ),
+              },
+              {
+                label: "COMPRAR ACQUA PROTECT NO WHATSAPP",
+                url: WA_LINKS.produto(
+                  "Acqua Protect Blindamix (Piscina de Alvenaria)",
+                  "compra",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "🏊 Fibra",
-          action: () => {
-            addUserMessage("Fibra")
-            botReply(
-              "A Acqua Protect não é recomendada para piscina de fibra. Ela é destinada exclusivamente a piscinas de alvenaria.\n\nPosso encaminhar você para nosso atendimento para verificar outra solução.",
-              [
-                {
-                  label: "FALAR COM ATENDENTE SOBRE PISCINA",
-                  url: WA_LINKS.produto("Impermeabilização para Piscina de Fibra", "duvida"),
-                },
-                {
-                  label: "🛡️ Ver outros produtos",
-                  action: () => showInitialMenu(true),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "🏊 Fibra",
+        action: () => {
+          addUserMessage("Fibra")
+          botReply(
+            "A Acqua Protect não é recomendada para piscina de fibra. Ela é destinada exclusivamente a piscinas de alvenaria.\n\nPosso encaminhar você para nosso atendimento para verificar outra solução.",
+            [
+              {
+                label: "FALAR COM ATENDENTE SOBRE PISCINA",
+                url: WA_LINKS.produto(
+                  "Impermeabilização para Piscina de Fibra",
+                  "duvida",
+                ),
+              },
+              {
+                label: "🛡️ Ver outros produtos",
+                action: () => showInitialMenu(true),
+              },
+            ],
+          )
         },
-      ],
-    )
+      },
+    ])
   }
 
   // Fluxo 2: Tintas e Revestimentos (Itens 10, 18, 19, 20, 21, 61)
   const handleTintasFlow = () => {
     addUserMessage("Tintas e Revestimentos")
-    botReply(
-      "Qual tipo de acabamento você procura?",
-      [
-        {
-          label: "💎 Textura Pedra Natural (RevGold)",
-          action: () => {
-            addUserMessage("Textura Pedra Natural")
-            setLeadData((p) => ({ ...p, product: "Textura Pedra Natural RevGold" }))
-            botReply(
-              "Temos Textura Pedra Natural RevGold de 5 kg e 20 kg (rendimento ref: ~4 a 6 m² por balde de 20kg), além de kits com Primer RevGold.\n\nQuantos metros quadrados possui aproximadamente sua área?",
-              [
-                {
-                  label: "⚡ Orçamento para minha área",
-                  action: () => startLeadCapture("Textura Pedra Natural RevGold + Primer"),
-                },
-                {
-                  label: "ORÇAMENTO PEDRA NATURAL NO WHATSAPP",
-                  url: WA_LINKS.produto("Textura Pedra Natural RevGold", "orcamento"),
-                },
-              ],
-            )
-          },
+    botReply("Qual tipo de acabamento você procura?", [
+      {
+        label: "💎 Textura Pedra Natural (RevGold)",
+        action: () => {
+          addUserMessage("Textura Pedra Natural")
+          setLeadData((p) => ({
+            ...p,
+            product: "Textura Pedra Natural RevGold",
+          }))
+          botReply(
+            "Temos Textura Pedra Natural RevGold de 5 kg e 20 kg (rendimento ref: ~4 a 6 m² por balde de 20kg), além de kits com Primer RevGold.\n\nQuantos metros quadrados possui aproximadamente sua área?",
+            [
+              {
+                label: "⚡ Orçamento para minha área",
+                action: () =>
+                  startLeadCapture("Textura Pedra Natural RevGold + Primer"),
+              },
+              {
+                label: "ORÇAMENTO PEDRA NATURAL NO WHATSAPP",
+                url: WA_LINKS.produto(
+                  "Textura Pedra Natural RevGold",
+                  "orcamento",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "🚗 Tinta para Piso Emborrachada",
-          action: () => {
-            addUserMessage("Tinta para Piso Emborrachada")
-            setLeadData((p) => ({ ...p, product: "Tinta Piso Emborrachada Maximper" }))
-            botReply(
-              "A Tinta para Piso Emborrachada Premium Maximper (3,6 kg e 16 kg) possui acabamento antiderrapante e alta proteção para áreas externas (16 kg rende até ~90 m² por demão como referência).",
-              [
-                {
-                  label: "SOLICITAR ORÇAMENTO TINTA PISO",
-                  url: WA_LINKS.produto("Tinta Piso Emborrachada Premium Maximper", "orcamento"),
-                },
-                {
-                  label: "COMPRAR TINTA PISO NO WHATSAPP",
-                  url: WA_LINKS.produto("Tinta Piso Emborrachada Premium Maximper", "compra"),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "🚗 Tinta para Piso Emborrachada",
+        action: () => {
+          addUserMessage("Tinta para Piso Emborrachada")
+          setLeadData((p) => ({
+            ...p,
+            product: "Tinta Piso Emborrachada Maximper",
+          }))
+          botReply(
+            "A Tinta para Piso Emborrachada Premium Maximper (3,6 kg e 16 kg) possui acabamento antiderrapante e alta proteção para áreas externas (16 kg rende até ~90 m² por demão como referência).",
+            [
+              {
+                label: "SOLICITAR ORÇAMENTO TINTA PISO",
+                url: WA_LINKS.produto(
+                  "Tinta Piso Emborrachada Premium Maximper",
+                  "orcamento",
+                ),
+              },
+              {
+                label: "COMPRAR TINTA PISO NO WHATSAPP",
+                url: WA_LINKS.produto(
+                  "Tinta Piso Emborrachada Premium Maximper",
+                  "compra",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "✨ Verniz Glitter / Resina Incolor",
-          action: () => {
-            addUserMessage("Verniz Glitter / Resina Incolor")
-            setLeadData((p) => ({ ...p, product: "Verniz Glitter / Resina Incolor RevGold" }))
-            botReply(
-              "Trabalhamos com Verniz Glitter Estrelado RevGold (900 ml e 3,6 L) para acabamento decorativo brilhante e Resina Incolor (3,6 kg) para proteção de superfícies.",
-              [
-                {
-                  label: "COMPRAR VERNIZ / RESINA NO WHATSAPP",
-                  url: WA_LINKS.produto("Verniz Glitter Estrelado / Resina Incolor RevGold", "compra"),
-                },
-                {
-                  label: "TIRAR DÚVIDAS NO WHATSAPP",
-                  url: WA_LINKS.produto("Verniz Glitter / Resina Incolor RevGold", "duvida"),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "✨ Verniz Glitter / Resina Incolor",
+        action: () => {
+          addUserMessage("Verniz Glitter / Resina Incolor")
+          setLeadData((p) => ({
+            ...p,
+            product: "Verniz Glitter / Resina Incolor RevGold",
+          }))
+          botReply(
+            "Trabalhamos com Verniz Glitter Estrelado RevGold (900 ml e 3,6 L) para acabamento decorativo brilhante e Resina Incolor (3,6 kg) para proteção de superfícies.",
+            [
+              {
+                label: "COMPRAR VERNIZ / RESINA NO WHATSAPP",
+                url: WA_LINKS.produto(
+                  "Verniz Glitter Estrelado / Resina Incolor RevGold",
+                  "compra",
+                ),
+              },
+              {
+                label: "TIRAR DÚVIDAS NO WHATSAPP",
+                url: WA_LINKS.produto(
+                  "Verniz Glitter / Resina Incolor RevGold",
+                  "duvida",
+                ),
+              },
+            ],
+          )
         },
-      ],
-    )
+      },
+    ])
   }
 
   // Fluxo 3: Cola Bloco (Item 16, 17, 62)
@@ -460,17 +508,26 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           label: "🔺 Ver Aplicador Triangular",
           action: () => {
             addUserMessage("Aplicador Triangular")
-            setLeadData((p) => ({ ...p, product: "Aplicador Triangular Maximper" }))
+            setLeadData((p) => ({
+              ...p,
+              product: "Aplicador Triangular Maximper",
+            }))
             botReply(
               "O Aplicador Triangular Maximper foi desenvolvido para facilitar a aplicação da Cola Bloco e proporcionar acabamento uniforme. Disponível avulso ou em kits com a Cola Bloco RevGold.",
               [
                 {
                   label: "SOLICITAR ORÇAMENTO DO KIT COLA BLOCO",
-                  url: WA_LINKS.produto("Kit Cola Bloco RevGold + Aplicador Triangular Maximper", "orcamento"),
+                  url: WA_LINKS.produto(
+                    "Kit Cola Bloco RevGold + Aplicador Triangular Maximper",
+                    "orcamento",
+                  ),
                 },
                 {
                   label: "COMPRAR APLICADOR TRIANGULAR",
-                  url: WA_LINKS.produto("Aplicador Triangular Maximper", "compra"),
+                  url: WA_LINKS.produto(
+                    "Aplicador Triangular Maximper",
+                    "compra",
+                  ),
                 },
               ],
             )
@@ -488,7 +545,10 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
       [
         {
           label: `SOLICITAR ORÇAMENTO COLA BLOCO (${tipoBloco.toUpperCase()})`,
-          url: WA_LINKS.produto(`Cola Bloco RevGold (${tipoBloco})`, "orcamento"),
+          url: WA_LINKS.produto(
+            `Cola Bloco RevGold (${tipoBloco})`,
+            "orcamento",
+          ),
         },
         {
           label: "FALAR COM VENDAS COLA BLOCO",
@@ -508,17 +568,26 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           label: "🔩 Rost Off (Desengripante)",
           action: () => {
             addUserMessage("Rost Off")
-            setLeadData((p) => ({ ...p, product: "Rost Off Würth (Desengripante)" }))
+            setLeadData((p) => ({
+              ...p,
+              product: "Rost Off Würth (Desengripante)",
+            }))
             botReply(
               "Temos Rost Off Würth. Ele é um produto de alta qualidade para manutenção e desengripamento profissional.",
               [
                 {
                   label: "COMPRAR ROST OFF WÜRTH NO WHATSAPP",
-                  url: WA_LINKS.produto("Rost Off Würth (Desengripante)", "compra"),
+                  url: WA_LINKS.produto(
+                    "Rost Off Würth (Desengripante)",
+                    "compra",
+                  ),
                 },
                 {
                   label: "CONSULTAR ESTOQUE ROST OFF",
-                  url: WA_LINKS.produto("Rost Off Würth (Desengripante)", "duvida"),
+                  url: WA_LINKS.produto(
+                    "Rost Off Würth (Desengripante)",
+                    "duvida",
+                  ),
                 },
               ],
             )
@@ -529,25 +598,37 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           action: () => {
             addUserMessage("Epóxi Titânio")
             setLeadData((p) => ({ ...p, product: "Epóxi Titânio Würth" }))
-            botReply("Temos Epóxi Titânio Würth para colagens e reparos de alta resistência.", [
-              {
-                label: "COMPRAR EPÓXI TITÂNIO WÜRTH",
-                url: WA_LINKS.produto("Epóxi Titânio Würth", "compra"),
-              },
-            ])
+            botReply(
+              "Temos Epóxi Titânio Würth para colagens e reparos de alta resistência.",
+              [
+                {
+                  label: "COMPRAR EPÓXI TITÂNIO WÜRTH",
+                  url: WA_LINKS.produto("Epóxi Titânio Würth", "compra"),
+                },
+              ],
+            )
           },
         },
         {
           label: "🧴 Espuma Limpadora / Desengraxante",
           action: () => {
             addUserMessage("Limpeza / Manutenção")
-            setLeadData((p) => ({ ...p, product: "Espuma Limpadora / Desengraxante Würth" }))
-            botReply("Trabalhamos com Espuma Limpadora, Pasta Desengraxante e Removedor de Ferrugem Würth.", [
-              {
-                label: "CONSULTAR PRODUTOS DE LIMPEZA WÜRTH",
-                url: WA_LINKS.produto("Espuma Limpadora / Pasta Desengraxante Würth", "duvida"),
-              },
-            ])
+            setLeadData((p) => ({
+              ...p,
+              product: "Espuma Limpadora / Desengraxante Würth",
+            }))
+            botReply(
+              "Trabalhamos com Espuma Limpadora, Pasta Desengraxante e Removedor de Ferrugem Würth.",
+              [
+                {
+                  label: "CONSULTAR PRODUTOS DE LIMPEZA WÜRTH",
+                  url: WA_LINKS.produto(
+                    "Espuma Limpadora / Pasta Desengraxante Würth",
+                    "duvida",
+                  ),
+                },
+              ],
+            )
           },
         },
         {
@@ -555,12 +636,15 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           action: () => {
             addUserMessage("Fluido de Radiador")
             setLeadData((p) => ({ ...p, product: "Fluido de Radiador Würth" }))
-            botReply("Temos Fluido de Radiador Würth para sistema de arrefecimento.", [
-              {
-                label: "COMPRAR FLUIDO DE RADIADOR WÜRTH",
-                url: WA_LINKS.produto("Fluido de Radiador Würth", "compra"),
-              },
-            ])
+            botReply(
+              "Temos Fluido de Radiador Würth para sistema de arrefecimento.",
+              [
+                {
+                  label: "COMPRAR FLUIDO DE RADIADOR WÜRTH",
+                  url: WA_LINKS.produto("Fluido de Radiador Würth", "compra"),
+                },
+              ],
+            )
           },
         },
       ],
@@ -583,7 +667,10 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
               [
                 {
                   label: "ORÇAMENTO IMPRESSORA BAMBU LAB",
-                  url: WA_LINKS.produto("Impressora 3D Bambu Lab (A1 / A1 Mini)", "orcamento"),
+                  url: WA_LINKS.produto(
+                    "Impressora 3D Bambu Lab (A1 / A1 Mini)",
+                    "orcamento",
+                  ),
                 },
                 {
                   label: "FALAR COM VENDAS 3D",
@@ -600,10 +687,22 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
             botReply(
               "Trabalhamos com filamentos PLA Maxprint nas cores preto, branco, cinza e marrom. Qual cor você procura?",
               [
-                { label: "⚫ Preto", action: () => selectFilamentoCor("Preto") },
-                { label: "⚪ Branco", action: () => selectFilamentoCor("Branco") },
-                { label: "🔘 Cinza", action: () => selectFilamentoCor("Cinza") },
-                { label: "🟤 Marrom", action: () => selectFilamentoCor("Marrom") },
+                {
+                  label: "⚫ Preto",
+                  action: () => selectFilamentoCor("Preto"),
+                },
+                {
+                  label: "⚪ Branco",
+                  action: () => selectFilamentoCor("Branco"),
+                },
+                {
+                  label: "🔘 Cinza",
+                  action: () => selectFilamentoCor("Cinza"),
+                },
+                {
+                  label: "🟤 Marrom",
+                  action: () => selectFilamentoCor("Marrom"),
+                },
               ],
             )
           },
@@ -616,8 +715,14 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
               "Qual modelo da sua impressora Bambu Lab para verificarmos a peça compatível?",
               [
                 { label: "Bambu Lab A1", action: () => selectBambuModel("A1") },
-                { label: "Bambu Lab A1 Mini", action: () => selectBambuModel("A1 Mini") },
-                { label: "Outro modelo", action: () => selectBambuModel("Outro modelo") },
+                {
+                  label: "Bambu Lab A1 Mini",
+                  action: () => selectBambuModel("A1 Mini"),
+                },
+                {
+                  label: "Outro modelo",
+                  action: () => selectBambuModel("Outro modelo"),
+                },
               ],
             )
           },
@@ -652,7 +757,10 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
       [
         {
           label: `CONSULTAR PEÇAS BAMBU LAB ${modelo.toUpperCase()}`,
-          url: WA_LINKS.produto(`Peça de Manutenção para Bambu Lab ${modelo}`, "duvida"),
+          url: WA_LINKS.produto(
+            `Peça de Manutenção para Bambu Lab ${modelo}`,
+            "duvida",
+          ),
         },
       ],
     )
@@ -661,69 +769,84 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   // Fluxo 6: Utilidades Vumora (Item 65)
   const handleUtilidadesFlow = () => {
     addUserMessage("Utilidades para Casa")
-    botReply(
-      "Qual tipo de utilidade você procura?",
-      [
-        {
-          label: "🛁 Banheiro / Porta Toalha",
-          action: () => {
-            addUserMessage("Porta Toalha / Banheiro")
-            setLeadData((p) => ({ ...p, product: "Porta Toalha / Porta Escova Vumora" }))
-            botReply(
-              "Temos Porta Toalha, Porta Escova e Porta Papel Higiênico Vumora nas cores Preto, Branco, Cinza e Marrom.",
-              [
-                {
-                  label: "COMPRAR LINHA BANHEIRO VUMORA NO WHATSAPP",
-                  url: WA_LINKS.produto("Linha Banheiro Vumora (Porta Toalha/Escova)", "compra"),
-                },
-              ],
-            )
-          },
+    botReply("Qual tipo de utilidade você procura?", [
+      {
+        label: "🛁 Banheiro / Porta Toalha",
+        action: () => {
+          addUserMessage("Porta Toalha / Banheiro")
+          setLeadData((p) => ({
+            ...p,
+            product: "Porta Toalha / Porta Escova Vumora",
+          }))
+          botReply(
+            "Temos Porta Toalha, Porta Escova e Porta Papel Higiênico Vumora nas cores Preto, Branco, Cinza e Marrom.",
+            [
+              {
+                label: "COMPRAR LINHA BANHEIRO VUMORA NO WHATSAPP",
+                url: WA_LINKS.produto(
+                  "Linha Banheiro Vumora (Porta Toalha/Escova)",
+                  "compra",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "💻 Suporte Notebook",
-          action: () => {
-            addUserMessage("Suporte Notebook")
-            setLeadData((p) => ({ ...p, product: "Suporte Notebook Vumora" }))
-            botReply("Suporte Notebook Vumora para melhor ergonomia e organização no dia a dia.", [
+      },
+      {
+        label: "💻 Suporte Notebook",
+        action: () => {
+          addUserMessage("Suporte Notebook")
+          setLeadData((p) => ({ ...p, product: "Suporte Notebook Vumora" }))
+          botReply(
+            "Suporte Notebook Vumora para melhor ergonomia e organização no dia a dia.",
+            [
               {
                 label: "COMPRAR SUPORTE NOTEBOOK VUMORA",
                 url: WA_LINKS.produto("Suporte Notebook Vumora", "compra"),
               },
-            ])
-          },
+            ],
+          )
         },
-        {
-          label: "🗑️ Suporte Saco de Lixo",
-          action: () => {
-            addUserMessage("Suporte Saco de Lixo")
-            setLeadData((p) => ({ ...p, product: "Suporte Saco de Lixo Vumora" }))
-            botReply(
-              "Temos Suporte Fechado de 18 cm, Suporte Horizontal de 22 cm e Par de Suportes para Saco de Lixo.",
-              [
-                {
-                  label: "COMPRAR SUPORTE SACO DE LIXO VUMORA",
-                  url: WA_LINKS.produto("Suporte para Saco de Lixo Vumora", "compra"),
-                },
-              ],
-            )
-          },
+      },
+      {
+        label: "🗑️ Suporte Saco de Lixo",
+        action: () => {
+          addUserMessage("Suporte Saco de Lixo")
+          setLeadData((p) => ({ ...p, product: "Suporte Saco de Lixo Vumora" }))
+          botReply(
+            "Temos Suporte Fechado de 18 cm, Suporte Horizontal de 22 cm e Par de Suportes para Saco de Lixo.",
+            [
+              {
+                label: "COMPRAR SUPORTE SACO DE LIXO VUMORA",
+                url: WA_LINKS.produto(
+                  "Suporte para Saco de Lixo Vumora",
+                  "compra",
+                ),
+              },
+            ],
+          )
         },
-        {
-          label: "🐱 Trava Porta Gatinho / Gancho",
-          action: () => {
-            addUserMessage("Trava Porta Gatinho")
-            setLeadData((p) => ({ ...p, product: "Trava Porta Gatinho Vumora" }))
-            botReply("Trava Porta Gatinho e Gancho Gato decorativo Vumora em diversas cores.", [
+      },
+      {
+        label: "🐱 Trava Porta Gatinho / Gancho",
+        action: () => {
+          addUserMessage("Trava Porta Gatinho")
+          setLeadData((p) => ({ ...p, product: "Trava Porta Gatinho Vumora" }))
+          botReply(
+            "Trava Porta Gatinho e Gancho Gato decorativo Vumora em diversas cores.",
+            [
               {
                 label: "COMPRAR TRAVA PORTA GATINHO VUMORA",
-                url: WA_LINKS.produto("Trava Porta Gatinho / Gancho Gato Vumora", "compra"),
+                url: WA_LINKS.produto(
+                  "Trava Porta Gatinho / Gancho Gato Vumora",
+                  "compra",
+                ),
               },
-            ])
-          },
+            ],
+          )
         },
-      ],
-    )
+      },
+    ])
   }
 
   // Fluxo 7: Entrega e Retirada (Itens 40-45, 66)
@@ -806,7 +929,9 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     if (step === "collect_whatsapp") {
       const raw = trimmed.replace(/\D/g, "")
       if (raw.length < 10 || raw.length > 11) {
-        botReply("⚠️ Por favor, digite um número de WhatsApp válido com DDD (ex: 44 99915-9415).")
+        botReply(
+          "⚠️ Por favor, digite um número de WhatsApp válido com DDD (ex: 44 99915-9415).",
+        )
         return
       }
       setLeadData((p) => ({ ...p, whatsapp: formatWhatsApp(trimmed) }))
@@ -843,7 +968,12 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           action: () => {
             botReply(
               `Estamos na ${SJ_STORE_INFO.address}.\n\nAtendimento ${SJ_STORE_INFO.workingHours}. Antes de vir, recomendamos confirmar a disponibilidade com o setor de vendas.`,
-              [{ label: "CONFIRMAR NO WHATSAPP", url: WA_LINKS.falarComVendedor }],
+              [
+                {
+                  label: "CONFIRMAR NO WHATSAPP",
+                  url: WA_LINKS.falarComVendedor,
+                },
+              ],
             )
           },
         }
@@ -854,7 +984,12 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           action: () => {
             botReply(
               "Temos a Acqua Protect Blindamix, desenvolvida para piscinas de alvenaria.",
-              [{ label: "SOLICITAR ORÇAMENTO", url: WA_LINKS.solicitarOrcamento }],
+              [
+                {
+                  label: "SOLICITAR ORÇAMENTO",
+                  url: WA_LINKS.solicitarOrcamento,
+                },
+              ],
             )
           },
         }
@@ -865,7 +1000,12 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           action: () => {
             botReply(
               "A Acqua Protect não é recomendada para piscina de fibra. Posso encaminhar você para nosso atendimento para verificar outra solução.",
-              [{ label: "FALAR COM ATENDENTE", url: WA_LINKS.falarComVendedor }],
+              [
+                {
+                  label: "FALAR COM ATENDENTE",
+                  url: WA_LINKS.falarComVendedor,
+                },
+              ],
             )
           },
         }
@@ -919,7 +1059,9 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={`flex flex-col ${m.sender === "user" ? "items-end" : "items-start"} animate-fadeIn`}
+            className={`flex flex-col ${
+              m.sender === "user" ? "items-end" : "items-start"
+            } animate-fadeIn`}
           >
             <div
               className={`max-w-[88%] rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-sm ${
@@ -995,7 +1137,11 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
                   ? "Digite seu bairro e cidade..."
                   : "Pergunte sobre produtos, entrega ou valores..."
           }
-          value={step === "collect_whatsapp" ? formatWhatsApp(inputValue) : inputValue}
+          value={
+            step === "collect_whatsapp"
+              ? formatWhatsApp(inputValue)
+              : inputValue
+          }
           onChange={(e) => setInputValue(e.target.value)}
           disabled={isTyping}
           className="flex-1 px-3.5 py-2.5 rounded-xl text-xs bg-slate-950/70 border border-slate-700/80 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#e8451f] focus:ring-1 focus:ring-[#e8451f]/40 transition-colors"

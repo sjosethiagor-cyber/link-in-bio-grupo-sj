@@ -20,9 +20,8 @@ function getWhatsAppUrl(name: string, phone: string) {
 
 export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
   const [leadSearch, setLeadSearch] = useState("")
-  const [leadStatusFilter, setLeadStatusFilter] = useState<
-    "Todos" | "Novo" | "Em Atendimento" | "Concluído"
-  >("Todos")
+  const [leadStatusFilter, setLeadStatusFilter] =
+    useState<"Todos" | "Novo" | "Em Atendimento" | "Concluído">("Todos")
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const copyPhone = (id: string, phone: string) => {
@@ -108,11 +107,8 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                 value={leadStatusFilter}
                 onChange={(e) =>
                   setLeadStatusFilter(
-                    e.target.value as
-                      | "Todos"
-                      | "Novo"
-                      | "Em Atendimento"
-                      | "Concluído",
+                    e.target
+                      .value as "Todos" | "Novo" | "Em Atendimento" | "Concluído",
                   )
                 }
                 className="dashboard-select px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 text-xs font-bold focus:outline-none"
@@ -155,29 +151,32 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
             filteredLeads.map((lead) => (
               <div
                 key={lead.id}
-                className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col gap-3"
+                className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-4 shadow-sm"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h5 className="font-extrabold text-sm text-slate-800 dark:text-slate-200">
-                      {lead.name}
-                    </h5>
-                    <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
-                      {new Date(lead.createdAt).toLocaleDateString("pt-BR")}
-                    </span>
+                {/* Header: Avatar, Info, Status */}
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-slate-400 dark:text-slate-500 text-sm">
+                      {lead.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className="font-extrabold text-sm text-slate-900 dark:text-white truncate">
+                        {lead.name}
+                      </h5>
+                      <span className="text-[10px] text-slate-400 font-medium block truncate">
+                        {new Date(lead.createdAt).toLocaleDateString("pt-BR")}
+                      </span>
+                    </div>
                   </div>
                   <select
                     value={lead.status}
                     onChange={(e) =>
                       void handleStatusChange(
                         lead.id,
-                        e.target.value as
-                          | "Novo"
-                          | "Em Atendimento"
-                          | "Concluído",
+                        e.target.value as "Novo" | "Em Atendimento" | "Concluído",
                       )
                     }
-                    className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg border-none cursor-pointer ${
+                    className={`shrink-0 text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-1.5 rounded-lg border-none cursor-pointer ${
                       lead.status === "Novo"
                         ? "badge-progress"
                         : lead.status === "Em Atendimento"
@@ -186,60 +185,62 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                     }`}
                   >
                     <option value="Novo">Novo</option>
-                    <option value="Em Atendimento">Atendimento</option>
+                    <option value="Em Atendimento">Atend.</option>
                     <option value="Concluído">Concluído</option>
                   </select>
                 </div>
 
-                <div className="flex flex-col gap-1 text-xs text-slate-600 dark:text-slate-400">
-                  <div className="flex items-center justify-between">
-                    <span>
-                      <strong className="text-slate-800 dark:text-slate-300 font-bold">
-                        WhatsApp:
-                      </strong>{" "}
-                      {lead.whatsapp}
-                    </span>
+                {/* Body: Contact Details Card */}
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 flex flex-col gap-2.5 border border-slate-100 dark:border-slate-700/50">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">WhatsApp</span>
+                    <span className="font-semibold text-xs text-slate-700 dark:text-slate-200">{lead.whatsapp}</span>
                   </div>
-                  <div>
-                    <strong className="text-slate-800 dark:text-slate-300 font-bold">
-                      E-mail:
-                    </strong>{" "}
-                    {lead.email || "Não informado"}
-                  </div>
-                  {lead.message && (
-                    <div className="mt-1 p-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800/80 italic text-slate-500">
-                      "{lead.message}"
+                  
+                  {lead.email && (
+                    <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-700/50">
+                      <div className="flex flex-col overflow-hidden pr-2">
+                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">E-mail</span>
+                        <span className="font-semibold text-xs text-slate-700 dark:text-slate-200 truncate">{lead.email}</span>
+                      </div>
+                      <a
+                        href={`mailto:${lead.email}`}
+                        className="p-2 shrink-0 bg-white dark:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-600 hover:bg-slate-50"
+                        title="Enviar E-mail"
+                      >
+                        ✉️
+                      </a>
                     </div>
                   )}
                 </div>
 
-                {/* Quick actions for Mobile */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                {/* Message Box */}
+                {lead.message && (
+                  <div className="text-xs text-slate-600 dark:text-slate-400 italic px-1 line-clamp-3">
+                    <span className="text-slate-300 dark:text-slate-600 mr-1">"</span>
+                    {lead.message}
+                    <span className="text-slate-300 dark:text-slate-600 ml-1">"</span>
+                  </div>
+                )}
+
+                {/* Footer Actions: Symmetrical Grid */}
+                <div className="grid grid-cols-2 gap-3 mt-1">
                   <a
                     href={getWhatsAppUrl(lead.name, lead.whatsapp)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 no-underline shadow-sm transition-all"
+                    className="py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1da851] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 no-underline shadow-sm transition-all"
                   >
-                    <IcoWhatsApp s={14} />
+                    <IcoWhatsApp s={15} />
                     <span>WhatsApp</span>
                   </a>
                   <button
                     type="button"
                     onClick={() => copyPhone(lead.id, lead.whatsapp)}
-                    className="py-2 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all cursor-pointer"
+                    className="py-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1.5 shadow-sm"
                   >
-                    {copiedId === lead.id ? "✓ Copiado" : "📋 Copiar"}
+                    <span>{copiedId === lead.id ? "✓ Copiado" : "📋 Copiar"}</span>
                   </button>
-                  {lead.email && (
-                    <a
-                      href={`mailto:${lead.email}`}
-                      className="py-2 px-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all no-underline"
-                      title="Enviar E-mail"
-                    >
-                      ✉️
-                    </a>
-                  )}
                 </div>
               </div>
             ))
@@ -293,10 +294,8 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                         onChange={(e) =>
                           void handleStatusChange(
                             lead.id,
-                            e.target.value as
-                              | "Novo"
-                              | "Em Atendimento"
-                              | "Concluído",
+                            e.target
+                              .value as "Novo" | "Em Atendimento" | "Concluído",
                           )
                         }
                         className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg border-none cursor-pointer ${
@@ -325,7 +324,9 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                           title="Abrir conversa no WhatsApp"
                         >
                           <IcoWhatsApp s={14} />
-                          <span className="font-extrabold text-[11px]">Conversar</span>
+                          <span className="font-extrabold text-[11px]">
+                            Conversar
+                          </span>
                         </a>
                         <button
                           type="button"

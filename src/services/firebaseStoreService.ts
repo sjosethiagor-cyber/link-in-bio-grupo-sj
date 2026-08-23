@@ -94,11 +94,10 @@ export async function getClicksFromFirebase(
       const clicks: ClickEvent[] = []
 
       querySnapshot.forEach((docSnap) => {
-        clicks.push({ id: docSnap.id, ...(docSnap.data() as ClickEvent) })
+        clicks.push({ id: docSnap.id, ...docSnap.data() as ClickEvent })
       })
 
-      const lastDoc =
-        querySnapshot.docs[querySnapshot.docs.length - 1] || null
+      const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null
 
       return {
         clicks,
@@ -130,7 +129,7 @@ export function subscribeToClicksInFirebase(
       (snapshot) => {
         const clicks: ClickEvent[] = []
         snapshot.forEach((docSnap) => {
-          clicks.push({ id: docSnap.id, ...(docSnap.data() as ClickEvent) })
+          clicks.push({ id: docSnap.id, ...docSnap.data() as ClickEvent })
         })
         onUpdate(clicks)
       },
@@ -177,7 +176,7 @@ export async function getLeadsFromFirebase(pageSize = 100): Promise<Lead[]> {
       const leads: Lead[] = []
 
       snapshot.forEach((docSnap) => {
-        leads.push({ ...(docSnap.data() as Lead), id: docSnap.id })
+        leads.push({ ...docSnap.data() as Lead, id: docSnap.id })
       })
 
       return leads
@@ -206,7 +205,7 @@ export function subscribeToLeadsInFirebase(
       (snapshot) => {
         const leads: Lead[] = []
         snapshot.forEach((docSnap) => {
-          leads.push({ ...(docSnap.data() as Lead), id: docSnap.id })
+          leads.push({ ...docSnap.data() as Lead, id: docSnap.id })
         })
         onUpdate(leads)
       },

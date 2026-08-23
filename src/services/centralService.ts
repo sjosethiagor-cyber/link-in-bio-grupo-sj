@@ -102,7 +102,10 @@ export async function getProductsFromFirebase(): Promise<ProductDoc[]> {
     saveCachedProducts(products)
     return products
   } catch (error) {
-    console.error("Error getProductsFromFirebase (falling back to cache):", error)
+    console.error(
+      "Error getProductsFromFirebase (falling back to cache):",
+      error,
+    )
     const cached = getCachedProducts()
     if (cached.length > 0) return cached
     throw error
@@ -113,7 +116,8 @@ export async function saveProductInFirebase(
   product: Partial<Omit<ProductDoc, "id">> & { id?: string | number },
 ): Promise<string> {
   if (!centralDb) throw new Error("Database not connected")
-  if (!centralAuth?.currentUser) throw new Error("Usuário não autenticado na Central")
+  if (!centralAuth?.currentUser)
+    throw new Error("Usuário não autenticado na Central")
 
   const id = product.id
   const now = new Date().toISOString()
@@ -127,9 +131,11 @@ export async function saveProductInFirebase(
     driveUrl: product.driveUrl ? DOMPurify.sanitize(product.driveUrl) : null,
     coverKey: product.coverKey || null,
     coverColor: product.coverColor || "#3159d9",
-    mlTitles: (product.mlTitles || []).map(t => DOMPurify.sanitize(t)),
+    mlTitles: (product.mlTitles || []).map((t) => DOMPurify.sanitize(t)),
     mlDescription: DOMPurify.sanitize(product.mlDescription || ""),
-    shopeeTitles: (product.shopeeTitles || []).map(t => DOMPurify.sanitize(t)),
+    shopeeTitles: (product.shopeeTitles || []).map((t) =>
+      DOMPurify.sanitize(t),
+    ),
     shopeeDescription: DOMPurify.sanitize(product.shopeeDescription || ""),
     updatedAt: now,
     createdBy: uid,
@@ -290,9 +296,7 @@ export async function uploadCoverImage(file: File): Promise<string> {
   // Validate file size before compression (10 MB max)
   if (file.size > MAX_IMAGE_SIZE_BYTES) {
     const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
-    throw new Error(
-      `Arquivo muito grande (${sizeMB} MB). O limite é de 10 MB.`,
-    )
+    throw new Error(`Arquivo muito grande (${sizeMB} MB). O limite é de 10 MB.`)
   }
 
   // Optimize & compress image before sending to Firebase Storage

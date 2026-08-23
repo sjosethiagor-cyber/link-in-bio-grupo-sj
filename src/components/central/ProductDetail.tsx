@@ -25,6 +25,8 @@ export interface ProductDetailProps {
     market: Marketplace,
   ) => Validation | null
   cleanForMarketplace: (text: string) => string
+  onClose?: () => void
+  isMobileOpen?: boolean
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({
@@ -47,6 +49,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   handleGoogleSignIn,
   getMarketplaceValidation,
   cleanForMarketplace,
+  onClose,
+  isMobileOpen = false,
 }) => {
   const [generatedBarcode, setGeneratedBarcode] = React.useState<string | null>(
     null,
@@ -93,112 +97,137 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   }
 
   return (
-    <section className="detail">
-      {/* Product Detail Top Header */}
-      <div className="detail-top">
-        {selected.coverUrl ? (
-          <img
-            className="product-cover uploaded-cover"
-            src={selected.coverUrl}
-            alt={`Capa de ${selected.name}`}
-            fetchPriority="high"
-            decoding="async"
-          />
-        ) : (
-          <div
-            className="product-cover fallback-cover"
-            style={{ background: selected.coverColor }}
-          >
-            <b>{coverInitials}</b>
-          </div>
+    <section className={`detail ${isMobileOpen ? "is-open" : ""}`}>
+      {/* Top Navigation Bar */}
+      <div className="detail-top-nav">
+        {onClose && (
+          <button className="mobile-close-detail" onClick={onClose} aria-label="Voltar para a lista">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span>Voltar aos produtos</span>
+          </button>
         )}
+        <span className="product-status-tag">{selected.status}</span>
+      </div>
 
-        <div className="detail-title">
-          <p className="eyebrow">{selected.category}</p>
-          <h2>{selected.name}</h2>
-          <div className="sku-container">
+      {/* Main Product Hero Card */}
+      <div className="product-hero-card">
+        <div className="product-hero-header">
+          {selected.coverUrl ? (
+            <img
+              className="product-cover uploaded-cover"
+              src={selected.coverUrl}
+              alt={`Capa de ${selected.name}`}
+              fetchPriority="high"
+              decoding="async"
+            />
+          ) : (
+            <div
+              className="product-cover fallback-cover"
+              style={{ background: selected.coverColor }}
+            >
+              <b>{coverInitials}</b>
+            </div>
+          )}
+
+          <div className="product-hero-info">
+            <p className="eyebrow">{selected.category}</p>
+            <h2 className="product-hero-title">{selected.name}</h2>
+            
             <div className="sku-copy-row">
               <span className="sku-label">SKU</span>
               <code>{selected.sku}</code>
               <button
+                type="button"
                 onClick={() => copyText("sku", selected.sku)}
                 className={copied === "sku" ? "copied" : ""}
               >
-                {copied === "sku" ? "Copiado ✓" : "Copiar SKU"}
+                {copied === "sku" ? "Copiado ✓" : "Copiar"}
               </button>
             </div>
+          </div>
+        </div>
 
+        {/* Hero Actions Row (Symmetrical 50/50 Grid) */}
+        <div className="product-hero-actions">
+          {canEdit && (
             <button
               type="button"
-              className={`generate-barcode-btn ${
-                copied === "barcode" ? "copied" : ""
-              }`}
-              onClick={handleGenerateCode}
-              title="Gerar código de barras EAN-13 aleatório e copiar automaticamente para a área de transferência"
+              className="hero-action-btn edit-btn"
+              onClick={() => openEditor(selected)}
             >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ marginRight: "3px" }}
-              >
-                <path d="M3 5v14M7 5v14M11 5v14M15 5v14M19 5v14M21 5v14" />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
-              {copied === "barcode" ? "Código Copiado! ✓" : "Gerar o código"}
+              <span>Editar produto</span>
             </button>
+          )}
 
-            {generatedBarcode && (
-              <div className="sku-copy-row barcode-result-row">
-                <span className="sku-label">EAN-13</span>
-                <code className="barcode-code-text">{generatedBarcode}</code>
-                <button
-                  onClick={() => copyText("barcode-code", generatedBarcode)}
-                  className={copied === "barcode-code" ? "copied" : ""}
-                >
-                  {copied === "barcode-code" ? "Copiado ✓" : "Copiar EAN"}
-                </button>
-              </div>
-            )}
-          </div>
-          <p className="detail-count-label">
-            {titles.length} título{titles.length === 1 ? "" : "s"} cadastrado
-            {titles.length === 1 ? "" : "s"} neste canal
-          </p>
-          <div className="detail-actions">
-            {canEdit && (
+          {selected.driveUrl ? (
+            <a
+              className="hero-action-btn drive-btn"
+              href={selected.driveUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+              <span>Abrir Drive</span>
+            </a>
+          ) : (
+            canEdit && (
               <button
-                className="secondary edit-button"
+                type="button"
+                className="hero-action-btn drive-btn missing-drive"
                 onClick={() => openEditor(selected)}
               >
-                Editar produto
+                <span>+ Link Drive</span>
               </button>
-            )}
-            {selected.driveUrl ? (
-              <a
-                className="drive-button"
-                href={selected.driveUrl}
-                target="_blank"
-                rel="noreferrer"
+            )
+          )}
+        </div>
+
+        {/* EAN-13 Section */}
+        <div className="product-ean-section">
+          <button
+            type="button"
+            className={`generate-barcode-btn ${copied === "barcode" ? "copied" : ""}`}
+            onClick={handleGenerateCode}
+            title="Gerar código de barras EAN-13 aleatório"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 5v14M7 5v14M11 5v14M15 5v14M19 5v14M21 5v14" />
+            </svg>
+            <span>{copied === "barcode" ? "Código Gerado e Copiado! ✓" : "Gerar Código EAN-13"}</span>
+          </button>
+
+          {generatedBarcode && (
+            <div className="sku-copy-row barcode-result-row">
+              <span className="sku-label">EAN-13</span>
+              <code className="barcode-code-text">{generatedBarcode}</code>
+              <button
+                type="button"
+                onClick={() => copyText("barcode-code", generatedBarcode)}
+                className={copied === "barcode-code" ? "copied" : ""}
               >
-                Abrir imagens no Drive ↗
-              </a>
-            ) : (
-              canEdit && (
-                <button
-                  className="drive-button missing-drive"
-                  onClick={() => openEditor(selected)}
-                >
-                  + Adicionar link do Drive
-                </button>
-              )
-            )}
-            <span className="version">{selected.status}</span>
-          </div>
+                {copied === "barcode-code" ? "Copiado ✓" : "Copiar"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -209,6 +238,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         aria-label="Escolha o marketplace"
       >
         <button
+          type="button"
           role="tab"
           aria-selected={marketplace === "mercado-livre"}
           className={marketplace === "mercado-livre" ? "ml active" : "ml"}
@@ -219,10 +249,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             <strong>Mercado Livre</strong>
           </div>
           <span className="market-tab-badge">
-            {selected.mlTitles.length} opções de título
+            {selected.mlTitles.length} títulos
           </span>
         </button>
         <button
+          type="button"
           role="tab"
           aria-selected={marketplace === "shopee"}
           className={marketplace === "shopee" ? "shopee active" : "shopee"}
@@ -233,7 +264,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             <strong>Shopee</strong>
           </div>
           <span className="market-tab-badge">
-            {selected.shopeeTitles.length} opções de título
+            {selected.shopeeTitles.length} títulos
           </span>
         </button>
       </div>

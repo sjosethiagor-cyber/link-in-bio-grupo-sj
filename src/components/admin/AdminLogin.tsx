@@ -41,7 +41,6 @@ export function AdminLogin({
       <div className="absolute bottom-[-10%] left-[-10%] w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-blue-500/10 to-indigo-500/5 blur-[100px] pointer-events-none" />
 
       <div className="relative max-w-md w-[90%] mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl text-center shadow-[0_20px_50px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_25px_60px_rgba(0,0,0,0.35)] hover:border-slate-200 dark:hover:border-slate-700">
-        
         {/* Animated icon container */}
         <div
           className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner relative group overflow-hidden ${
@@ -88,7 +87,8 @@ export function AdminLogin({
                   foi enviada ao Administrador Principal.
                   <br />
                   <span className="text-xs text-slate-400 mt-2 block">
-                    Assim que o acesso for concedido (como Administrador ou Leitor), esta tela será liberada automaticamente.
+                    Assim que o acesso for concedido (como Administrador ou
+                    Leitor), esta tela será liberada automaticamente.
                   </span>
                 </p>
               </div>
@@ -102,7 +102,8 @@ export function AdminLogin({
                   , mas ainda não possui permissão de acesso ao painel.
                 </p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Clique no botão abaixo para solicitar aprovação de acesso ao Administrador.
+                  Clique no botão abaixo para solicitar aprovação de acesso ao
+                  Administrador.
                 </p>
               </div>
             )}
@@ -121,7 +122,11 @@ export function AdminLogin({
                   disabled={isRequestingAccess}
                   className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#e8451f] to-[#ff5722] hover:opacity-95 text-white font-extrabold text-sm shadow-[0_4px_16px_rgba(232,69,31,0.3)] transition-all duration-200 flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:opacity-50"
                 >
-                  <span>{isRequestingAccess ? "Enviando solicitação..." : "🚀 Solicitar Acesso ao Administrador"}</span>
+                  <span>
+                    {isRequestingAccess
+                      ? "Enviando solicitação..."
+                      : "🚀 Solicitar Acesso ao Administrador"}
+                  </span>
                 </button>
               )}
 
@@ -145,7 +150,8 @@ export function AdminLogin({
         ) : (
           <>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-              Faça login com sua conta Google para acessar o painel de controle ou solicitar permissão.
+              Faça login com sua conta Google para acessar o painel de controle
+              ou solicitar permissão.
             </p>
 
             {authError && (

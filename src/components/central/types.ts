@@ -50,7 +50,7 @@ export type AdminSession = {
   canEdit: boolean
   canDelete: boolean
   canManageUsers: boolean
-  user: { email: string; name: string } | null
+  user: { email: string name: string } | null
   signInUrl: string
   signOutUrl: string
 }

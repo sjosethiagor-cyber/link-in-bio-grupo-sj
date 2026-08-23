@@ -167,7 +167,14 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             }}
           >
             {/* Left: Avatar + Title in one straight line */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                minWidth: 0,
+              }}
+            >
               <div style={{ position: "relative", flexShrink: 0 }}>
                 <div
                   style={{
@@ -200,7 +207,15 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                 />
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, whiteSpace: "nowrap" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  minWidth: 0,
+                  whiteSpace: "nowrap",
+                }}
+              >
                 <h3
                   style={{
                     margin: 0,
@@ -217,7 +232,14 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
             </div>
 
             {/* Right: Mode Tabs + Close Button */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexShrink: 0,
+              }}
+            >
               <div
                 style={{
                   display: "flex",
@@ -241,7 +263,8 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                       viewMode === "chat"
                         ? "linear-gradient(135deg, #e8451f, #ff7a59)"
                         : "transparent",
-                    color: viewMode === "chat" ? "#fff" : "rgba(255, 255, 255, 0.6)",
+                    color:
+                      viewMode === "chat" ? "#fff" : "rgba(255, 255, 255, 0.6)",
                     boxShadow:
                       viewMode === "chat"
                         ? "0 2px 8px rgba(232, 69, 31, 0.3)"
@@ -265,7 +288,8 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                       viewMode === "form"
                         ? "linear-gradient(135deg, #e8451f, #ff7a59)"
                         : "transparent",
-                    color: viewMode === "form" ? "#fff" : "rgba(255, 255, 255, 0.6)",
+                    color:
+                      viewMode === "form" ? "#fff" : "rgba(255, 255, 255, 0.6)",
                     boxShadow:
                       viewMode === "form"
                         ? "0 2px 8px rgba(232, 69, 31, 0.3)"

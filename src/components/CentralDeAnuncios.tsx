@@ -486,7 +486,9 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
       } catch (error: any) {
         console.error("saveProductInFirebase error:", error)
         const detail = error?.code || error?.message || ""
-        setSaveError(`Erro ao salvar produto no Firestore.${detail ? ` (${detail})` : ""}`)
+        setSaveError(
+          `Erro ao salvar produto no Firestore.${detail ? ` (${detail})` : ""}`,
+        )
       } finally {
         setSaving(false)
       }
@@ -526,7 +528,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
 
     return (
       <div className="central-ads-wrapper">
-        <section className="workspace">
+        <section className={`workspace ${selectedId ? "detail-open" : ""}`}>
           <Sidebar
             products={products}
             filtered={filtered}
@@ -547,6 +549,9 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
             onSelectProduct={(id) => {
               setSelectedId(id)
               setSelectedTitle(0)
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, behavior: "instant" })
+              }
             }}
             onEditProduct={(p) => openEditor(p)}
             onDeleteProduct={(p) => deleteProduct(p)}
@@ -572,6 +577,8 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
             handleGoogleSignIn={async () => {}}
             getMarketplaceValidation={getMarketplaceValidation}
             cleanForMarketplace={cleanForMarketplace}
+            onClose={() => setSelectedId(null)}
+            isMobileOpen={selectedId !== null}
           />
         </section>
 

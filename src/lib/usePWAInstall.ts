@@ -77,5 +77,12 @@ export function usePWAInstall() {
     setDismissed(true)
   }
 
-  return { isInstallable, isInstalled, isIOS, dismissed, promptInstall, dismiss }
+  return {
+    isInstallable,
+    isInstalled,
+    isIOS,
+    dismissed,
+    promptInstall,
+    dismiss,
+  }
 }

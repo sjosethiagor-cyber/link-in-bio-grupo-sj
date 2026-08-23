@@ -18,7 +18,7 @@ export async function compressImage(
 
     reader.onload = (event) => {
       const img = new Image()
-      img.src = event.target?.result as string
+      img.src = (event.target?.result as string)
 
       img.onload = () => {
         let { width, height } = img

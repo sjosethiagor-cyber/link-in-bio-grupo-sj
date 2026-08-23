@@ -34,7 +34,11 @@ export function OverviewMetrics({
     ).getTime()
     const startOf7Days = startOfToday - 6 * 24 * 60 * 60 * 1000
     const startOf30Days = startOfToday - 29 * 24 * 60 * 60 * 1000
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+    const startOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+    ).getTime()
 
     let label = "Todo o período"
     const matchTime = (timestamp: number) => {
@@ -77,13 +81,19 @@ export function OverviewMetrics({
   } = useMemo(() => {
     const tClicks = filteredClicks.length
     const tLeads = filteredLeads.length
-    const ml = filteredClicks.filter((c) => c.category === "Mercado Livre").length
+    const ml = filteredClicks.filter(
+      (c) => c.category === "Mercado Livre",
+    ).length
     const shopee = filteredClicks.filter((c) => c.category === "Shopee").length
     const tiktok = filteredClicks.filter(
       (c) => c.category === "TikTok" || c.category === "TikTok Shop",
     ).length
-    const social = filteredClicks.filter((c) => c.category === "Rede Social").length
-    const contact = filteredClicks.filter((c) => c.category === "Contato").length
+    const social = filteredClicks.filter(
+      (c) => c.category === "Rede Social",
+    ).length
+    const contact = filteredClicks.filter(
+      (c) => c.category === "Contato",
+    ).length
 
     const maxClicks = Math.max(social, contact, ml, shopee, tiktok, 1)
     const pSocial = Math.round((social / maxClicks) * 100)
@@ -92,8 +102,12 @@ export function OverviewMetrics({
     const pShopee = Math.round((shopee / maxClicks) * 100)
     const pTikTok = Math.round((tiktok / maxClicks) * 100)
 
-    const active = filteredLeads.filter((l) => l.status === "Em Atendimento").length
-    const completed = filteredLeads.filter((l) => l.status === "Concluído").length
+    const active = filteredLeads.filter(
+      (l) => l.status === "Em Atendimento",
+    ).length
+    const completed = filteredLeads.filter(
+      (l) => l.status === "Concluído",
+    ).length
     const progress =
       tLeads > 0 ? Math.round(((active + completed) / tLeads) * 100) : 0
 
@@ -151,33 +165,34 @@ export function OverviewMetrics({
               Período de Análise
             </h4>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-              Filtrando métricas por: <strong className="text-[#e8451f]">{timeRangeLabel}</strong> ({totalClicks} cliques · {totalLeads} leads)
+              Filtrando métricas por:{" "}
+              <strong className="text-[#e8451f]">{timeRangeLabel}</strong> (
+              {totalClicks} cliques · {totalLeads} leads)
             </p>
           </div>
         </div>
 
         {/* Time range pills */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl flex-wrap">
-          {(
-            [
-              { id: "all", label: "Todo o histórico" },
-              { id: "today", label: "Hoje" },
-              { id: "7days", label: "7 dias" },
-              { id: "30days", label: "30 dias" },
-              { id: "this_month", label: "Este mês" },
-            ] as const
-          ).map((item) => (
+        <div className="flex w-full sm:w-auto items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+          {([
+            { id: "all", label: "Todo o histórico", short: "Tudo" },
+            { id: "today", label: "Hoje", short: "Hoje" },
+            { id: "7days", label: "7 dias", short: "7D" },
+            { id: "30days", label: "30 dias", short: "30D" },
+            { id: "this_month", label: "Este mês", short: "Mês" },
+          ] as const).map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setTimeRange(item.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-none text-center px-1 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                 timeRange === item.id
                   ? "bg-white dark:bg-slate-900 text-[#e8451f] shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
               }`}
             >
-              {item.label}
+              <span className="hidden sm:inline">{item.label}</span>
+              <span className="inline sm:hidden">{item.short}</span>
             </button>
           ))}
         </div>

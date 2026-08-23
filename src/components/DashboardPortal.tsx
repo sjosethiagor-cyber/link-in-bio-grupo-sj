@@ -101,16 +101,20 @@ export default function DashboardPortal({
   const [authLoading, setAuthLoading] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [isMainAdminAuthorized, setIsMainAdminAuthorized] =
     useState<boolean>(false)
-  const [currentUserRole, setCurrentUserRole] = useState<
-    "owner" | "admin" | "viewer" | null
-  >(null)
+  const [currentUserRole, setCurrentUserRole] =
+    useState<"owner" | "admin" | "viewer" | null>(null)
   const [currentUserRecord, setCurrentUserRecord] =
     useState<DashboardUserRecord | null>(null)
   const [isRequestingAccess, setIsRequestingAccess] = useState(false)
 
-  const [dashboardUsers, setDashboardUsers] = useState<DashboardUserRecord[]>([])
+  const [dashboardUsers, setDashboardUsers] = useState<DashboardUserRecord[]>(
+    [],
+  )
   const [loadingUsers, setLoadingUsers] = useState(false)
 
   const isReadOnly = currentUserRole === "viewer"
@@ -181,7 +185,9 @@ export default function DashboardPortal({
         status: "approved",
         approvedAt: new Date().toISOString(),
       }
-      await setDoc(doc(db, "dashboard_users", cleanEmail), record, { merge: true })
+      await setDoc(doc(db, "dashboard_users", cleanEmail), record, {
+        merge: true,
+      })
       await loadDashboardUsers()
     } catch (e) {
       console.error("Error adding user:", e)
@@ -446,8 +452,16 @@ export default function DashboardPortal({
         theme === "light" ? "light-theme" : "dark-theme"
       }`}
     >
+      {/* ── Overlay for Mobile Sidebar ── */}
+      {isSidebarOpen && (
+        <div
+          className="dashboard-sidebar-overlay"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* ── Lateral Sidebar (Vertical Icons) ── */}
-      <aside className="dashboard-sidebar">
+      <aside className={`dashboard-sidebar ${isSidebarOpen ? "open" : ""}`}>
         {/* Top brand circle logo & light theme mode indicators */}
         <div className="flex flex-col items-center gap-6">
           <div
@@ -493,7 +507,10 @@ export default function DashboardPortal({
         {/* Tab Buttons */}
         <nav className="flex flex-col gap-4">
           <button
-            onClick={() => setActiveTab("metrics")}
+            onClick={() => {
+              setActiveTab("metrics")
+              setIsSidebarOpen(false)
+            }}
             className={`sidebar-icon-btn ${
               activeTab === "metrics" ? "active" : ""
             }`}
@@ -502,7 +519,10 @@ export default function DashboardPortal({
             <IcoGrid />
           </button>
           <button
-            onClick={() => setActiveTab("leads")}
+            onClick={() => {
+              setActiveTab("leads")
+              setIsSidebarOpen(false)
+            }}
             className={`sidebar-icon-btn relative ${
               activeTab === "leads" ? "active" : ""
             }`}
@@ -516,7 +536,10 @@ export default function DashboardPortal({
             )}
           </button>
           <button
-            onClick={() => setActiveTab("cms")}
+            onClick={() => {
+              setActiveTab("cms")
+              setIsSidebarOpen(false)
+            }}
             className={`sidebar-icon-btn ${
               activeTab === "cms" ? "active" : ""
             }`}
@@ -525,7 +548,10 @@ export default function DashboardPortal({
             <IcoDatabase />
           </button>
           <button
-            onClick={() => setActiveTab("ads")}
+            onClick={() => {
+              setActiveTab("ads")
+              setIsSidebarOpen(false)
+            }}
             className={`sidebar-icon-btn ${
               activeTab === "ads" ? "active" : ""
             }`}
@@ -535,14 +561,18 @@ export default function DashboardPortal({
           </button>
           {user?.email?.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase() && (
             <button
-              onClick={() => setActiveTab("users")}
+              onClick={() => {
+                setActiveTab("users")
+                setIsSidebarOpen(false)
+              }}
               className={`sidebar-icon-btn relative ${
                 activeTab === "users" ? "active" : ""
               }`}
               title="Gerenciar Acessos & Permissões"
             >
               <IcoUsers />
-              {dashboardUsers.filter((u) => u.status === "pending").length > 0 && (
+              {dashboardUsers.filter((u) => u.status === "pending").length >
+                0 && (
                 <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white animate-pulse" />
               )}
             </button>
@@ -562,12 +592,34 @@ export default function DashboardPortal({
       </aside>
 
       {/* ── Main View Container ── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* ── Top Header Bar ── */}
         <header className="dashboard-header">
-          {/* Logo Name & Role Badge */}
-          <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            {/* Mobile Hamburger Toggle */}
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Abrir Menu"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Logo Name & Role Badge */}
+            <h1 className="text-xl font-extrabold tracking-tight text-slate-900 flex flex-wrap items-center gap-2">
               Grupo SJ{" "}
               {currentUserRole === "owner" ? (
                 <span className="text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-600">
@@ -598,10 +650,25 @@ export default function DashboardPortal({
           )}
 
           {/* Right Area: Search, Alerts, Info & Profile */}
-          <div className="flex items-center gap-6">
-            <div className="dashboard-search-bar">
+          <div className="flex items-center gap-3 md:gap-6 ml-auto">
+            <div 
+              className={`header-search-bar ${isSearchExpanded ? 'expanded' : ''}`}
+              onClick={() => {
+                if (!isSearchExpanded) {
+                  setIsSearchExpanded(true)
+                  setTimeout(() => searchInputRef.current?.focus(), 50)
+                }
+              }}
+            >
               <IcoSearch />
-              <input type="text" placeholder="Buscar no painel..." />
+              <input 
+                ref={searchInputRef}
+                type="text" 
+                placeholder="Buscar no painel..." 
+                onBlur={(e) => {
+                  if (!e.target.value) setIsSearchExpanded(false)
+                }}
+              />
             </div>
 
             {/* Notification Bell with Dropdown */}
@@ -656,7 +723,9 @@ export default function DashboardPortal({
                                   {nLead.name}
                                 </span>
                                 <span className="text-[9px] text-slate-400 font-semibold">
-                                  {new Date(nLead.createdAt).toLocaleDateString("pt-BR")}
+                                  {new Date(nLead.createdAt).toLocaleDateString(
+                                    "pt-BR",
+                                  )}
                                 </span>
                               </div>
                               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
@@ -689,7 +758,7 @@ export default function DashboardPortal({
             </div>
 
             <button
-              className="text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-slate-400 hover:text-slate-600 transition-colors hidden md:block"
               aria-label="Informações"
               onClick={() => {
                 alert("Grupo SJ Dashboard v1.2 · Painel de Gestão Integrada")
@@ -698,7 +767,7 @@ export default function DashboardPortal({
               <IcoInfo />
             </button>
 
-            <div className="h-6 w-px bg-slate-200"></div>
+            <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
 
             {/* Authorized Admin User Card */}
             {user && (
@@ -726,8 +795,8 @@ export default function DashboardPortal({
                       {currentUserRole === "owner"
                         ? "Administrador Master"
                         : currentUserRole === "admin"
-                        ? "Administrador"
-                        : "Leitor"}
+                          ? "Administrador"
+                          : "Leitor"}
                     </p>
                   </div>
                   <IcoChevronDown />
@@ -766,7 +835,7 @@ export default function DashboardPortal({
         </header>
 
         {/* ── Main View Viewport ── */}
-        <main className="flex-1 overflow-y-auto p-8 relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <div className="fade-up">
             {loading && activeTab !== "ads" ? (
               <div className="flex justify-center items-center py-24 text-slate-400 font-bold">

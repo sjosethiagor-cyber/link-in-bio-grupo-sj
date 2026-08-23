@@ -5,15 +5,8 @@
 
 export interface KnowledgeResponse {
   text: string
-  chips?: { label: string; actionId?: string; url?: string; payload?: any }[]
-  intent?:
-    | "buy_intent"
-    | "quote_intent"
-    | "delivery_intent"
-    | "human_intent"
-    | "product_info"
-    | "general_faq"
-    | "unknown"
+  chips?: { label: string actionId?: string url?: string payload?: any }[]
+  intent?: "buy_intent" | "quote_intent" | "delivery_intent" | "human_intent" | "product_info" | "general_faq" | "unknown"
   autoTransfer?: boolean
   transferType?: "compra" | "orcamento" | "entrega" | "atendente" | "geral"
 }
@@ -157,8 +150,10 @@ export const SJ_CATALOG = {
       {
         id: "acqua_protect",
         name: "Acqua Protect Blindamix",
-        purpose: "Impermeabilização desenvolvida especificamente para piscinas de alvenaria.",
-        importantNote: "NÃO recomendada para piscinas de fibra. Indicada exclusivamente para alvenaria.",
+        purpose:
+          "Impermeabilização desenvolvida especificamente para piscinas de alvenaria.",
+        importantNote:
+          "NÃO recomendada para piscinas de fibra. Indicada exclusivamente para alvenaria.",
       },
     ],
   },
@@ -177,8 +172,10 @@ export const SJ_CATALOG = {
         id: "primer_revgold",
         name: "Primer RevGold",
         packages: ["900 ml"],
-        purpose: "Preparação e aderência da superfície antes da aplicação da Pedra Natural.",
-        reference: "Rendimento referência: ~7,5 m² para 900 ml (diluição referência de 15% de água).",
+        purpose:
+          "Preparação e aderência da superfície antes da aplicação da Pedra Natural.",
+        reference:
+          "Rendimento referência: ~7,5 m² para 900 ml (diluição referência de 15% de água).",
       },
       {
         id: "textura_pedra_natural",
@@ -186,13 +183,15 @@ export const SJ_CATALOG = {
         packages: ["5 kg", "20 kg"],
         purpose:
           "Revestimento decorativo mineral para paredes, escadas, corredores, calçadas, jardins e garagens.",
-        reference: "Rendimento 20 kg: aproximadamente 4 a 6 m² como referência.",
+        reference:
+          "Rendimento 20 kg: aproximadamente 4 a 6 m² como referência.",
       },
       {
         id: "verniz_glitter",
         name: "Verniz Glitter Estrelado RevGold",
         packages: ["900 ml", "3,6 litros"],
-        purpose: "Acabamento decorativo com efeito de brilho e glitter estrelado.",
+        purpose:
+          "Acabamento decorativo com efeito de brilho e glitter estrelado.",
       },
       {
         id: "resina_incolor",
@@ -219,7 +218,10 @@ export const SJ_CATALOG = {
   },
   bambuLab: {
     brand: "Bambu Lab",
-    products: ["Impressoras 3D (A1, A1 Mini, etc.)", "Peças e componentes de manutenção"],
+    products: [
+      "Impressoras 3D (A1, A1 Mini, etc.)",
+      "Peças e componentes de manutenção",
+    ],
   },
   maxprint: {
     brand: "Maxprint",
@@ -305,7 +307,10 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
       text: `Estamos na ${SJ_STORE_INFO.address}.\n\nNosso atendimento funciona ${SJ_STORE_INFO.workingHours}. Deseja consultar a disponibilidade de algum produto?`,
       chips: [
         { label: "📍 Chamar no WhatsApp", url: WA_LINKS.falarComVendedor },
-        { label: "📦 Consultar Estoque para Retirada", actionId: "retirada_info" },
+        {
+          label: "📦 Consultar Estoque para Retirada",
+          actionId: "retirada_info",
+        },
         { label: "🚚 Como funciona a Entrega?", actionId: "entrega_info" },
       ],
       intent: "general_faq",
@@ -342,7 +347,10 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
       return {
         text: `As entregas são programadas conforme disponibilidade. Posso encaminhar você para nosso setor de vendas para verificar a programação para o seu bairro.`,
         chips: [
-          { label: "🚚 Programar Entrega no WhatsApp", url: WA_LINKS.programarEntrega },
+          {
+            label: "🚚 Programar Entrega no WhatsApp",
+            url: WA_LINKS.programarEntrega,
+          },
           { label: "📍 Informar meu Bairro", actionId: "fluxo_entrega" },
         ],
         intent: "delivery_intent",
@@ -361,11 +369,19 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
   }
 
   // 5. Perguntas sobre Retirada na Loja (Item 45)
-  if (norm.includes("retirar") || norm.includes("retirada") || norm.includes("buscar na loja") || norm.includes("posso buscar")) {
+  if (
+    norm.includes("retirar") ||
+    norm.includes("retirada") ||
+    norm.includes("buscar na loja") ||
+    norm.includes("posso buscar")
+  ) {
     return {
       text: `Sim. Estamos na ${SJ_STORE_INFO.address}.\n\nAntes de vir, recomendamos confirmar a disponibilidade do produto com nosso setor de vendas.`,
       chips: [
-        { label: "📦 Confirmar Estoque no WhatsApp", url: WA_LINKS.falarComVendedor },
+        {
+          label: "📦 Confirmar Estoque no WhatsApp",
+          url: WA_LINKS.falarComVendedor,
+        },
         { label: "⚡ Finalizar Compra", url: WA_LINKS.finalizarCompra },
       ],
       intent: "general_faq",
@@ -380,9 +396,15 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
         chips: [
           {
             label: "💬 Falar com Atendente sobre Piscina",
-            url: WA_LINKS.produto("Impermeabilização para Piscina de Fibra", "duvida"),
+            url: WA_LINKS.produto(
+              "Impermeabilização para Piscina de Fibra",
+              "duvida",
+            ),
           },
-          { label: "🛡️ Ver outros Impermeabilizantes", actionId: "menu_impermeabilizacao" },
+          {
+            label: "🛡️ Ver outros Impermeabilizantes",
+            actionId: "menu_impermeabilizacao",
+          },
         ],
         intent: "product_info",
       }
@@ -394,7 +416,10 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
         { label: "🏊 Fibra", actionId: "piscina_fibra" },
         {
           label: "SOLICITAR ORÇAMENTO ACQUA PROTECT",
-          url: WA_LINKS.produto("Acqua Protect Blindamix (Piscina Alvenaria)", "orcamento"),
+          url: WA_LINKS.produto(
+            "Acqua Protect Blindamix (Piscina Alvenaria)",
+            "orcamento",
+          ),
         },
       ],
       intent: "product_info",
@@ -402,7 +427,12 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
   }
 
   // 7. Trava Pedras (Item 8)
-  if (norm.includes("trava pedra") || norm.includes("trava pedras") || norm.includes("pedra solta") || norm.includes("fixar pedra")) {
+  if (
+    norm.includes("trava pedra") ||
+    norm.includes("trava pedras") ||
+    norm.includes("pedra solta") ||
+    norm.includes("fixar pedra")
+  ) {
     return {
       text: `Temos o Trava Pedras Maximper em embalagens de 1L, 5L e 18L. Ele é destinado a fixar e estabilizar pedras decorativas soltas em jardins, canteiros, caminhos e corredores.\n\n*Importante:* Não deve ser utilizado como impermeabilizante de base (sua função é estabilizar as pedras. 5L atende aprox. 3 a 5 sacos de 25 kg de pedras secas como referência).\n\nDeseja verificar a quantidade para sua área?`,
       chips: [
@@ -450,11 +480,17 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
         chips: [
           {
             label: "💬 Consultar Cores e Valores",
-            url: WA_LINKS.produto("Tinta Piso Emborrachada Premium Maximper", "duvida"),
+            url: WA_LINKS.produto(
+              "Tinta Piso Emborrachada Premium Maximper",
+              "duvida",
+            ),
           },
           {
             label: "⚡ Solicitar Orçamento",
-            url: WA_LINKS.produto("Tinta Piso Emborrachada Premium Maximper", "orcamento"),
+            url: WA_LINKS.produto(
+              "Tinta Piso Emborrachada Premium Maximper",
+              "orcamento",
+            ),
           },
         ],
         intent: "product_info",
@@ -479,7 +515,11 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
   }
 
   // 10. Manta Estrutural VP50 (Item 11)
-  if (norm.includes("manta") || norm.includes("vp50") || norm.includes("reforco")) {
+  if (
+    norm.includes("manta") ||
+    norm.includes("vp50") ||
+    norm.includes("reforco")
+  ) {
     return {
       text: `A Manta Estrutural VP50 Maximper (100% poliéster) é utilizada como reforço em emendas, fissuras, cantos e áreas críticas, em conjunto com impermeabilizante compatível.\n\nVocê gostaria de ver o kit completo com Blindamix?`,
       chips: [
@@ -505,8 +545,14 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
       text: `Temos Cola Bloco RevGold de 6 kg e 15 kg, além de kits com Aplicador Triangular Maximper. Indicada para tijolos cerâmicos, blocos estruturais, ecológicos e blocos de concreto.\n\nQual tipo de bloco você vai assentar?`,
       chips: [
         { label: "🧱 Bloco Cerâmico / Tijolo", actionId: "bloco_ceramico" },
-        { label: "🧱 Bloco de Concreto / Estrutural", actionId: "bloco_concreto" },
-        { label: "🔺 Ver Aplicador Triangular", actionId: "aplicador_triangular" },
+        {
+          label: "🧱 Bloco de Concreto / Estrutural",
+          actionId: "bloco_concreto",
+        },
+        {
+          label: "🔺 Ver Aplicador Triangular",
+          actionId: "aplicador_triangular",
+        },
         {
           label: "⚡ Orçamento Cola Bloco RevGold",
           url: WA_LINKS.produto("Cola Bloco RevGold", "orcamento"),
@@ -528,7 +574,10 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
     return {
       text: `Temos Textura Pedra Natural RevGold de 5 kg e 20 kg, além de kits com Primer (900 ml), Verniz Glitter Estrelado e Resina Incolor.\n\nQuantos metros quadrados possui aproximadamente sua área?`,
       chips: [
-        { label: "💎 Kit Pedra Natural + Primer", actionId: "kit_pedra_natural" },
+        {
+          label: "💎 Kit Pedra Natural + Primer",
+          actionId: "kit_pedra_natural",
+        },
         { label: "✨ Verniz Glitter / Resina", actionId: "verniz_resina" },
         {
           label: "⚡ Orçamento Pedra Natural no WhatsApp",
@@ -617,7 +666,11 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
   }
 
   // 16. Fitama (Item 26)
-  if (norm.includes("fitama") || norm.includes("fita transparente") || norm.includes("fita")) {
+  if (
+    norm.includes("fitama") ||
+    norm.includes("fita transparente") ||
+    norm.includes("fita")
+  ) {
     return {
       text: `Trabalhamos com Fita Transparente Fitama de 50 metros.\n\nDeseja que eu encaminhe você para o setor de vendas verificar disponibilidade e valor?`,
       chips: [
@@ -639,7 +692,10 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
     return {
       text: `Perfeito! Vou encaminhar você para nosso setor de vendas para confirmar disponibilidade, valor e combinar retirada ou entrega.`,
       chips: [
-        { label: "FINALIZAR COMPRA NO WHATSAPP", url: WA_LINKS.finalizarCompra },
+        {
+          label: "FINALIZAR COMPRA NO WHATSAPP",
+          url: WA_LINKS.finalizarCompra,
+        },
         { label: "SOLICITAR ORÇAMENTO", url: WA_LINKS.solicitarOrcamento },
         { label: "PROGRAMAR ENTREGA", url: WA_LINKS.programarEntrega },
       ],

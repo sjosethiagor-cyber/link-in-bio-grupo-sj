@@ -332,8 +332,21 @@ export const EditorModal: React.FC<EditorModalProps> = ({
 
               {/* Description field */}
               <div className="description-editor" style={{ marginTop: 24 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 6,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     Descrição do produto
                   </span>
                   {currentDescription && (
@@ -342,7 +355,9 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                       onClick={() =>
                         setForm((curr) => {
                           const isML = curr.marketplace === "mercado-livre"
-                          const field = isML ? "mlDescription" : "shopeeDescription"
+                          const field = isML
+                            ? "mlDescription"
+                            : "shopeeDescription"
                           return {
                             ...curr,
                             [field]: cleanForMarketplace(curr[field] || ""),
@@ -407,6 +422,3 @@ export const EditorModal: React.FC<EditorModalProps> = ({
     document.body,
   )
 }
-
-
-

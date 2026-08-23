@@ -7,9 +7,9 @@ export function runSanitizationSecurityTests(): {
   total: number
   passed: number
   failed: number
-  results: Array<{ name: string; passed: boolean; error?: string }>
+  results: Array<{ name: string passed: boolean error?: string }>
 } {
-  const tests: Array<{ name: string; test: () => void }> = [
+  const tests: Array<{ name: string test: () => void }> = [
     {
       name: "sanitizeText escapes HTML entities (<script> tag)",
       test: () => {
@@ -24,7 +24,9 @@ export function runSanitizationSecurityTests(): {
       test: () => {
         const result = sanitizeText("javascript:alert(1)")
         if (result.includes("javascript:")) {
-          throw new Error(`Failed to strip javascript pseudo-protocol: ${result}`)
+          throw new Error(
+            `Failed to strip javascript pseudo-protocol: ${result}`,
+          )
         }
       },
     },
@@ -43,7 +45,9 @@ export function runSanitizationSecurityTests(): {
       test: () => {
         const result = sanitizeUrl("javascript:evilCode()")
         if (result.startsWith("javascript:")) {
-          throw new Error(`Dangerous javascript url was not sanitized: ${result}`)
+          throw new Error(
+            `Dangerous javascript url was not sanitized: ${result}`,
+          )
         }
       },
     },
@@ -70,7 +74,7 @@ export function runSanitizationSecurityTests(): {
 
   let passed = 0
   let failed = 0
-  const results: Array<{ name: string; passed: boolean; error?: string }> = []
+  const results: Array<{ name: string passed: boolean error?: string }> = []
 
   for (const t of tests) {
     try {

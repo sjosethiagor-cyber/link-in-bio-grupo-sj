@@ -26,7 +26,8 @@ export function UserRolesManager({
 }: UserRolesManagerProps) {
   const [manualEmail, setManualEmail] = useState("")
   const [manualRole, setManualRole] = useState<DashboardRole>("viewer")
-  const [pendingRoles, setPendingRoles] = useState<Record<string, DashboardRole>>({})
+  const [pendingRoles, setPendingRoles] =
+    useState<Record<string, DashboardRole>>({})
   const [savingEmail, setSavingEmail] = useState<string | null>(null)
 
   const pendingUsers = dashboardUsers.filter((u) => u.status === "pending")
@@ -67,7 +68,8 @@ export function UserRolesManager({
             </h4>
           </div>
           <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mb-5">
-            Os seguintes usuários fizeram login e solicitaram autorização para acessar o painel. Escolha o nível de acesso e aprove:
+            Os seguintes usuários fizeram login e solicitaram autorização para
+            acessar o painel. Escolha o nível de acesso e aprove:
           </p>
 
           <div className="flex flex-col gap-3">
@@ -113,8 +115,12 @@ export function UserRolesManager({
                       }
                       className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none"
                     >
-                      <option value="viewer">👀 Leitor (Somente Leitura)</option>
-                      <option value="admin">⚡ Administrador (Acesso Total)</option>
+                      <option value="viewer">
+                        👀 Leitor (Somente Leitura)
+                      </option>
+                      <option value="admin">
+                        ⚡ Administrador (Acesso Total)
+                      </option>
                     </select>
 
                     <button
@@ -151,12 +157,16 @@ export function UserRolesManager({
               👥 Conceder Acesso Antecipado
             </h4>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              Adicione e-mails para pré-autorizar novos membros antes mesmo de fazerem o primeiro login.
+              Adicione e-mails para pré-autorizar novos membros antes mesmo de
+              fazerem o primeiro login.
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleManualSubmit} className="flex flex-col sm:flex-row gap-3 mb-8">
+        <form
+          onSubmit={handleManualSubmit}
+          className="flex flex-col sm:flex-row gap-3 mb-8"
+        >
           <input
             type="email"
             placeholder="Digite o e-mail Google do colaborador..."
@@ -215,7 +225,10 @@ export function UserRolesManager({
 
               {loadingUsers ? (
                 <tr>
-                  <td colSpan={3} className="py-8 text-center text-slate-400 italic">
+                  <td
+                    colSpan={3}
+                    className="py-8 text-center text-slate-400 italic"
+                  >
                     Carregando usuários autorizados...
                   </td>
                 </tr>
@@ -232,7 +245,8 @@ export function UserRolesManager({
                           />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-extrabold flex items-center justify-center text-xs">
-                            {aUser.displayName?.[0] || aUser.email[0].toUpperCase()}
+                            {aUser.displayName?.[0] ||
+                              aUser.email[0].toUpperCase()}
                           </div>
                         )}
                         <div>
@@ -240,7 +254,9 @@ export function UserRolesManager({
                             {aUser.displayName || aUser.email}
                           </p>
                           {aUser.displayName && (
-                            <p className="text-[11px] text-slate-400">{aUser.email}</p>
+                            <p className="text-[11px] text-slate-400">
+                              {aUser.email}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -249,7 +265,10 @@ export function UserRolesManager({
                       <select
                         value={aUser.role}
                         onChange={(e) =>
-                          updateUserRole(aUser.email, e.target.value as DashboardRole)
+                          updateUserRole(
+                            aUser.email,
+                            e.target.value as DashboardRole,
+                          )
                         }
                         className={`px-2.5 py-1.5 rounded-lg text-xs font-extrabold border focus:outline-none cursor-pointer transition-all ${
                           aUser.role === "admin"
@@ -275,7 +294,10 @@ export function UserRolesManager({
 
               {!loadingUsers && approvedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="py-8 text-center text-slate-400 italic">
+                  <td
+                    colSpan={3}
+                    className="py-8 text-center text-slate-400 italic"
+                  >
                     Nenhum outro usuário autorizado.
                   </td>
                 </tr>

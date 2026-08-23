@@ -27,10 +27,7 @@ export function StoreCardTrigger({
       aria-label={`Abrir lista de lojas ${name}`}
     >
       <div className="store-card-top">
-        <span
-          className="store-card-icon"
-          style={{ background: iconBg }}
-        >
+        <span className="store-card-icon" style={{ background: iconBg }}>
           {icon}
         </span>
         <span className="store-card-action">
@@ -46,4 +43,3 @@ export function StoreCardTrigger({
     </button>
   )
 }
-

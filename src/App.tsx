@@ -40,7 +40,7 @@ import {
   IcoWhatsApp,
   IcoEmail,
   IcoShield,
-  IcoArrow
+  IcoArrow,
 } from "./components/Icons"
 
 // ─── Error boundary ───────────────────────────────────────────────────────────
@@ -99,8 +99,6 @@ function Background() {
 }
 
 // ─── Store Trigger Card & Drawer Modal ───────────────────────────────────────
-
-
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
@@ -336,7 +334,11 @@ export default function App() {
               <StoreCardTrigger
                 icon={<IcoML s={40} />}
                 name="Mercado Livre"
-                subtitle={mlLojas.length === 1 ? "1 loja oficial" : `${mlLojas.length} lojas oficiais`}
+                subtitle={
+                  mlLojas.length === 1
+                    ? "1 loja oficial"
+                    : `${mlLojas.length} lojas oficiais`
+                }
                 cls="store-card-ml"
                 iconBg="rgba(255,230,0,0.18)"
                 onClick={() => {
@@ -359,7 +361,11 @@ export default function App() {
               <StoreCardTrigger
                 icon={<IcoShopee s={40} />}
                 name="Shopee"
-                subtitle={shopeeLojas.length === 1 ? "1 loja oficial" : `${shopeeLojas.length} lojas oficiais`}
+                subtitle={
+                  shopeeLojas.length === 1
+                    ? "1 loja oficial"
+                    : `${shopeeLojas.length} lojas oficiais`
+                }
                 cls="store-card-sp"
                 iconBg="rgba(238,77,45,0.18)"
                 onClick={() => {
@@ -378,11 +384,19 @@ export default function App() {
               <StoreCardTrigger
                 icon={<IcoTikTok s={36} />}
                 name="TikTok Shop"
-                subtitle={tiktokLojas.length === 1 ? "1 loja oficial" : `${tiktokLojas.length} lojas oficiais`}
+                subtitle={
+                  tiktokLojas.length === 1
+                    ? "1 loja oficial"
+                    : `${tiktokLojas.length} lojas oficiais`
+                }
                 cls="store-card-tt"
                 iconBg="rgba(254,44,85,0.18)"
                 onClick={() => {
-                  recordClick("btn_tt_stores", "TikTok Shop Modal Open", "TikTok Shop")
+                  recordClick(
+                    "btn_tt_stores",
+                    "TikTok Shop Modal Open",
+                    "TikTok Shop",
+                  )
                   setActiveStore({
                     name: "TikTok Shop",
                     subtitle: "Lojas oficiais no TikTok Shop",
