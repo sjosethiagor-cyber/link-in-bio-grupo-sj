@@ -21,6 +21,7 @@ export interface SidebarProps {
   deletingId: string | number | null
   onSelectProduct: (id: string | number) => void
   onEditProduct: (product: Product) => void
+  onDuplicateProduct?: (product: Product) => void
   onDeleteProduct: (product: Product) => Promise<void>
 }
 
@@ -43,6 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   deletingId,
   onSelectProduct,
   onEditProduct,
+  onDuplicateProduct,
   onDeleteProduct,
 }) => {
   const exportProductsToCsv = () => {
@@ -204,6 +206,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             deletingId={deletingId}
             onSelect={() => onSelectProduct(product.id)}
             onEdit={() => onEditProduct(product)}
+            onDuplicate={
+              onDuplicateProduct
+                ? () => onDuplicateProduct(product)
+                : undefined
+            }
             onDelete={() => void onDeleteProduct(product)}
           />
         ))}

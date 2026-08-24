@@ -687,6 +687,14 @@ a { color: inherit; }
 
 .library-edit:hover { background: #dbeafe; }
 
+.library-duplicate {
+  color: #d97706;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.library-duplicate:hover { background: #fef3c7; }
+
 .library-delete {
   color: #e11d48;
   background: #fff1f2;
@@ -911,6 +919,17 @@ a { color: inherit; }
   background: var(--blue-50);
 }
 
+.hero-action-btn.duplicate-btn {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1.5px solid rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+}
+
+.hero-action-btn.duplicate-btn:hover {
+  background: rgba(245, 158, 11, 0.18);
+  transform: translateY(-1px);
+}
+
 .hero-action-btn.drive-btn {
   background: rgba(16, 185, 129, 0.1);
   border: 1.5px solid rgba(16, 185, 129, 0.25);
@@ -931,6 +950,491 @@ a { color: inherit; }
 .hero-action-btn.missing-drive:hover {
   border-color: var(--blue-400);
   color: var(--blue-500);
+}
+
+/* ── Detail View Mode Tabs (Workspace vs Mockup) ── */
+.detail-view-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--surface-sunken);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  margin-top: 18px;
+}
+
+.view-mode-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+
+.view-mode-tab:hover:not(.active) {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.view-mode-tab.active {
+  background: var(--surface-raised);
+  color: var(--blue-400);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Live Marketplace Mockup Container ── */
+.marketplace-mockup-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  animation: modal-fade-in 0.2s ease-out forwards;
+}
+
+.mockup-header-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+}
+
+.mockup-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.mockup-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
+.mockup-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ── ML Mockup Card ── */
+.ml-mockup-card {
+  background: #ffffff;
+  color: #333333;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  border: 1px solid #e2e8f0;
+}
+
+.ml-mockup-top-banner {
+  background: #fff059;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ml-tag-mas-vendido {
+  background: #ff7733;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.ml-seller-reputation {
+  color: #00a650;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ml-mockup-main {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+@media (max-width: 640px) {
+  .ml-mockup-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ml-mockup-image-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #f8fafc;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f1f5f9;
+}
+
+.ml-mockup-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ml-mockup-fallback-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.ml-badge-full {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #00a650;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+.ml-mockup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ml-condition-sales {
+  font-size: 11px;
+  color: #666666;
+}
+
+.ml-product-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+}
+
+.ml-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.ml-stars {
+  color: #3483fa;
+  letter-spacing: 1px;
+}
+
+.ml-rating-number {
+  font-weight: 700;
+  color: #333333;
+}
+
+.ml-rating-count {
+  color: #666666;
+}
+
+.ml-price-box {
+  margin-top: 4px;
+}
+
+.ml-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.ml-currency {
+  font-size: 16px;
+  color: #111827;
+  margin-right: 2px;
+}
+
+.ml-price-value {
+  font-size: 28px;
+  font-weight: 400;
+  color: #111827;
+  line-height: 1;
+}
+
+.ml-price-cents {
+  font-size: 14px;
+  color: #111827;
+  margin-right: 8px;
+}
+
+.ml-discount {
+  font-size: 13px;
+  font-weight: 700;
+  color: #00a650;
+}
+
+.ml-installments {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #00a650;
+}
+
+.ml-shipping-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ml-shipping-text {
+  margin: 0;
+  font-size: 12px;
+  color: #166534;
+}
+
+.ml-free-shipping {
+  font-weight: 800;
+  color: #00a650;
+}
+
+.ml-return-policy {
+  margin: 0;
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.ml-action-buttons {
+  margin-top: 6px;
+}
+
+.ml-btn-buy {
+  width: 100%;
+  padding: 12px;
+  background: #3483fa;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease-out;
+}
+
+.ml-btn-buy:hover {
+  background: #2968c8;
+}
+
+/* ── Shopee Mockup Card ── */
+.shopee-mockup-card {
+  background: #ffffff;
+  color: #222222;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  border: 1px solid #fed7aa;
+}
+
+.shopee-mockup-main {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+@media (max-width: 640px) {
+  .shopee-mockup-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shopee-mockup-image-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #fffaf5;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffedd5;
+}
+
+.shopee-mockup-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shopee-mockup-fallback-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.shopee-badge-indicado {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #ee4d2d;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.shopee-badge-frete {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0, 181, 155, 0.95);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.shopee-mockup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shopee-brand-tag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ee4d2d;
+  background: #fff7ed;
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.shopee-product-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+}
+
+.shopee-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.shopee-stars {
+  color: #ee4d2d;
+  font-weight: 700;
+}
+
+.shopee-sep {
+  color: #d1d5db;
+}
+
+.shopee-sales {
+  color: #6b7280;
+}
+
+.shopee-price-box {
+  background: #fdfaf7;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.shopee-old-price {
+  font-size: 12px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.shopee-current-price {
+  display: flex;
+  align-items: baseline;
+  color: #ee4d2d;
+}
+
+.shopee-currency {
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.shopee-price-value {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.shopee-voucher-badge {
+  background: #fff1f0;
+  border: 1px dashed #fca5a5;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.shopee-action-buttons {
+  margin-top: 6px;
+}
+
+.shopee-btn-buy {
+  width: 100%;
+  padding: 12px;
+  background: #ee4d2d;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease-out;
+}
+
+.shopee-btn-buy:hover {
+  background: #d73211;
 }
 
 /* ── EAN Section ── */

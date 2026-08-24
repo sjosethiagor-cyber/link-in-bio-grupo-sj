@@ -9,6 +9,7 @@ export interface ProductCardProps {
   deletingId: string | number | null
   onSelect: () => void
   onEdit: () => void
+  onDuplicate?: () => void
   onDelete: () => void
 }
 
@@ -20,6 +21,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   deletingId,
   onSelect,
   onEdit,
+  onDuplicate,
   onDelete,
 }) => {
   const isDeleting = deletingId === product.id
@@ -75,14 +77,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {canEdit && (
           <div className="library-item-actions">
-            <button className="library-edit" onClick={onEdit}>
+            <button className="library-edit" onClick={onEdit} title="Editar dados deste produto">
               Editar
             </button>
+            {onDuplicate && (
+              <button
+                className="library-duplicate"
+                onClick={onDuplicate}
+                title="Clonar anúncio para criar uma variação rápida"
+              >
+                Duplicar
+              </button>
+            )}
             {canDelete && (
               <button
                 className="library-delete"
                 onClick={onDelete}
                 disabled={isDeleting}
+                title="Excluir este produto"
               >
                 {isDeleting ? "Excluindo…" : "Excluir"}
               </button>

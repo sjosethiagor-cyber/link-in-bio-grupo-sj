@@ -316,6 +316,21 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
       setEditorOpen(true)
     }
 
+    const duplicateProduct = (product: Product) => {
+      const formCopy = formFromProduct(product, marketplace)
+      setForm({
+        ...formCopy,
+        id: undefined, // Cleared ID forces Firestore to create a new product document
+        name: `${product.name} (Cópia)`,
+        sku: product.sku ? `${product.sku.replace(/-$/, "")}-COP` : "NOVO-SKU",
+        status: "Em revisão",
+      })
+      setCoverFile(null)
+      setCoverPreview(null)
+      setSaveError("")
+      setEditorOpen(true)
+    }
+
     const changeEditorProduct = (value: string) => {
       if (value === "new") {
         setForm(blankForm(form.marketplace))
@@ -559,6 +574,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
               }
             }}
             onEditProduct={(p) => openEditor(p)}
+            onDuplicateProduct={(p) => duplicateProduct(p)}
             onDeleteProduct={(p) => deleteProduct(p)}
           />
 
@@ -579,6 +595,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
             descriptionOpen={descriptionOpen}
             setDescriptionOpen={setDescriptionOpen}
             openEditor={openEditor}
+            onDuplicate={duplicateProduct}
             handleGoogleSignIn={async () => {}}
             getMarketplaceValidation={getMarketplaceValidation}
             cleanForMarketplace={cleanForMarketplace}
