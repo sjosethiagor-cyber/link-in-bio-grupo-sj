@@ -1,7 +1,12 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app"
 import { initializeFirestore, type Firestore } from "firebase/firestore"
 import { getStorage, type FirebaseStorage } from "firebase/storage"
-import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth"
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInAnonymously,
+  type Auth,
+} from "firebase/auth"
 
 // Secondary Firebase app configuration for Central de Anúncios (Database: anuncio)
 const centralFirebaseConfig = {
@@ -53,6 +58,13 @@ if (isCentralFirebaseConfigured) {
     centralDb = initializeFirestore(centralApp, {}, "anuncio")
     centralAuth = getAuth(centralApp)
     centralStorage = getStorage(centralApp)
+
+    // Ensure session is active in the background
+    if (centralAuth && !centralAuth.currentUser) {
+      signInAnonymously(centralAuth).catch(() => {
+        // Silently handle if anonymous is not needed or disabled
+      })
+    }
   } catch (error) {
     console.warn("Central de Anúncios Firebase initialization warning:", error)
   }
@@ -60,6 +72,18 @@ if (isCentralFirebaseConfigured) {
   console.warn(
     "Central de Anúncios Firebase not configured. Set VITE_CENTRAL_FIREBASE_* environment variables.",
   )
+}
+
+export async function ensureCentralAuth(): Promise<string> {
+  if (!centralAuth) return "admin_local"
+  if (centralAuth.currentUser) return centralAuth.currentUser.uid
+  try {
+    const userCredential = await signInAnonymously(centralAuth)
+    return userCredential.user.uid
+  } catch (e) {
+    console.warn("ensureCentralAuth anonymous fallback:", e)
+    return "admin_local"
+  }
 }
 
 export {

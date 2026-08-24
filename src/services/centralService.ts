@@ -1,4 +1,9 @@
-import { centralDb, centralStorage, centralAuth } from "../lib/centralFirebase"
+import {
+  centralDb,
+  centralStorage,
+  centralAuth,
+  ensureCentralAuth,
+} from "../lib/centralFirebase"
 import DOMPurify from "dompurify"
 import {
   collection,
@@ -286,14 +291,16 @@ export async function saveProductInFirebase(
   product: Partial<Omit<ProductDoc, "id">> & { id?: string | number },
 ): Promise<string> {
   if (!centralDb) throw new Error("Database not connected")
-  if (!centralAuth?.currentUser)
-    throw new Error("Usuário não autenticado na Central")
+
+  let uid = centralAuth?.currentUser?.uid
+  if (!uid) {
+    uid = await ensureCentralAuth()
+  }
 
   const id = product.id
   const now = new Date().toISOString()
-  const uid = centralAuth.currentUser.uid
 
-  const docData = {
+  const docData: any = {
     name: DOMPurify.sanitize(product.name || ""),
     sku: DOMPurify.sanitize(product.sku || ""),
     category: DOMPurify.sanitize(product.category || "Geral"),
@@ -314,7 +321,10 @@ export async function saveProductInFirebase(
     temuTitles: (product.temuTitles || []).map((t) => DOMPurify.sanitize(t)),
     temuDescription: DOMPurify.sanitize(product.temuDescription || ""),
     updatedAt: now,
-    createdBy: uid,
+  }
+
+  if (uid) {
+    docData.createdBy = uid
   }
 
   if (id) {
@@ -453,6 +463,7 @@ import { compressImage } from "../lib/imageCompressor"
 
 export async function uploadCoverImage(file: File): Promise<string> {
   if (!centralStorage) throw new Error("Storage not connected")
+  await ensureCentralAuth()
 
   // Validate MIME type
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
