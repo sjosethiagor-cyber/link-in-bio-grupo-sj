@@ -416,23 +416,113 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       {viewMode === "mockup" ? (
         <div className="marketplace-mockup-container">
           <div className="mockup-header-bar">
-            <div className="mockup-header-left">
-              <span className="mockup-live-dot" />
-              <strong>
-                Simulador de Anúncio (
-                {marketplace === "mercado-livre"
-                  ? "Mercado Livre App"
-                  : marketplace === "shopee"
-                    ? "Shopee App"
-                    : marketplace === "tiktok"
-                      ? "TikTok Shop Live"
-                      : "Temu App"}
-                )
-              </strong>
+            <div className="mockup-header-top-row">
+              <div className="mockup-header-left">
+                <span className="mockup-live-dot" />
+                <div>
+                  <strong>
+                    Simulador de Anúncio (
+                    {marketplace === "mercado-livre"
+                      ? "Mercado Livre App"
+                      : marketplace === "shopee"
+                        ? "Shopee App"
+                        : marketplace === "tiktok"
+                          ? "TikTok Shop Live"
+                          : "Temu App"}
+                    )
+                  </strong>
+                  <span className="mockup-subtitle">
+                    Visualização em tempo real do anúncio no marketplace
+                  </span>
+                </div>
+              </div>
+
+              {/* Title Cycle Switcher Toolbar */}
+              {titles.length > 0 && (
+                <div className="mockup-title-nav-controls">
+                  <button
+                    type="button"
+                    className="title-nav-btn"
+                    onClick={() => {
+                      if (titles.length <= 1) return
+                      setSelectedTitle((selectedTitle - 1 + titles.length) % titles.length)
+                    }}
+                    disabled={titles.length <= 1}
+                    title="Título Anterior"
+                    aria-label="Título Anterior"
+                  >
+                    ‹
+                  </button>
+
+                  <span className="title-nav-counter">
+                    Opção <strong>{selectedTitle + 1}</strong> de <strong>{titles.length}</strong>
+                  </span>
+
+                  <button
+                    type="button"
+                    className="title-nav-btn"
+                    onClick={() => {
+                      if (titles.length <= 1) return
+                      setSelectedTitle((selectedTitle + 1) % titles.length)
+                    }}
+                    disabled={titles.length <= 1}
+                    title="Próximo Título"
+                    aria-label="Próximo Título"
+                  >
+                    ›
+                  </button>
+
+                  <button
+                    type="button"
+                    className="title-cycle-action-btn"
+                    onClick={() => {
+                      if (titles.length <= 1) return
+                      setSelectedTitle((selectedTitle + 1) % titles.length)
+                    }}
+                    disabled={titles.length <= 1}
+                    title="Alternar para o próximo título cadastrado"
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="23 4 23 10 17 10" />
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                    </svg>
+                    <span>Trocar Título</span>
+                  </button>
+                </div>
+              )}
             </div>
-            <span className="mockup-subtitle">
-              Visualização em tempo real do título e capa selecionados
-            </span>
+
+            {/* Quick Title Option Pills */}
+            {titles.length > 1 && (
+              <div className="mockup-titles-pills-row">
+                <span className="pills-label">Escolher Título:</span>
+                <div className="pills-scroll">
+                  {titles.map((t, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`mockup-title-pill ${idx === selectedTitle ? "active" : ""}`}
+                      onClick={() => setSelectedTitle(idx)}
+                      title={t}
+                    >
+                      <span className="pill-num">#{idx + 1}</span>
+                      <span className="pill-text">
+                        {t.length > 32 ? t.slice(0, 32) + "..." : t}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {marketplace === "mercado-livre" && (
@@ -460,9 +550,26 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </div>
 
                 <div className="ml-mockup-body">
-                  <span className="ml-condition-sales">
-                    Novo | +500 vendidos
-                  </span>
+                  <div className="mockup-body-header">
+                    <span className="ml-condition-sales">
+                      Novo | +500 vendidos
+                    </span>
+                    {titles.length > 1 && (
+                      <button
+                        type="button"
+                        className="mockup-inline-switch-btn ml-style"
+                        onClick={() => setSelectedTitle((selectedTitle + 1) % titles.length)}
+                        title="Alternar para o próximo título"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 4 23 10 17 10" />
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                        <span>Trocar Título ({selectedTitle + 1}/{titles.length})</span>
+                      </button>
+                    )}
+                  </div>
+
                   <h4 className="ml-product-title">{activeTitle}</h4>
 
                   <div className="ml-rating-row">
@@ -532,7 +639,24 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </div>
 
                 <div className="shopee-mockup-body">
-                  <span className="shopee-brand-tag">Oficial Grupo SJ</span>
+                  <div className="mockup-body-header">
+                    <span className="shopee-brand-tag">Oficial Grupo SJ</span>
+                    {titles.length > 1 && (
+                      <button
+                        type="button"
+                        className="mockup-inline-switch-btn shopee-style"
+                        onClick={() => setSelectedTitle((selectedTitle + 1) % titles.length)}
+                        title="Alternar para o próximo título"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 4 23 10 17 10" />
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                        <span>Trocar Título ({selectedTitle + 1}/{titles.length})</span>
+                      </button>
+                    )}
+                  </div>
+
                   <h4 className="shopee-product-title">{activeTitle}</h4>
 
                   <div className="shopee-rating-row">
@@ -593,10 +717,27 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </div>
 
                 <div className="tiktok-mockup-body">
-                  <div className="tiktok-creator-row">
-                    <span className="tiktok-creator-badge">@gruposj</span>
-                    <span className="tiktok-sales-count">2.4k vendidos</span>
+                  <div className="mockup-body-header">
+                    <div className="tiktok-creator-row">
+                      <span className="tiktok-creator-badge">@gruposj</span>
+                      <span className="tiktok-sales-count">2.4k vendidos</span>
+                    </div>
+                    {titles.length > 1 && (
+                      <button
+                        type="button"
+                        className="mockup-inline-switch-btn tiktok-style"
+                        onClick={() => setSelectedTitle((selectedTitle + 1) % titles.length)}
+                        title="Alternar para o próximo título"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 4 23 10 17 10" />
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                        <span>Trocar Título ({selectedTitle + 1}/{titles.length})</span>
+                      </button>
+                    )}
                   </div>
+
                   <h4 className="tiktok-product-title">{activeTitle}</h4>
 
                   <div className="tiktok-rating-row">
@@ -657,10 +798,27 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </div>
 
                 <div className="temu-mockup-body">
-                  <div className="temu-brand-row">
-                    <span className="temu-orange-badge">TEMU DIRETO</span>
-                    <span className="temu-reviews-stat">⭐ 4.9 · 1.2k+</span>
+                  <div className="mockup-body-header">
+                    <div className="temu-brand-row">
+                      <span className="temu-orange-badge">TEMU DIRETO</span>
+                      <span className="temu-reviews-stat">⭐ 4.9 · 1.2k+</span>
+                    </div>
+                    {titles.length > 1 && (
+                      <button
+                        type="button"
+                        className="mockup-inline-switch-btn temu-style"
+                        onClick={() => setSelectedTitle((selectedTitle + 1) % titles.length)}
+                        title="Alternar para o próximo título"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 4 23 10 17 10" />
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                        <span>Trocar Título ({selectedTitle + 1}/{titles.length})</span>
+                      </button>
+                    )}
                   </div>
+
                   <h4 className="temu-product-title">{activeTitle}</h4>
 
                   <div className="temu-price-box">
