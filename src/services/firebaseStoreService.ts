@@ -234,6 +234,21 @@ export async function updateLeadStatusInFirebase(
   }
 }
 
+export async function updateLeadTagsInFirebase(
+  id: string,
+  tags: string[],
+): Promise<void> {
+  if (!isFirebaseConfigured || !db) return
+
+  try {
+    await withRetry(async () => {
+      await updateDoc(doc(db!, "leads", id), { tags })
+    })
+  } catch (err) {
+    logger.error(`updateLeadTagsInFirebase failed for id ${id}`, err)
+  }
+}
+
 // ── Store & Social Links CMS ─────────────────────────────────────────────────
 
 export async function saveMLStoreLinksInFirebase(

@@ -14,6 +14,7 @@ export interface Lead {
   message: string
   status: "Novo" | "Em Atendimento" | "Concluído"
   createdAt: number
+  tags?: string[]
 }
 
 export interface StoreLink {
@@ -313,6 +314,28 @@ export async function updateLeadStatus(
     await updateLeadStatusInFirebase(id, status)
   } catch (err) {
     console.warn("Firestore updateLeadStatus warning:", err)
+  }
+}
+
+export async function updateLeadTags(id: string, tags: string[]) {
+  // Update local storage
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.LEADS)
+    if (raw) {
+      const leads: Lead[] = JSON.parse(raw)
+      const updated = leads.map((l) => (l.id === id ? { ...l, tags } : l))
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LEADS, JSON.stringify(updated))
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
+  // Firebase sync
+  try {
+    const { updateLeadTagsInFirebase } = await import("./firebaseStoreService")
+    await updateLeadTagsInFirebase(id, tags)
+  } catch (err) {
+    console.warn("Firestore updateLeadTags warning:", err)
   }
 }
 

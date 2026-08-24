@@ -19,12 +19,26 @@ interface ActionChip {
   actionId?: string
 }
 
+export interface ChatProductCard {
+  id: string
+  name: string
+  category: string
+  subtitle: string
+  rendimento?: string
+  color?: string
+  coverUrl?: string
+  actionLabel?: string
+  onAction?: () => void
+  directWaUrl?: string
+}
+
 interface ChatMessage {
   id: string
   sender: "bot" | "user"
   text: string
   timestamp: number
   chips?: ActionChip[]
+  productCards?: ChatProductCard[]
 }
 
 function formatWhatsApp(value: string) {
@@ -85,7 +99,12 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   }, [])
 
   // Helper para resposta do bot com typing delay
-  const botReply = (text: string, chips?: ActionChip[], delay = 450) => {
+  const botReply = (
+    text: string,
+    chips?: ActionChip[],
+    cards?: ChatProductCard[],
+    delay = 450,
+  ) => {
     if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
     setIsTyping(true)
     typingTimerRef.current = setTimeout(() => {
@@ -98,6 +117,7 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           text,
           timestamp: Date.now(),
           chips,
+          productCards: cards,
         },
       ])
     }, delay)
@@ -234,106 +254,161 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   // Fluxo 1: Impermeabilização (Item 59)
   const handleImpermeabilizacaoFlow = () => {
     addUserMessage("Impermeabilização")
-    botReply("Onde você precisa impermeabilizar?", [
-      {
-        label: "🏊 Piscina",
-        action: () => handlePiscinaFlow(),
-      },
-      {
-        label: "🏠 Laje / Telhado",
-        action: () => {
-          addUserMessage("Laje / Telhado")
-          setLeadData((p) => ({
-            ...p,
-            product: "Kit Blindamix 18kg + Manta VP50 (Laje/Telhado)",
-          }))
-          botReply(
-            "Para lajes e telhados trabalhamos com a Tinta Emborrachada Blindamix e o Kit Blindamix + Manta Estrutural VP50 para reforço contra fissuras e infiltrações.\n\nQual é a área aproximada em metros quadrados?",
-            [
-              {
-                label: "⚡ Solicitar Orçamento de Laje",
-                action: () =>
-                  startLeadCapture("Kit Blindamix 18kg + Manta VP50 (Laje)"),
-              },
-              {
-                label: "💬 Falar com Vendas sobre Laje",
-                url: WA_LINKS.produto(
-                  "Kit Blindamix 18kg + Manta Estrutural VP50 (Laje)",
-                  "orcamento",
-                ),
-              },
-            ],
-          )
+    botReply(
+      "Trabalhamos com linhas de alto rendimento para lajes, piscinas, baldrames e muros. Onde você precisa aplicar?",
+      [
+        {
+          label: "🏊 Piscina",
+          action: () => handlePiscinaFlow(),
         },
-      },
-      {
-        label: "🧱 Parede / Muro",
-        action: () => {
-          addUserMessage("Parede / Muro")
-          setLeadData((p) => ({
-            ...p,
-            product: "Tinta Emborrachada Blindamix (Parede/Muro)",
-          }))
-          botReply(
-            "A Tinta Emborrachada Blindamix (1kg, 3,6kg e 18kg) é excelente para proteção hidrorrepelente e elástica de paredes e alvenaria externa.\n\nDeseja consultar embalagens e valores com o setor de vendas?",
-            [
-              {
-                label: "SOLICITAR ORÇAMENTO BLINDAMIX",
-                url: WA_LINKS.produto(
-                  "Tinta Emborrachada Blindamix (Parede/Muro)",
-                  "orcamento",
-                ),
-              },
-              {
-                label: "FINALIZAR COMPRA BLINDAMIX",
-                url: WA_LINKS.produto(
-                  "Tinta Emborrachada Blindamix (Parede/Muro)",
-                  "compra",
-                ),
-              },
-            ],
-          )
+        {
+          label: "🏠 Laje / Telhado",
+          action: () => {
+            addUserMessage("Laje / Telhado")
+            setLeadData((p) => ({
+              ...p,
+              product: "Kit Blindamix 18kg + Manta VP50 (Laje/Telhado)",
+            }))
+            botReply(
+              "Para lajes e telhados expostos, o Kit Blindamix com Manta Estrutural VP50 é a solução definitiva contra trincas, vazamentos e batida de sol/chuva.",
+              [
+                {
+                  label: "⚡ Solicitar Orçamento de Laje",
+                  action: () =>
+                    startLeadCapture("Kit Blindamix 18kg + Manta VP50 (Laje)"),
+                },
+                {
+                  label: "💬 Falar com Vendas sobre Laje",
+                  url: WA_LINKS.produto(
+                    "Kit Blindamix 18kg + Manta Estrutural VP50 (Laje)",
+                    "orcamento",
+                  ),
+                },
+              ],
+              [
+                {
+                  id: "blindamix-laje",
+                  name: "Kit Blindamix 18kg + Manta VP50",
+                  category: "Impermeabilização",
+                  subtitle:
+                    "Membrana líquida elástica com fibra estruturante para lajes e telhas",
+                  rendimento: "Até 25 m² por demão",
+                  actionLabel: "⚡ Orçar Kit Laje",
+                  onAction: () =>
+                    startLeadCapture("Kit Blindamix 18kg + Manta VP50 (Laje)"),
+                  directWaUrl: WA_LINKS.produto(
+                    "Kit Blindamix 18kg + Manta VP50 (Laje)",
+                    "compra",
+                  ),
+                },
+              ],
+            )
+          },
         },
-      },
-      {
-        label: "🪵 Pedras Decorativas (Jardim)",
-        action: () => {
-          addUserMessage("Pedras Decorativas")
-          setLeadData((p) => ({ ...p, product: "Trava Pedras Maximper" }))
-          botReply(
-            "Temos o Trava Pedras Maximper (1L, 5L e 18L) para fixar e estabilizar pedras soltas em jardins e caminhos.\n\n*Nota:* O Trava Pedras tem a função de estabilizar e unir as pedras (5L atende aprox. 3 a 5 sacos de 25 kg de pedras secas como referência).",
-            [
-              {
-                label: "SOLICITAR ORÇAMENTO TRAVA PEDRAS",
-                url: WA_LINKS.produto("Trava Pedras Maximper", "orcamento"),
-              },
-              {
-                label: "FALAR COM VENDAS TRAVA PEDRAS",
-                url: WA_LINKS.produto("Trava Pedras Maximper", "compra"),
-              },
-            ],
-          )
+        {
+          label: "🧱 Parede / Muro",
+          action: () => {
+            addUserMessage("Parede / Muro")
+            setLeadData((p) => ({
+              ...p,
+              product: "Tinta Emborrachada Blindamix (Parede/Muro)",
+            }))
+            botReply(
+              "A Tinta Emborrachada Blindamix (1kg, 3,6kg e 18kg) é excelente para proteção hidrorrepelente e elástica de paredes e alvenaria externa contra batida de chuva.",
+              [
+                {
+                  label: "⚡ Solicitar Orçamento",
+                  action: () =>
+                    startLeadCapture(
+                      "Tinta Emborrachada Blindamix (Parede/Muro)",
+                    ),
+                },
+                {
+                  label: "SOLICITAR ORÇAMENTO NO WHATSAPP",
+                  url: WA_LINKS.produto(
+                    "Tinta Emborrachada Blindamix (Parede/Muro)",
+                    "orcamento",
+                  ),
+                },
+              ],
+              [
+                {
+                  id: "blindamix-parede",
+                  name: "Tinta Emborrachada Blindamix 18kg",
+                  category: "Paredes & Muros",
+                  subtitle:
+                    "Proteção hidrorrepelente elástica que acompanha a dilatação da parede",
+                  rendimento: "Até 100 m² por demão",
+                  actionLabel: "⚡ Orçar Blindamix",
+                  onAction: () =>
+                    startLeadCapture(
+                      "Tinta Emborrachada Blindamix (Parede/Muro)",
+                    ),
+                  directWaUrl: WA_LINKS.produto(
+                    "Tinta Emborrachada Blindamix (Parede/Muro)",
+                    "compra",
+                  ),
+                },
+              ],
+            )
+          },
         },
-      },
-      {
-        label: "🛡️ Outra Superfície",
-        action: () => {
-          addUserMessage("Outra Superfície")
-          botReply(
-            "Para confirmar a compatibilidade com essa superfície específica, vou precisar verificar com nosso atendimento comercial.",
-            [
-              {
-                label: "💬 Consultar Especialista no WhatsApp",
-                url: WA_LINKS.produto(
-                  "Impermeabilização - Consulta de Superfície Específica",
-                  "duvida",
-                ),
-              },
-            ],
-          )
+        {
+          label: "🪵 Trava Pedras Decorativas",
+          action: () => {
+            addUserMessage("Trava Pedras Decorativas")
+            setLeadData((p) => ({ ...p, product: "Trava Pedras Maximper" }))
+            botReply(
+              "O Trava Pedras Maximper (1L, 5L e 18L) estabiliza e une pedras soltas em jardins e caminhos decorativos sem perder a drenagem.",
+              [
+                {
+                  label: "⚡ Solicitar Orçamento Trava Pedras",
+                  action: () => startLeadCapture("Trava Pedras Maximper"),
+                },
+                {
+                  label: "FALAR COM VENDAS NO WHATSAPP",
+                  url: WA_LINKS.produto("Trava Pedras Maximper", "compra"),
+                },
+              ],
+              [
+                {
+                  id: "trava-pedras",
+                  name: "Trava Pedras Maximper 5L",
+                  category: "Jardins & Paisagismo",
+                  subtitle:
+                    "Fixador de pedras decorativas para caminhos, vasos e jardins",
+                  rendimento: "3 a 5 sacos de 25kg de pedras",
+                  actionLabel: "⚡ Orçar Trava Pedras",
+                  onAction: () => startLeadCapture("Trava Pedras Maximper"),
+                  directWaUrl: WA_LINKS.produto(
+                    "Trava Pedras Maximper",
+                    "compra",
+                  ),
+                },
+              ],
+            )
+          },
         },
-      },
-    ])
+        {
+          label: "🛡️ Outra Superfície",
+          action: () => {
+            addUserMessage("Outra Superfície")
+            botReply(
+              "Para confirmar a compatibilidade com essa superfície específica, vou precisar verificar com nosso atendimento comercial.",
+              [
+                {
+                  label: "💬 Consultar Especialista no WhatsApp",
+                  url: WA_LINKS.produto(
+                    "Impermeabilização - Consulta de Superfície Específica",
+                    "duvida",
+                  ),
+                },
+              ],
+            )
+          },
+        },
+      ],
+    )
   }
 
   // Fluxo Piscina (Item 60)
@@ -541,7 +616,7 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     addUserMessage(tipoBloco)
     setLeadData((p) => ({ ...p, product: `Cola Bloco RevGold (${tipoBloco})` }))
     botReply(
-      `Perfeito! O rendimento da Cola Bloco varia conforme o tamanho e tipo do bloco (${tipoBloco}).\n\nPosso encaminhar você para nosso setor de vendas para calcular a quantidade necessária e verificar os kits disponíveis com o Aplicador.`,
+      `Perfeito! O rendimento da Cola Bloco varia conforme o tamanho do bloco (${tipoBloco}). Com 2 filetes de 1cm de diâmetro, uma bisnaga de 15kg assenta até ~20 a 25 m² de parede.`,
       [
         {
           label: `SOLICITAR ORÇAMENTO COLA BLOCO (${tipoBloco.toUpperCase()})`,
@@ -553,6 +628,38 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
         {
           label: "FALAR COM VENDAS COLA BLOCO",
           url: WA_LINKS.produto(`Cola Bloco RevGold (${tipoBloco})`, "compra"),
+        },
+      ],
+      [
+        {
+          id: "cola-bloco-15kg",
+          name: "Cola Bloco RevGold 15kg (Bisnaga)",
+          category: "Alvenaria Pronta",
+          subtitle:
+            "Massa polimérica pronta para uso — substitui a argamassa convencional",
+          rendimento: "Até 25 m² de parede",
+          actionLabel: "⚡ Orçar Cola Bloco",
+          onAction: () =>
+            startLeadCapture(`Cola Bloco RevGold 15kg (${tipoBloco})`),
+          directWaUrl: WA_LINKS.produto(
+            `Cola Bloco RevGold (${tipoBloco})`,
+            "compra",
+          ),
+        },
+        {
+          id: "aplicador-triangular",
+          name: "Aplicador Triangular Maximper",
+          category: "Ferramentas",
+          subtitle:
+            "Aplicador calibrador para 2 filetes uniformes sem desperdício",
+          rendimento: "Reutilizável / Ergonômico",
+          actionLabel: "⚡ Ver Kit com Aplicador",
+          onAction: () =>
+            startLeadCapture(`Kit Cola Bloco + Aplicador Triangular`),
+          directWaUrl: WA_LINKS.produto(
+            "Aplicador Triangular Maximper",
+            "compra",
+          ),
         },
       ],
     )
@@ -1076,6 +1183,62 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
                 </p>
               ))}
             </div>
+
+            {/* Interactive Product Cards Grid / Carousel */}
+            {m.productCards && m.productCards.length > 0 && (
+              <div className="flex flex-col gap-2 mt-2.5 max-w-[96%] w-full">
+                {m.productCards.map((card) => (
+                  <div
+                    key={card.id}
+                    className="p-3 bg-slate-900/95 border border-slate-700/80 hover:border-[#e8451f]/50 rounded-xl flex flex-col gap-2 transition-all shadow-md backdrop-blur-sm"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-[#e8451f]/15 text-[#ff7a59] border border-[#e8451f]/30">
+                            {card.category}
+                          </span>
+                          {card.rendimento && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30">
+                              ⚡ {card.rendimento}
+                            </span>
+                          )}
+                        </div>
+                        <h5 className="font-extrabold text-xs text-white">
+                          {card.name}
+                        </h5>
+                        <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                          {card.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      {card.onAction && (
+                        <button
+                          type="button"
+                          onClick={card.onAction}
+                          className="flex-1 py-1.5 px-2.5 rounded-lg bg-gradient-to-r from-[#e8451f] to-[#ff7a59] text-white font-black text-[10px] uppercase tracking-wider transition-all hover:brightness-110 active:scale-95 text-center cursor-pointer shadow-sm"
+                        >
+                          {card.actionLabel || "⚡ Fazer Orçamento"}
+                        </button>
+                      )}
+                      {card.directWaUrl && (
+                        <a
+                          href={card.directWaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-1.5 px-3 rounded-lg bg-[#25D366] hover:bg-[#1ebe5d] text-white font-extrabold text-[10px] flex items-center justify-center gap-1 no-underline transition-all shadow-sm"
+                        >
+                          <IcoWhatsApp s={12} />
+                          <span>Comprar</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Quick Action Chips & WhatsApp direct buttons */}
             {m.chips && m.chips.length > 0 && (
