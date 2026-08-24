@@ -325,22 +325,44 @@ export default function DashboardPortal({
   }, [])
 
   const handleGoogleLogin = async () => {
-    if (!mainAuth) return
+    if (!mainAuth || !mainGoogleProvider) {
+      setAuthError(
+        "Erro: Configuração do Firebase Authentication não encontrada.",
+      )
+      return
+    }
     setAuthError(null)
     setAuthLoading(true)
     try {
+      mainGoogleProvider.setCustomParameters({ prompt: "select_account" })
       const result = await signInWithPopup(mainAuth, mainGoogleProvider)
-      if (centralAuth) {
-        try {
-          await signInWithPopup(centralAuth, centralGoogleProvider)
-        } catch (e) {
-          console.warn("Central Auth login failed:", e)
-        }
-      }
       setUser(result.user)
     } catch (err: any) {
       console.error("Google Auth error:", err)
-      setAuthError("Falha na autenticação via Google. Tente novamente.")
+      const code = err?.code || ""
+      if (code === "auth/unauthorized-domain") {
+        setAuthError(
+          `O domínio "${window.location.hostname}" precisa ser autorizado no Firebase Console (Authentication > Settings > Authorized domains).`,
+        )
+      } else if (code === "auth/popup-blocked") {
+        setAuthError(
+          "O navegador bloqueou a janela pop-up do Google. Por favor, permita pop-ups para este site e tente novamente.",
+        )
+      } else if (code === "auth/popup-closed-by-user") {
+        setAuthError(
+          "A janela de login do Google foi fechada antes da conclusão.",
+        )
+      } else if (code === "auth/operation-not-allowed") {
+        setAuthError(
+          "O provedor Google não está ativado no Firebase Console (Authentication > Sign-in method).",
+        )
+      } else if (code === "auth/network-request-failed") {
+        setAuthError("Erro de conexão de rede com o Firebase/Google.")
+      } else {
+        setAuthError(
+          err?.message || "Falha na autenticação via Google. Tente novamente.",
+        )
+      }
     } finally {
       setAuthLoading(false)
     }
