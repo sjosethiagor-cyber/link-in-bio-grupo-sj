@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { saveLead } from "../services/storeService"
-import { LeadChatbot } from "./LeadChatbot"
+
+const LeadChatbot = lazy(() =>
+  import("./LeadChatbot").then((m) => ({ default: m.LeadChatbot })),
+)
 
 interface LeadModalProps {
   isOpen: boolean
@@ -383,11 +386,41 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
 
         {/* Content */}
         {viewMode === "chat" ? (
-          <div style={{ paddingTop: 10 }}>
-            <LeadChatbot
-              onClose={onClose}
-              onSwitchToForm={() => setViewMode("form")}
-            />
+          <div style={{ paddingTop: 10, minHeight: 340 }}>
+            <Suspense
+              fallback={
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "48px 16px",
+                    gap: 12,
+                    color: "var(--muted-foreground)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 28,
+                      height: 28,
+                      border: "3px solid rgba(232, 69, 31, 0.2)",
+                      borderTopColor: "#e8451f",
+                      borderRadius: "50%",
+                      animation: "spin 0.8s linear infinite",
+                    }}
+                  />
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>
+                    Iniciando assistente comercial...
+                  </span>
+                </div>
+              }
+            >
+              <LeadChatbot
+                onClose={onClose}
+                onSwitchToForm={() => setViewMode("form")}
+              />
+            </Suspense>
           </div>
         ) : success ? (
           <div style={{ padding: "36px 12px", textAlign: "center" }}>

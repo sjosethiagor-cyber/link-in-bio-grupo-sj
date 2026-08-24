@@ -45,13 +45,23 @@ import {
 } from "firebase/firestore"
 import "./DashboardPortal.css"
 
-// Import modular sub-components
+// Modular sub-components with Lazy Loading for maximum performance
 import { AdminLogin } from "./admin/AdminLogin"
-import { OverviewMetrics } from "./admin/OverviewMetrics"
-import { LeadsManager } from "./admin/LeadsManager"
-import { LinksCMS } from "./admin/LinksCMS"
-import { UserRolesManager } from "./admin/UserRolesManager"
-import CentralDeAnuncios from "./CentralDeAnuncios"
+const OverviewMetrics = lazy(() =>
+  import("./admin/OverviewMetrics").then((m) => ({ default: m.OverviewMetrics })),
+)
+const LeadsManager = lazy(() =>
+  import("./admin/LeadsManager").then((m) => ({ default: m.LeadsManager })),
+)
+const LinksCMS = lazy(() =>
+  import("./admin/LinksCMS").then((m) => ({ default: m.LinksCMS })),
+)
+const UserRolesManager = lazy(() =>
+  import("./admin/UserRolesManager").then((m) => ({
+    default: m.UserRolesManager,
+  })),
+)
+const CentralDeAnuncios = lazy(() => import("./CentralDeAnuncios"))
 import { DashboardRole, DashboardUserRecord } from "../types/dashboardUser"
 
 // Import icons
@@ -842,7 +852,14 @@ export default function DashboardPortal({
                 Carregando dados do Firebase...
               </div>
             ) : (
-              <>
+              <Suspense
+                fallback={
+                  <div className="flex flex-col items-center justify-center py-24 gap-3 text-slate-400">
+                    <div className="w-8 h-8 border-3 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
+                    <span className="text-xs font-semibold">Carregando módulo...</span>
+                  </div>
+                }
+              >
                 {/* ── VIEW 1: OVERVIEW / METRICAS ── */}
                 {activeTab === "metrics" && (
                   <OverviewMetrics
@@ -902,7 +919,7 @@ export default function DashboardPortal({
                       deleteDashboardUser={deleteDashboardUser}
                     />
                   )}
-              </>
+              </Suspense>
             )}
           </div>
         </main>

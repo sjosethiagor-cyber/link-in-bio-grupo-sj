@@ -17,6 +17,24 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: emitSourcemaps ? "inline" : false,
       minify: !emitSourcemaps,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("firebase")) {
+                return "firebase-vendor"
+              }
+              if (id.includes("react") || id.includes("react-dom")) {
+                return "react-vendor"
+              }
+              if (id.includes("dompurify")) {
+                return "dompurify-vendor"
+              }
+              return "vendor"
+            }
+          },
+        },
+      },
     },
     plugins: [
       react(),
