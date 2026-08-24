@@ -39,7 +39,7 @@ service cloud.firestore {
                        request.resource.data.keys().hasOnly(['id', 'linkId', 'linkName', 'category', 'timestamp', 'serverTime']) &&
                        request.resource.data.linkId is string && request.resource.data.linkId.size() <= 100 &&
                        request.resource.data.linkName is string && request.resource.data.linkName.size() <= 200 &&
-                       request.resource.data.category in ['Mercado Livre', 'Shopee', 'Rede Social', 'Contato'] &&
+                       request.resource.data.category in ['Mercado Livre', 'Shopee', 'TikTok Shop', 'Temu', 'Rede Social', 'Contato'] &&
                        request.resource.data.timestamp is number &&
                        request.resource.data.timestamp > 1700000000000;
       // Administradores e Leitores aprovados podem visualizar métricas
@@ -48,21 +48,25 @@ service cloud.firestore {
       allow update, delete: if isDashboardAdmin();
     }
 
-    // Regras para a coleção de Leads (Formulário de Solicitação)
+    // Regras para a coleção de Leads (Formulário de Solicitação e Chatbot IA)
     match /leads/{document} {
       // Qualquer visitante pode enviar um novo lead com schema válido e limites de tamanho
       allow create: if request.resource.data.keys().hasAll(['name', 'whatsapp', 'createdAt', 'status']) &&
-                       request.resource.data.keys().hasOnly(['id', 'name', 'whatsapp', 'email', 'message', 'createdAt', 'createdAtServer', 'status']) &&
+                       request.resource.data.keys().hasOnly(['id', 'name', 'whatsapp', 'email', 'message', 'product', 'modalidade', 'bairro', 'tags', 'createdAt', 'createdAtServer', 'status', 'updatedAt']) &&
                        request.resource.data.name is string && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 200 &&
                        request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() >= 8 && request.resource.data.whatsapp.size() <= 60 &&
                        (!('email' in request.resource.data) || (request.resource.data.email is string && request.resource.data.email.size() <= 150)) &&
                        (!('message' in request.resource.data) || (request.resource.data.message is string && request.resource.data.message.size() <= 1500)) &&
+                       (!('product' in request.resource.data) || (request.resource.data.product is string && request.resource.data.product.size() <= 200)) &&
+                       (!('modalidade' in request.resource.data) || (request.resource.data.modalidade is string && request.resource.data.modalidade.size() <= 100)) &&
+                       (!('bairro' in request.resource.data) || (request.resource.data.bairro is string && request.resource.data.bairro.size() <= 100)) &&
+                       (!('tags' in request.resource.data) || (request.resource.data.tags is list && request.resource.data.tags.size() <= 15)) &&
                        request.resource.data.createdAt is number &&
                        request.resource.data.createdAt > 1700000000000 &&
-                       request.resource.data.status == 'Novo';
+                       request.resource.data.status in ['Novo', 'Em Atendimento', 'Concluído'];
       // Usuários com acesso aprovado (Leitores e Administradores) podem ler a lista de leads
       allow read: if isDashboardUser();
-      // Apenas Administradores podem atualizar o status ou excluir leads
+      // Apenas Administradores podem atualizar o status, tags ou excluir leads
       allow update, delete: if isDashboardAdmin();
     }
 

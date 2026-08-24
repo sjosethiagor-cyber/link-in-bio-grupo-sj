@@ -2,7 +2,7 @@ export interface ClickEvent {
   id?: string
   linkId: string
   linkName: string
-  category: "Mercado Livre" | "Shopee" | "TikTok" | "TikTok Shop" | "Rede Social" | "Contato"
+  category: "Mercado Livre" | "Shopee" | "TikTok" | "TikTok Shop" | "Temu" | "Rede Social" | "Contato"
   timestamp: number
 }
 
@@ -15,6 +15,10 @@ export interface Lead {
   status: "Novo" | "Em Atendimento" | "Concluído"
   createdAt: number
   tags?: string[]
+  product?: string
+  modalidade?: string
+  bairro?: string
+  updatedAt?: string
 }
 
 export interface StoreLink {
@@ -22,7 +26,7 @@ export interface StoreLink {
   name: string
   desc: string
   href: string
-  storeType: "ml" | "shopee" | "tiktok"
+  storeType: "ml" | "shopee" | "tiktok" | "temu"
 }
 
 // ── Security Helpers & Input Sanitization ─────────────────────────────────────
