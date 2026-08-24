@@ -4,12 +4,22 @@ import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth"
 
 // Firebase Configuration loaded strictly from environment variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  apiKey:
+    import.meta.env.VITE_FIREBASE_API_KEY ||
+    "AIzaSyDyB9MUZRQnIZ9vdUpC4beiBw1FVWT1pY0",
+  authDomain:
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
+    "link-bio-181ea.firebaseapp.com",
+  projectId:
+    import.meta.env.VITE_FIREBASE_PROJECT_ID || "link-bio-181ea",
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
+    "link-bio-181ea.firebasestorage.app",
+  messagingSenderId:
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "15611519719",
+  appId:
+    import.meta.env.VITE_FIREBASE_APP_ID ||
+    "1:15611519719:web:32f6fe5e853903a72ff842",
 }
 
 // Check if Firebase is configured with a valid projectId

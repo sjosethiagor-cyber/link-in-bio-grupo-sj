@@ -223,12 +223,16 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
         const rows = await getProductsFromFirebase()
         setProducts(rows)
         setSelectedId((current) => {
-          const candidate = preferredId ?? current
-          return rows.some(
-            (product) => String(product.id) === String(candidate),
-          )
-            ? candidate
-            : (rows[0]?.id ?? null)
+          if (preferredId) return preferredId
+          if (current && rows.some((p) => String(p.id) === String(current))) {
+            return current
+          }
+          const isMobile =
+            typeof window !== "undefined" && window.innerWidth <= 840
+          if (isMobile) {
+            return null
+          }
+          return rows[0]?.id ?? null
         })
       } catch (error) {
         setLoadError("Não foi possível carregar os produtos do Firestore.")
@@ -244,8 +248,9 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
 
     const selected =
       products.find((product) => product.id === selectedId) ??
-      products[0] ??
-      null
+      (typeof window !== "undefined" && window.innerWidth <= 840
+        ? null
+        : products[0] ?? null)
     const titles = selected
       ? (marketplace === "mercado-livre"
           ? selected.mlTitles
