@@ -825,17 +825,19 @@
 
 /* Notice Box Override */
 .dashboard-portal-theme .central-ads-wrapper .notice {
-  background: #fff7ed;
-  border: 2px solid #fb923c; /* orange-400 */
-  color: #9a3412; /* orange-800: 7.1:1 contrast ratio */
+  background: rgba(232, 69, 31, 0.05);
+  border: 1px solid rgba(232, 69, 31, 0.2);
+  border-radius: 12px;
+  color: #9a3412;
 }
 .dashboard-portal-theme .central-ads-wrapper .notice span {
   background: #e8451f;
   color: #ffffff;
+  border-radius: 50%;
 }
 .dashboard-portal-theme.dark-theme .central-ads-wrapper .notice {
-  background: rgba(232, 69, 31, 0.1);
-  border: 1px solid rgba(232, 69, 31, 0.3);
+  background: rgba(232, 69, 31, 0.08);
+  border: 1px solid rgba(232, 69, 31, 0.25);
   color: #ff8b6c;
 }
 
