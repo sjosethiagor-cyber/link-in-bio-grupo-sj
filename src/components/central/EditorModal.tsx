@@ -53,11 +53,40 @@ export const EditorModal: React.FC<EditorModalProps> = ({
   if (!editorOpen) return null
 
   const currentTitles =
-    form.marketplace === "mercado-livre" ? form.mlTitles : form.shopeeTitles
+    form.marketplace === "mercado-livre"
+      ? form.mlTitles
+      : form.marketplace === "shopee"
+        ? form.shopeeTitles
+        : form.marketplace === "tiktok"
+          ? form.tiktokTitles
+          : form.temuTitles
+
   const currentDescription =
     form.marketplace === "mercado-livre"
       ? form.mlDescription
-      : form.shopeeDescription
+      : form.marketplace === "shopee"
+        ? form.shopeeDescription
+        : form.marketplace === "tiktok"
+          ? form.tiktokDescription
+          : form.temuDescription
+
+  const currentBulkText =
+    form.marketplace === "mercado-livre"
+      ? form.mlBulkText
+      : form.marketplace === "shopee"
+        ? form.shopeeBulkText
+        : form.marketplace === "tiktok"
+          ? form.tiktokBulkText
+          : form.temuBulkText
+
+  const descField =
+    form.marketplace === "mercado-livre"
+      ? "mlDescription"
+      : form.marketplace === "shopee"
+        ? "shopeeDescription"
+        : form.marketplace === "tiktok"
+          ? "tiktokDescription"
+          : "temuDescription"
 
   return createPortal(
     <div
@@ -151,51 +180,37 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
                 >
-                  <option>Publicado</option>
-                  <option>Em revisão</option>
+                  <option value="Publicado">Publicado</option>
+                  <option value="Em revisão">Em revisão</option>
                 </select>
               </label>
 
-              <label className="field full drive-field">
-                <span>Link da pasta de imagens no Google Drive</span>
+              <label className="field full">
+                <span>Link da pasta de fotos no Google Drive</span>
                 <input
-                  type="url"
                   value={form.driveUrl}
                   onChange={(e) =>
                     setForm({ ...form, driveUrl: e.target.value })
                   }
                   placeholder="https://drive.google.com/drive/folders/..."
                 />
-                <small>
-                  Cole o link da pasta onde estão as artes e os vídeos deste
-                  produto.
-                </small>
               </label>
-            </div>
 
-            {/* Cover Image Section */}
-            <div className="editor-section">
-              <div className="section-title">
-                <div>
-                  <h3>Imagem de capa</h3>
-                  <p>JPG, PNG ou WebP de até 5 MB.</p>
-                </div>
-              </div>
-              <label className="cover-uploader">
+              {/* Cover Image Upload Area */}
+              <label className="field full cover-field">
+                <span>Imagem de capa</span>
                 {coverPreview || form.coverUrl ? (
                   <div className="cover-preview-box">
                     <img
-                      src={coverPreview || form.coverUrl || ""}
+                      src={coverPreview ?? form.coverUrl ?? ""}
                       alt="Prévia da capa"
-                      decoding="async"
                     />
-                    <div className="cover-preview-info">
-                      <b>Imagem de capa selecionada</b>
-                      <small>Clique para alterar a imagem</small>
+                    <div className="cover-preview-overlay">
+                      <span>Alterar foto</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="upload-placeholder">
+                  <div className="cover-empty-dropzone">
                     <svg
                       width="22"
                       height="22"
@@ -211,7 +226,6 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                       <polyline points="21 15 16 10 5 21" />
                     </svg>
                     <b>Adicionar capa</b>
-                    <small>Clique para selecionar arquivo</small>
                   </div>
                 )}
                 <input
@@ -250,6 +264,28 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   >
                     Shopee
                   </button>
+                  <button
+                    type="button"
+                    className={
+                      form.marketplace === "tiktok"
+                        ? "active tiktok-mini"
+                        : "tiktok-mini"
+                    }
+                    onClick={() => changeEditorMarketplace("tiktok")}
+                  >
+                    TikTok Shop
+                  </button>
+                  <button
+                    type="button"
+                    className={
+                      form.marketplace === "temu"
+                        ? "active temu-mini"
+                        : "temu-mini"
+                    }
+                    onClick={() => changeEditorMarketplace("temu")}
+                  >
+                    Temu
+                  </button>
                 </div>
               </div>
 
@@ -261,16 +297,16 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   </span>
                   <textarea
                     rows={4}
-                    value={
-                      form.marketplace === "mercado-livre"
-                        ? form.mlBulkText
-                        : form.shopeeBulkText
-                    }
+                    value={currentBulkText}
                     onChange={(e) => applyTitleBlock(e.target.value)}
                     placeholder={
                       form.marketplace === "mercado-livre"
-                        ? "Exemplo:\n1. Título do meu anúncio 1\n2. Segunda opção de título\nTítulo 3..."
-                        : "Dica: Títulos devem ter entre 20 e 120 caracteres para Shopee."
+                        ? "Exemplo:\n1. Título do meu anúncio 1\n2. Segunda opção de título (até 60 carac.)..."
+                        : form.marketplace === "shopee"
+                          ? "Dica: Títulos devem ter entre 20 e 120 caracteres para Shopee."
+                          : form.marketplace === "tiktok"
+                            ? "Dica: Títulos para TikTok Shop (até 255 caracteres)."
+                            : "Dica: Títulos para Temu (até 100 caracteres)."
                     }
                   />
                 </label>
@@ -353,16 +389,10 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     <button
                       type="button"
                       onClick={() =>
-                        setForm((curr) => {
-                          const isML = curr.marketplace === "mercado-livre"
-                          const field = isML
-                            ? "mlDescription"
-                            : "shopeeDescription"
-                          return {
-                            ...curr,
-                            [field]: cleanForMarketplace(curr[field] || ""),
-                          }
-                        })
+                        setForm((curr) => ({
+                          ...curr,
+                          [descField]: cleanForMarketplace(curr[descField] || ""),
+                        }))
                       }
                       style={{
                         fontSize: 11,
@@ -374,7 +404,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                         color: "#e8451f",
                         cursor: "pointer",
                       }}
-                      title="Remove hashtags (#), asteriscos (*) e formata marcadores para Mercado Livre e Shopee"
+                      title="Remove hashtags (#), asteriscos (*) e formata marcadores para o marketplace ativo"
                     >
                       ✨ Limpar formatação (# e *)
                     </button>
@@ -385,14 +415,10 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     rows={8}
                     value={currentDescription}
                     onChange={(e) =>
-                      setForm((curr) => {
-                        const isML = curr.marketplace === "mercado-livre"
-                        return {
-                          ...curr,
-                          [isML ? "mlDescription" : "shopeeDescription"]:
-                            e.target.value,
-                        }
-                      })
+                      setForm((curr) => ({
+                        ...curr,
+                        [descField]: e.target.value,
+                      }))
                     }
                     placeholder="Cole aqui a descrição completa de vendas do produto..."
                   />

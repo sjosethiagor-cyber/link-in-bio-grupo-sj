@@ -33,6 +33,10 @@ export interface ProductDoc {
   mlDescription: string
   shopeeTitles: string[]
   shopeeDescription: string
+  tiktokTitles?: string[]
+  tiktokDescription?: string
+  temuTitles?: string[]
+  temuDescription?: string
   updatedAt: string
   createdAt?: string
 }
@@ -251,6 +255,10 @@ export async function getProductsFromFirebase(): Promise<ProductDoc[]> {
         mlDescription: String(data.mlDescription || ""),
         shopeeTitles: Array.isArray(data.shopeeTitles) ? data.shopeeTitles : [],
         shopeeDescription: String(data.shopeeDescription || ""),
+        tiktokTitles: Array.isArray(data.tiktokTitles) ? data.tiktokTitles : [],
+        tiktokDescription: String(data.tiktokDescription || ""),
+        temuTitles: Array.isArray(data.temuTitles) ? data.temuTitles : [],
+        temuDescription: String(data.temuDescription || ""),
         updatedAt: data.updatedAt
           ? String(data.updatedAt)
           : new Date().toISOString(),
@@ -299,6 +307,12 @@ export async function saveProductInFirebase(
       DOMPurify.sanitize(t),
     ),
     shopeeDescription: DOMPurify.sanitize(product.shopeeDescription || ""),
+    tiktokTitles: (product.tiktokTitles || []).map((t) =>
+      DOMPurify.sanitize(t),
+    ),
+    tiktokDescription: DOMPurify.sanitize(product.tiktokDescription || ""),
+    temuTitles: (product.temuTitles || []).map((t) => DOMPurify.sanitize(t)),
+    temuDescription: DOMPurify.sanitize(product.temuDescription || ""),
     updatedAt: now,
     createdBy: uid,
   }

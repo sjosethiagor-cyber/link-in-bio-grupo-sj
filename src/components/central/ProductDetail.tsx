@@ -382,7 +382,36 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
           <span className="market-tab-badge">120 carac.</span>
         </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={marketplace === "tiktok"}
+          className={marketplace === "tiktok" ? "tiktok active" : "tiktok"}
+          onClick={() => chooseMarketplace("tiktok")}
+        >
+          <div className="market-tab-left">
+            <span className="market-logo">TT</span>
+            <strong>TikTok Shop</strong>
+          </div>
+          <span className="market-tab-badge">255 carac.</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={marketplace === "temu"}
+          className={marketplace === "temu" ? "temu active" : "temu"}
+          onClick={() => chooseMarketplace("temu")}
+        >
+          <div className="market-tab-left">
+            <span className="market-logo">TM</span>
+            <strong>Temu</strong>
+          </div>
+          <span className="market-tab-badge">100 carac.</span>
+        </button>
       </div>
+
       {/* Conditional Content: Workspace Mode vs Live Mockup Preview */}
       {viewMode === "mockup" ? (
         <div className="marketplace-mockup-container">
@@ -393,7 +422,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 Simulador de Anúncio (
                 {marketplace === "mercado-livre"
                   ? "Mercado Livre App"
-                  : "Shopee App"}
+                  : marketplace === "shopee"
+                    ? "Shopee App"
+                    : marketplace === "tiktok"
+                      ? "TikTok Shop Live"
+                      : "Temu App"}
                 )
               </strong>
             </div>
@@ -402,7 +435,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </span>
           </div>
 
-          {marketplace === "mercado-livre" ? (
+          {marketplace === "mercado-livre" && (
             <div className="ml-mockup-card">
               <div className="ml-mockup-top-banner">
                 <span className="ml-tag-mas-vendido">MAIS VENDIDO</span>
@@ -450,14 +483,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                     </p>
                   </div>
 
-                  <div className="ml-shipping-box">
-                    <p className="ml-shipping-text">
-                      <span className="ml-free-shipping">Frete grátis</span>{" "}
-                      Chegará amanhã pelo Mercado Envios
-                    </p>
-                    <p className="ml-return-policy">
-                      ↩️ Devolução grátis em até 30 dias
-                    </p>
+                  <div className="ml-shipping-badge">
+                    <span className="ml-truck-icon">🚚</span>
+                    <span className="ml-free-ship-text">
+                      <strong>Chegará grátis amanhã</strong> com Envio Full
+                    </span>
                   </div>
 
                   <div className="ml-action-buttons">
@@ -474,8 +504,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </div>
               </div>
             </div>
-          ) : (
+          )}
+
+          {marketplace === "shopee" && (
             <div className="shopee-mockup-card">
+              <div className="shopee-mockup-top-banner">
+                <span className="shopee-mall-tag">OFICIAL</span>
+                <span className="shopee-guarantee">
+                  🛡️ Garantia Shopee · Devolução Grátis
+                </span>
+              </div>
+
               <div className="shopee-mockup-main">
                 <div className="shopee-mockup-image-box">
                   {selected.coverUrl ? (
@@ -518,6 +557,129 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                     <button
                       type="button"
                       className="shopee-btn-buy"
+                      onClick={() => copyText("title-mockup", activeTitle)}
+                    >
+                      {copied === "title-mockup"
+                        ? "Título Copiado! ✓"
+                        : "Copiar Este Título"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {marketplace === "tiktok" && (
+            <div className="tiktok-mockup-card">
+              <div className="tiktok-mockup-top-banner">
+                <span className="tiktok-shop-tag">🛍️ TikTok Shop Oficial</span>
+                <span className="tiktok-live-tag">🔴 Oferta de Vídeo/Live</span>
+              </div>
+
+              <div className="tiktok-mockup-main">
+                <div className="tiktok-mockup-image-box">
+                  {selected.coverUrl ? (
+                    <img src={selected.coverUrl} alt={selected.name} />
+                  ) : (
+                    <div
+                      className="tiktok-mockup-fallback-img"
+                      style={{ background: selected.coverColor }}
+                    >
+                      <b>{coverInitials}</b>
+                    </div>
+                  )}
+                  <span className="tiktok-badge-viral">🔥 Viral</span>
+                  <span className="tiktok-badge-frete">Frete Grátis</span>
+                </div>
+
+                <div className="tiktok-mockup-body">
+                  <div className="tiktok-creator-row">
+                    <span className="tiktok-creator-badge">@gruposj</span>
+                    <span className="tiktok-sales-count">2.4k vendidos</span>
+                  </div>
+                  <h4 className="tiktok-product-title">{activeTitle}</h4>
+
+                  <div className="tiktok-rating-row">
+                    <span className="tiktok-stars">⭐⭐⭐⭐⭐</span>
+                    <span className="tiktok-rating-text">5.0 (840 avaliações)</span>
+                  </div>
+
+                  <div className="tiktok-price-box">
+                    <span className="tiktok-old-price">R$ 109,90</span>
+                    <div className="tiktok-current-price">
+                      <span className="tiktok-currency">R$</span>
+                      <span className="tiktok-price-value">79,90</span>
+                      <span className="tiktok-discount-badge">-27%</span>
+                    </div>
+                  </div>
+
+                  <div className="tiktok-voucher-pill">
+                    <span>⚡ Cupom Primeira Compra: -R$ 15 no checkout</span>
+                  </div>
+
+                  <div className="tiktok-action-buttons">
+                    <button
+                      type="button"
+                      className="tiktok-btn-buy"
+                      onClick={() => copyText("title-mockup", activeTitle)}
+                    >
+                      {copied === "title-mockup"
+                        ? "Título Copiado! ✓"
+                        : "Copiar Este Título"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {marketplace === "temu" && (
+            <div className="temu-mockup-card">
+              <div className="temu-mockup-top-banner">
+                <span className="temu-lightning-tag">⚡ OFERTA RELÂMPAGO</span>
+                <span className="temu-stock-alert">🔥 Quase Esgotado</span>
+              </div>
+
+              <div className="temu-mockup-main">
+                <div className="temu-mockup-image-box">
+                  {selected.coverUrl ? (
+                    <img src={selected.coverUrl} alt={selected.name} />
+                  ) : (
+                    <div
+                      className="temu-mockup-fallback-img"
+                      style={{ background: selected.coverColor }}
+                    >
+                      <b>{coverInitials}</b>
+                    </div>
+                  )}
+                  <span className="temu-badge-bestseller">#1 Mais Vendido</span>
+                  <span className="temu-badge-frete">Envio Grátis</span>
+                </div>
+
+                <div className="temu-mockup-body">
+                  <div className="temu-brand-row">
+                    <span className="temu-orange-badge">TEMU DIRETO</span>
+                    <span className="temu-reviews-stat">⭐ 4.9 · 1.2k+</span>
+                  </div>
+                  <h4 className="temu-product-title">{activeTitle}</h4>
+
+                  <div className="temu-price-box">
+                    <span className="temu-old-price">R$ 115,00</span>
+                    <div className="temu-current-price">
+                      <span className="temu-currency">R$</span>
+                      <span className="temu-price-value">69,99</span>
+                      <span className="temu-tag-off">-40%</span>
+                    </div>
+                  </div>
+
+                  <div className="temu-guarantee-box">
+                    <span>🛡️ Devolução Grátis em até 90 dias · Garantia de Ajuste</span>
+                  </div>
+
+                  <div className="temu-action-buttons">
+                    <button
+                      type="button"
+                      className="temu-btn-buy"
                       onClick={() => copyText("title-mockup", activeTitle)}
                     >
                       {copied === "title-mockup"

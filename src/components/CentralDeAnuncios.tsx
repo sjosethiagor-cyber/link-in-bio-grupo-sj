@@ -39,10 +39,45 @@ const blankForm = (marketplace: Marketplace): EditorForm => ({
   shopeeTitles: Array(10).fill(""),
   shopeeDescription: "",
   shopeeBulkText: "",
+  tiktokTitles: Array(10).fill(""),
+  tiktokDescription: "",
+  tiktokBulkText: "",
+  temuTitles: Array(10).fill(""),
+  temuDescription: "",
+  temuBulkText: "",
   coverKey: null,
   coverUrl: null,
   coverColor: "#3159d9",
 })
+
+function getFieldNames(marketplace: Marketplace) {
+  switch (marketplace) {
+    case "mercado-livre":
+      return {
+        listField: "mlTitles" as const,
+        textField: "mlBulkText" as const,
+        descField: "mlDescription" as const,
+      }
+    case "shopee":
+      return {
+        listField: "shopeeTitles" as const,
+        textField: "shopeeBulkText" as const,
+        descField: "shopeeDescription" as const,
+      }
+    case "tiktok":
+      return {
+        listField: "tiktokTitles" as const,
+        textField: "tiktokBulkText" as const,
+        descField: "tiktokDescription" as const,
+      }
+    case "temu":
+      return {
+        listField: "temuTitles" as const,
+        textField: "temuBulkText" as const,
+        descField: "temuDescription" as const,
+      }
+  }
+}
 
 function formFromProduct(
   product: Product,
@@ -56,6 +91,15 @@ function formFromProduct(
     ...(product.shopeeTitles ?? []),
     ...Array(10).fill(""),
   ].slice(0, 10)
+  const tiktokTitles = [
+    ...(product.tiktokTitles ?? []),
+    ...Array(10).fill(""),
+  ].slice(0, 10)
+  const temuTitles = [
+    ...(product.temuTitles ?? []),
+    ...Array(10).fill(""),
+  ].slice(0, 10)
+
   return {
     id: product.id,
     name: product.name,
@@ -70,6 +114,12 @@ function formFromProduct(
     shopeeTitles,
     shopeeDescription: product.shopeeDescription ?? "",
     shopeeBulkText: (product.shopeeTitles ?? []).filter(Boolean).join("\n"),
+    tiktokTitles,
+    tiktokDescription: product.tiktokDescription ?? "",
+    tiktokBulkText: (product.tiktokTitles ?? []).filter(Boolean).join("\n"),
+    temuTitles,
+    temuDescription: product.temuDescription ?? "",
+    temuBulkText: (product.temuTitles ?? []).filter(Boolean).join("\n"),
     coverKey: product.coverKey,
     coverUrl: product.coverUrl,
     coverColor: product.coverColor,
@@ -147,7 +197,7 @@ function getMarketplaceValidation(
       return { status: "error", label: `${len}/60 ML · Excede o limite de 60` }
     }
     return { status: "ok", label: `${len}/60 ML` }
-  } else {
+  } else if (mkt === "shopee") {
     if (len > 120) {
       return {
         status: "error",
@@ -161,6 +211,35 @@ function getMarketplaceValidation(
       }
     }
     return { status: "ok", label: `${len}/120 Shopee` }
+  } else if (mkt === "tiktok") {
+    if (len > 255) {
+      return {
+        status: "error",
+        label: `${len}/255 TikTok · Excede o limite de 255`,
+      }
+    }
+    if (len < 25) {
+      return {
+        status: "warning",
+        label: `${len}/255 TikTok · Recomenda-se min. 25`,
+      }
+    }
+    return { status: "ok", label: `${len}/255 TikTok Shop` }
+  } else {
+    // Temu
+    if (len > 100) {
+      return {
+        status: "error",
+        label: `${len}/100 Temu · Excede o limite de 100`,
+      }
+    }
+    if (len < 15) {
+      return {
+        status: "warning",
+        label: `${len}/100 Temu · Recomenda-se min. 15`,
+      }
+    }
+    return { status: "ok", label: `${len}/100 Temu` }
   }
 }
 
@@ -254,13 +333,21 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
     const titles = selected
       ? (marketplace === "mercado-livre"
           ? selected.mlTitles
-          : selected.shopeeTitles
+          : marketplace === "shopee"
+            ? selected.shopeeTitles
+            : marketplace === "tiktok"
+              ? (selected.tiktokTitles ?? [])
+              : (selected.temuTitles ?? [])
         ).filter(Boolean)
       : []
     const description = selected
       ? marketplace === "mercado-livre"
         ? selected.mlDescription
-        : selected.shopeeDescription
+        : marketplace === "shopee"
+          ? selected.shopeeDescription
+          : marketplace === "tiktok"
+            ? (selected.tiktokDescription ?? "")
+            : (selected.temuDescription ?? "")
       : ""
 
     const categories = useMemo(() => {
@@ -352,9 +439,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
 
     const updateTitle = (index: number, value: string) => {
       setForm((current) => {
-        const isML = current.marketplace === "mercado-livre"
-        const listField = isML ? "mlTitles" : "shopeeTitles"
-        const textField = isML ? "mlBulkText" : "shopeeBulkText"
+        const { listField, textField } = getFieldNames(current.marketplace)
         const currentList = current[listField]
         const updatedList = currentList.map((title, titleIndex) =>
           titleIndex === index ? value : title,
@@ -369,9 +454,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
 
     const addTitleField = () => {
       setForm((current) => {
-        const isML = current.marketplace === "mercado-livre"
-        const listField = isML ? "mlTitles" : "shopeeTitles"
-        const textField = isML ? "mlBulkText" : "shopeeBulkText"
+        const { listField, textField } = getFieldNames(current.marketplace)
         const currentList = current[listField]
         const updatedList = [...currentList, ""]
         return {
@@ -384,9 +467,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
 
     const removeTitleField = (index: number) => {
       setForm((current) => {
-        const isML = current.marketplace === "mercado-livre"
-        const listField = isML ? "mlTitles" : "shopeeTitles"
-        const textField = isML ? "mlBulkText" : "shopeeBulkText"
+        const { listField, textField } = getFieldNames(current.marketplace)
         const currentList = current[listField]
         const updatedList = currentList.filter((_, i) => i !== index)
         return {
@@ -400,9 +481,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
     const applyTitleBlock = (value: string) => {
       const parsed = parseTitleBlock(value)
       setForm((current) => {
-        const isML = current.marketplace === "mercado-livre"
-        const listField = isML ? "mlTitles" : "shopeeTitles"
-        const textField = isML ? "mlBulkText" : "shopeeBulkText"
+        const { listField, textField } = getFieldNames(current.marketplace)
         const newTitles = [...parsed, ...Array(10).fill("")].slice(0, 10)
         return {
           ...current,

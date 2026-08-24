@@ -1,6 +1,6 @@
 import React from "react"
 
-export type Marketplace = "mercado-livre" | "shopee"
+export type Marketplace = "mercado-livre" | "shopee" | "tiktok" | "temu"
 
 export type Product = {
   id: string | number
@@ -16,6 +16,10 @@ export type Product = {
   mlDescription: string
   shopeeTitles: string[]
   shopeeDescription: string
+  tiktokTitles?: string[]
+  tiktokDescription?: string
+  temuTitles?: string[]
+  temuDescription?: string
   updatedAt: string
 }
 
@@ -33,6 +37,12 @@ export type EditorForm = {
   shopeeTitles: string[]
   shopeeDescription: string
   shopeeBulkText: string
+  tiktokTitles: string[]
+  tiktokDescription: string
+  tiktokBulkText: string
+  temuTitles: string[]
+  temuDescription: string
+  temuBulkText: string
   coverKey: string | null
   coverUrl: string | null
   coverColor: string
