@@ -609,21 +609,27 @@ a { color: inherit; }
 .filter-select-wrapper .select-icon {
   position: absolute;
   left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
   color: var(--text-tertiary);
   transition: color 0.15s ease;
+  z-index: 2;
 }
 
 .filter-select-wrapper .select-chevron {
   position: absolute;
   right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
   color: var(--text-tertiary);
+  z-index: 2;
 }
 
 .filter-select {
-  width: 100%;
-  padding: 7.5px 28px 7.5px 30px;
+  width: 100% !important;
+  padding: 8px 28px 8px 34px !important;
   border: 1px solid var(--surface-border);
   border-radius: 8px;
   background: var(--surface-base);
@@ -631,8 +637,9 @@ a { color: inherit; }
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all var(--duration-fast) var(--ease-out);
   text-overflow: ellipsis;
@@ -657,11 +664,8 @@ a { color: inherit; }
   font-weight: 700;
 }
 
-.filter-select.is-filtered ~ .select-icon {
-  color: var(--blue-600);
-}
-
-.filter-select.is-filtered ~ .select-chevron {
+.filter-select-wrapper:has(.filter-select.is-filtered) .select-icon,
+.filter-select-wrapper:has(.filter-select.is-filtered) .select-chevron {
   color: var(--blue-600);
 }
 

@@ -805,10 +805,16 @@
   outline: none;
   border: none;
 }
-.dashboard-portal-theme .central-ads-wrapper .category-select {
+.dashboard-portal-theme .central-ads-wrapper .category-select,
+.dashboard-portal-theme .central-ads-wrapper .brand-select,
+.dashboard-portal-theme .central-ads-wrapper .filter-select {
   background-color: var(--bg-input);
   border: 1.5px solid var(--border-color);
   color: var(--text-main);
+  padding: 8px 28px 8px 34px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
 }
 .dashboard-portal-theme .central-ads-wrapper .filter-row {
   background-color: var(--bg-sunken);
