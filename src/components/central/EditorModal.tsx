@@ -260,15 +260,16 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   <h3>Conteúdo do anúncio</h3>
                   <p>O conteúdo é salvo separadamente para cada marketplace.</p>
                 </div>
-                <div className="mini-tabs">
+                <div className="mini-tabs" role="tablist" aria-label="Escolher marketplace do anúncio">
                   <button
                     type="button"
                     className={
-                      form.marketplace === "mercado-livre" ? "active" : ""
+                      form.marketplace === "mercado-livre" ? "active ml-mini" : "ml-mini"
                     }
                     onClick={() => changeEditorMarketplace("mercado-livre")}
                   >
-                    Mercado Livre
+                    <span className="mini-tab-logo ml">ML</span>
+                    <span>Mercado Livre</span>
                   </button>
                   <button
                     type="button"
@@ -279,7 +280,8 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     }
                     onClick={() => changeEditorMarketplace("shopee")}
                   >
-                    Shopee
+                    <span className="mini-tab-logo sh">SH</span>
+                    <span>Shopee</span>
                   </button>
                   <button
                     type="button"
@@ -290,7 +292,8 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     }
                     onClick={() => changeEditorMarketplace("tiktok")}
                   >
-                    TikTok Shop
+                    <span className="mini-tab-logo tt">TT</span>
+                    <span>TikTok Shop</span>
                   </button>
                   <button
                     type="button"
@@ -301,7 +304,8 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     }
                     onClick={() => changeEditorMarketplace("temu")}
                   >
-                    Temu
+                    <span className="mini-tab-logo tm">TM</span>
+                    <span>Temu</span>
                   </button>
                 </div>
               </div>

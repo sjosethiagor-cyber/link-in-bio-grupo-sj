@@ -2959,31 +2959,84 @@ a { color: inherit; }
   color: var(--text-secondary);
 }
 
-/* Mini Tabs (Mercado Livre vs Shopee in Editor) */
+/* Mini Tabs (Mercado Livre, Shopee, TikTok Shop, Temu in Editor) */
 .mini-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  max-width: 520px;
   background: var(--surface-sunken);
   padding: 4px;
-  border-radius: 10px;
+  border-radius: 12px;
   gap: 4px;
   border: 1px solid var(--surface-border);
+  box-sizing: border-box;
 }
 
 .mini-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 0;
   background: transparent;
-  padding: 8px 16px;
+  padding: 8px 6px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-secondary);
   cursor: pointer;
+  white-space: nowrap;
   transition: all 150ms ease;
+  min-width: 0;
+}
+
+.mini-tab-logo {
+  width: 18px;
+  height: 18px;
+  font-size: 9px;
+  font-weight: 900;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.3px;
+}
+
+.mini-tab-logo.ml {
+  background: #ffe600;
+  color: #2d3277;
+}
+
+.mini-tab-logo.sh {
+  background: #ee4d2d;
+  color: #ffffff;
+}
+
+.mini-tab-logo.tt {
+  background: #000000;
+  color: #ffffff;
+}
+
+.mini-tab-logo.tm {
+  background: #fb7701;
+  color: #ffffff;
+}
+
+.mini-tabs button:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
 }
 
 .mini-tabs button.active {
   background: var(--surface-raised);
-  color: var(--blue-400);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  color: var(--blue-500);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.mini-tabs button.ml-mini.active {
+  color: #2563eb;
 }
 
 .mini-tabs button.shopee-mini.active {
@@ -2991,11 +3044,11 @@ a { color: inherit; }
 }
 
 .mini-tabs button.tiktok-mini.active {
-  color: #fe2c55;
+  color: #0f172a;
 }
 
 .mini-tabs button.temu-mini.active {
-  color: #fb7701;
+  color: #ea580c;
 }
 
 /* Titles Editor */
@@ -3841,26 +3894,54 @@ a { color: inherit; }
   color: #b91c1c !important;
 }
 
-/* Mini Tabs (Mercado Livre vs Shopee) */
+/* Mini Tabs in Editor Modal */
 .editor-modal .mini-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  width: 100% !important;
+  max-width: 520px !important;
   background: #e2e8f0 !important;
   border: 1px solid #cbd5e1 !important;
-  border-radius: 10px !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+  box-sizing: border-box !important;
 }
 
 .editor-modal .mini-tabs button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
   color: #475569 !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
+  padding: 8px 6px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
 }
 
 .editor-modal .mini-tabs button.active {
   background: #ffffff !important;
   color: #2563eb !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.editor-modal .mini-tabs button.ml-mini.active {
+  color: #2563eb !important;
 }
 
 .editor-modal .mini-tabs button.shopee-mini.active {
   color: #ee4d2d !important;
+}
+
+.editor-modal .mini-tabs button.tiktok-mini.active {
+  color: #0f172a !important;
+}
+
+.editor-modal .mini-tabs button.temu-mini.active {
+  color: #ea580c !important;
 }
 
 /* Cover Uploader card */
