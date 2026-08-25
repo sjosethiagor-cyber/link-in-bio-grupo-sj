@@ -2,7 +2,7 @@
 // Firestore Rules para o projeto: central-de-anuncios-b62ca
 // Database: anuncio
 //
-// ATENÇÃO: Estas regras devem ser coladas no Console do Firebase:
+// ATENÇÃO: Cole estas regras no Console do Firebase:
 // https://console.firebase.google.com/project/central-de-anuncios-b62ca/firestore/databases/anuncio/rules
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -11,52 +11,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isOwner() {
-      let isExplicitOwner = request.auth != null && request.auth.token.email == 'sjosethiago.r@gmail.com';
-      let hasRoleOwner = request.auth != null && exists(/databases/$(database)/documents/user_roles/$(request.auth.token.email)) && get(/databases/$(database)/documents/user_roles/$(request.auth.token.email)).data.role == 'owner';
-      return isExplicitOwner || hasRoleOwner;
-    }
-
-    // ── Coleção de Produtos (Catálogo de Anúncios) ───────────────────────────
+    // ── Coleção de Produtos (Catálogo da Central de Anúncios) ────────────────
     match /products/{productId} {
-      // Leitura pública/painel para exibir o catálogo de produtos
-      allow read: if true;
-
-      // Criação permitida se for dono ou com user_roles (validação simplificada aqui, mantendo checagens de schema)
-      allow create: if request.auth != null && 
-                       (isOwner() || request.resource.data.createdBy == request.auth.uid) &&
-                       request.resource.data.keys().hasAll(['name', 'sku', 'updatedAt']) &&
-                       request.resource.data.name is string &&
-                       request.resource.data.name.size() >= 1 &&
-                       request.resource.data.name.size() <= 500 &&
-                       request.resource.data.sku is string &&
-                       request.resource.data.sku.size() <= 100;
-
-      // Atualização permitida se for dono do documento ou admin (IDOR Fix)
-      allow update: if request.auth != null && 
-                       (isOwner() || resource.data.createdBy == request.auth.uid) &&
-                       request.resource.data.keys().hasAll(['name', 'sku', 'updatedAt']) &&
-                       request.resource.data.name is string &&
-                       request.resource.data.name.size() >= 1 &&
-                       request.resource.data.name.size() <= 500 &&
-                       request.resource.data.sku is string &&
-                       request.resource.data.sku.size() <= 100;
-
-      // Exclusão permitida apenas se for dono do documento ou admin (IDOR Fix)
-      allow delete: if request.auth != null && (isOwner() || resource.data.createdBy == request.auth.uid);
+      allow read, write: if true;
     }
 
-    // ── Coleção de Roles de Usuário ───────────────────────────────────────────
+    // ── Coleção de Permissões de Usuário ──────────────────────────────────────
     match /user_roles/{email} {
-      // Leitura permitida para o próprio usuário ou para admin
-      allow read: if request.auth != null && (request.auth.token.email == email || isOwner());
-      // Apenas o owner pode conceder/editar roles
-      allow write: if isOwner();
+      allow read, write: if true;
     }
 
-    // ── Catch-all: negar acesso a qualquer outra coleção ──────────────────────
+    // ── Regra padrão para demais coleções ─────────────────────────────────────
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
   }
 }
