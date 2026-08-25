@@ -63,7 +63,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <span className="product-info">
             <strong>{product.name}</strong>
             <small>
-              {formattedSku} · {categoryText}
+              {formattedSku} · {product.brand ? `${product.brand} · ` : ""}{categoryText}
             </small>
             <span
               className={`status ${

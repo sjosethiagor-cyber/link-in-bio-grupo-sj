@@ -29,6 +29,7 @@ export interface ProductDoc {
   name: string
   sku: string
   category: string
+  brand?: string
   status: string
   driveUrl: string | null
   coverKey: string | null
@@ -54,6 +55,7 @@ export const INITIAL_CATALOG_FALLBACK: ProductDoc[] = [
     name: "COLA BLOCO",
     sku: "COLABLOCO-1",
     category: "Argamassa",
+    brand: "Cola Mix",
     status: "Publicado",
     driveUrl: "https://drive.google.com/drive/folders/1w7UoGhy88r5a1g1lA4nQ2w7hUuVvXwYZ",
     coverKey: "https://firebasestorage.googleapis.com/v0/b/central-de-anuncios-b62ca.firebasestorage.app/o/covers%2F1772421376822_60u25p8.webp?alt=media&token=8d234cf7-775e-4c31-897b-1cbbf47f3b89",
@@ -251,6 +253,7 @@ export async function getProductsFromFirebase(): Promise<ProductDoc[]> {
         name: String(data.name || ""),
         sku: String(data.sku || ""),
         category: String(data.category || "Geral"),
+        brand: data.brand ? String(data.brand) : undefined,
         status: String(data.status || "Publicado"),
         driveUrl: data.driveUrl ? String(data.driveUrl) : null,
         coverKey,
@@ -304,6 +307,7 @@ export async function saveProductInFirebase(
     name: DOMPurify.sanitize(product.name || ""),
     sku: DOMPurify.sanitize(product.sku || ""),
     category: DOMPurify.sanitize(product.category || "Geral"),
+    brand: DOMPurify.sanitize(product.brand || ""),
     status: product.status === "Em revisão" ? "Em revisão" : "Publicado",
     driveUrl: product.driveUrl ? DOMPurify.sanitize(product.driveUrl) : null,
     coverKey: product.coverKey || null,

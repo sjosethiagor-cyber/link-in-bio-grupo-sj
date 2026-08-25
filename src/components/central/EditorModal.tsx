@@ -11,6 +11,7 @@ export interface EditorModalProps {
   setForm: React.Dispatch<React.SetStateAction<EditorForm>>
   products: Product[]
   categories: string[]
+  brands?: string[]
   changeEditorProduct: (id: string) => void
   changeEditorMarketplace: (m: Marketplace) => void
   coverPreview: string | null
@@ -37,6 +38,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
   setForm,
   products,
   categories,
+  brands = [],
   changeEditorProduct,
   changeEditorMarketplace,
   coverPreview,
@@ -155,6 +157,21 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   onChange={(e) => setForm({ ...form, sku: e.target.value })}
                   placeholder="Ex.: SKU-123"
                 />
+              </label>
+
+              <label className="field">
+                <span>Marca do produto</span>
+                <input
+                  list="existing-brand-options"
+                  value={form.brand || ""}
+                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  placeholder="Ex.: Cola Mix, RevCollor, Maximper"
+                />
+                <datalist id="existing-brand-options">
+                  {brands.map((b) => (
+                    <option key={b} value={b} />
+                  ))}
+                </datalist>
               </label>
 
               <label className="field">

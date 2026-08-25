@@ -6,6 +6,7 @@ export interface SidebarProps {
   products: Product[]
   filtered: Product[]
   categories: string[]
+  brands?: string[]
   selectedId: string | number | null
   query: string
   setQuery: (query: string) => void
@@ -13,6 +14,8 @@ export interface SidebarProps {
   setStatusFilter: (filter: "all" | "published" | "review") => void
   categoryFilter: string
   setCategoryFilter: (cat: string) => void
+  brandFilter?: string
+  setBrandFilter?: (brand: string) => void
   loading: boolean
   loadError: string
   loadProducts: () => Promise<void>
@@ -29,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   products,
   filtered,
   categories,
+  brands = [],
   selectedId,
   query,
   setQuery,
@@ -36,6 +40,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setStatusFilter,
   categoryFilter,
   setCategoryFilter,
+  brandFilter = "all",
+  setBrandFilter,
   loading,
   loadError,
   loadProducts,
@@ -47,12 +53,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onDuplicateProduct,
   onDeleteProduct,
 }) => {
+  const hasActiveFilters =
+    query.trim() !== "" ||
+    statusFilter !== "all" ||
+    categoryFilter !== "all" ||
+    brandFilter !== "all"
+
+  const clearAllFilters = () => {
+    setQuery("")
+    setStatusFilter("all")
+    setCategoryFilter("all")
+    if (setBrandFilter) setBrandFilter("all")
+  }
+
   const exportProductsToCsv = () => {
     if (products.length === 0) return
     const headers = [
       "ID",
       "SKU",
       "Nome",
+      "Marca",
       "Categoria",
       "Status",
       "Titulos_Mercado_Livre",
@@ -66,6 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       `"${p.id}"`,
       `"${p.sku}"`,
       `"${p.name.replace(/"/g, '""')}"`,
+      `"${(p.brand || "").replace(/"/g, '""')}"`,
       `"${p.category}"`,
       `"${p.status}"`,
       `"${(p.mlTitles || []).filter(Boolean).join(" | ").replace(/"/g, '""')}"`,
@@ -116,8 +137,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar produto ou SKU"
-          aria-label="Buscar produto ou SKU"
+          placeholder="Buscar produto, SKU ou marca"
+          aria-label="Buscar produto, SKU ou marca"
         />
       </label>
 
@@ -149,12 +170,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </div>
 
-      {/* Category Dropdown Filter */}
-      <div className="category-filter-row">
+      {/* Category & Brand Filters Grid */}
+      <div className="filters-dropdowns-grid">
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="category-select"
+          className={`filter-select category-select ${categoryFilter !== "all" ? "is-filtered" : ""}`}
           aria-label="Filtrar por categoria"
         >
           <option value="all">Todas as categorias ({products.length})</option>
@@ -171,7 +192,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )
           })}
         </select>
+
+        {setBrandFilter && (
+          <select
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+            className={`filter-select brand-select ${brandFilter !== "all" ? "is-filtered" : ""}`}
+            aria-label="Filtrar por marca"
+          >
+            <option value="all">
+              Todas as marcas {brands.length > 0 ? `(${brands.length})` : ""}
+            </option>
+            {brands.map((b) => {
+              const count = products.filter(
+                (p) =>
+                  p.brand &&
+                  p.brand.trim().toLocaleLowerCase("pt-BR") ===
+                    b.toLocaleLowerCase("pt-BR"),
+              ).length
+              return (
+                <option key={b} value={b}>
+                  {b} ({count})
+                </option>
+              )
+            })}
+          </select>
+        )}
       </div>
+
+      {hasActiveFilters && (
+        <div className="active-filters-bar">
+          <span className="text-[11px] text-slate-500 font-medium">
+            Exibindo {filtered.length} de {products.length}
+          </span>
+          <button
+            type="button"
+            onClick={clearAllFilters}
+            className="clear-filters-btn"
+          >
+            Limpar filtros ×
+          </button>
+        </div>
+      )}
 
       {/* Product List */}
       <div className="product-list">

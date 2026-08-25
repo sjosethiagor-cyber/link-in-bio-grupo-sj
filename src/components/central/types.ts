@@ -7,6 +7,7 @@ export type Product = {
   name: string
   sku: string
   category: string
+  brand?: string
   status: string
   driveUrl: string | null
   coverKey: string | null
@@ -28,6 +29,7 @@ export type EditorForm = {
   name: string
   sku: string
   category: string
+  brand: string
   status: string
   driveUrl: string
   marketplace: Marketplace

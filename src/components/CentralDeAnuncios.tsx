@@ -30,6 +30,7 @@ const blankForm = (marketplace: Marketplace): EditorForm => ({
   name: "",
   sku: "",
   category: "",
+  brand: "",
   status: "Publicado",
   driveUrl: "",
   marketplace,
@@ -105,6 +106,7 @@ function formFromProduct(
     name: product.name,
     sku: product.sku,
     category: product.category,
+    brand: product.brand ?? "",
     status: product.status,
     driveUrl: product.driveUrl ?? "",
     marketplace,
@@ -258,6 +260,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
     const [statusFilter, setStatusFilter] =
       useState<"all" | "published" | "review">("all")
     const [categoryFilter, setCategoryFilter] = useState<string>("all")
+    const [brandFilter, setBrandFilter] = useState<string>("all")
     const [titlesOpen, setTitlesOpen] = useState(false)
     const [descriptionOpen, setDescriptionOpen] = useState(false)
     const [loading, setLoading] = useState<boolean>(true)
@@ -360,6 +363,16 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
       return Array.from(set).sort()
     }, [products])
 
+    const brands = useMemo(() => {
+      const set = new Set<string>()
+      products.forEach((p) => {
+        if (p.brand && p.brand.trim()) {
+          set.add(p.brand.trim())
+        }
+      })
+      return Array.from(set).sort()
+    }, [products])
+
     const filtered = useMemo(() => {
       const term = query.trim().toLocaleLowerCase("pt-BR")
       return products.filter((product) => {
@@ -371,14 +384,24 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
           categoryFilter === "all" ||
           product.category.trim().toLocaleLowerCase("pt-BR") ===
             categoryFilter.trim().toLocaleLowerCase("pt-BR")
+        const matchesBrand =
+          brandFilter === "all" ||
+          (product.brand &&
+            product.brand.trim().toLocaleLowerCase("pt-BR") ===
+              brandFilter.trim().toLocaleLowerCase("pt-BR"))
         const matchesSearch =
           !term ||
-          [product.name, product.sku, product.category].some((value) =>
-            value.toLocaleLowerCase("pt-BR").includes(term),
-          )
-        return matchesStatus && matchesCategory && matchesSearch
+          [
+            product.name,
+            product.sku,
+            product.category,
+            product.brand || "",
+          ].some((value) => value.toLocaleLowerCase("pt-BR").includes(term))
+        return (
+          matchesStatus && matchesCategory && matchesBrand && matchesSearch
+        )
       })
-    }, [products, query, statusFilter, categoryFilter])
+    }, [products, query, statusFilter, categoryFilter, brandFilter])
 
     const chooseMarketplace = (value: Marketplace) => {
       setMarketplace(value)
@@ -632,6 +655,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
             products={products}
             filtered={filtered}
             categories={categories}
+            brands={brands}
             selectedId={selectedId}
             query={query}
             setQuery={setQuery}
@@ -639,6 +663,8 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
             setStatusFilter={setStatusFilter}
             categoryFilter={categoryFilter}
             setCategoryFilter={setCategoryFilter}
+            brandFilter={brandFilter}
+            setBrandFilter={setBrandFilter}
             loading={loading}
             loadError={loadError}
             loadProducts={loadProducts}
@@ -692,6 +718,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
           setForm={setForm}
           products={products}
           categories={categories}
+          brands={brands}
           changeEditorProduct={changeEditorProduct}
           changeEditorMarketplace={changeEditorMarketplace}
           coverPreview={coverPreview}

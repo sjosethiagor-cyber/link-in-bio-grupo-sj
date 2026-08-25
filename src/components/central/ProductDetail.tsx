@@ -155,7 +155,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           )}
 
           <div className="product-hero-info">
-            <p className="eyebrow">{selected.category}</p>
+            <p className="eyebrow">
+              {selected.brand ? `${selected.brand} · ${selected.category}` : selected.category}
+            </p>
             <h2 className="product-hero-title">{selected.name}</h2>
 
             <div className="sku-copy-row">
