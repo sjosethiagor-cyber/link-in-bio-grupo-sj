@@ -118,29 +118,57 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <p className="eyebrow">Biblioteca</p>
           <h1>Produtos</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="library-heading-actions">
           <button
             type="button"
             onClick={exportProductsToCsv}
             disabled={products.length === 0}
-            className="p-1.5 px-2.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 cursor-pointer disabled:opacity-50"
+            className="library-csv-btn"
             title="Exportar todos os produtos para planilha CSV"
           >
-            📥 CSV
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>CSV</span>
           </button>
-          <span className="count">{products.length}</span>
+          <span className="library-count-pill" title="Total de produtos cadastrados">
+            {products.length}
+          </span>
         </div>
       </div>
 
-      <label className="search">
-        <SearchIcon />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar produto, SKU ou marca"
-          aria-label="Buscar produto, SKU ou marca"
-        />
-      </label>
+      <div className="library-search-wrapper">
+        <label className="search">
+          <SearchIcon />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar produto, SKU ou marca..."
+            aria-label="Buscar produto, SKU ou marca"
+          />
+          {query && (
+            <button
+              type="button"
+              className="clear-search-btn"
+              onClick={() => setQuery("")}
+              title="Limpar busca"
+            >
+              ×
+            </button>
+          )}
+        </label>
+      </div>
 
       {/* Segmented Filter Control */}
       <div className="filter-row" aria-label="Filtrar produtos por situação">
@@ -170,60 +198,118 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </div>
 
-      {/* Category & Brand Filters Grid */}
-      <div className="filters-dropdowns-grid">
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className={`filter-select category-select ${categoryFilter !== "all" ? "is-filtered" : ""}`}
-          aria-label="Filtrar por categoria"
-        >
-          <option value="all">Todas as categorias ({products.length})</option>
-          {categories.map((cat) => {
-            const count = products.filter(
-              (p) =>
-                p.category.trim().toLocaleLowerCase("pt-BR") ===
-                cat.toLocaleLowerCase("pt-BR"),
-            ).length
-            return (
-              <option key={cat} value={cat}>
-                {cat} ({count})
-              </option>
-            )
-          })}
-        </select>
-
-        {setBrandFilter && (
-          <select
-            value={brandFilter}
-            onChange={(e) => setBrandFilter(e.target.value)}
-            className={`filter-select brand-select ${brandFilter !== "all" ? "is-filtered" : ""}`}
-            aria-label="Filtrar por marca"
+      {/* Category & Brand Filters - Stacked with Icons */}
+      <div className="sidebar-filters-container">
+        <div className="filter-select-wrapper">
+          <svg
+            className="select-icon"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <option value="all">
-              Todas as marcas {brands.length > 0 ? `(${brands.length})` : ""}
-            </option>
-            {brands.map((b) => {
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+            <line x1="7" y1="7" x2="7.01" y2="7" />
+          </svg>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className={`filter-select category-select ${categoryFilter !== "all" ? "is-filtered" : ""}`}
+            aria-label="Filtrar por categoria"
+          >
+            <option value="all">Todas as categorias ({products.length})</option>
+            {categories.map((cat) => {
               const count = products.filter(
                 (p) =>
-                  p.brand &&
-                  p.brand.trim().toLocaleLowerCase("pt-BR") ===
-                    b.toLocaleLowerCase("pt-BR"),
+                  p.category.trim().toLocaleLowerCase("pt-BR") ===
+                  cat.toLocaleLowerCase("pt-BR"),
               ).length
               return (
-                <option key={b} value={b}>
-                  {b} ({count})
+                <option key={cat} value={cat}>
+                  {cat} ({count})
                 </option>
               )
             })}
           </select>
+          <svg
+            className="select-chevron"
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+
+        {setBrandFilter && (
+          <div className="filter-select-wrapper">
+            <svg
+              className="select-icon"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+            <select
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+              className={`filter-select brand-select ${brandFilter !== "all" ? "is-filtered" : ""}`}
+              aria-label="Filtrar por marca"
+            >
+              <option value="all">
+                Todas as marcas {brands.length > 0 ? `(${brands.length})` : ""}
+              </option>
+              {brands.map((b) => {
+                const count = products.filter(
+                  (p) =>
+                    p.brand &&
+                    p.brand.trim().toLocaleLowerCase("pt-BR") ===
+                      b.toLocaleLowerCase("pt-BR"),
+                ).length
+                return (
+                  <option key={b} value={b}>
+                    {b} ({count})
+                  </option>
+                )
+              })}
+            </select>
+            <svg
+              className="select-chevron"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
         )}
       </div>
 
       {hasActiveFilters && (
         <div className="active-filters-bar">
-          <span className="text-[11px] text-slate-500 font-medium">
-            Exibindo {filtered.length} de {products.length}
+          <span className="active-filters-count">
+            Exibindo <strong>{filtered.length}</strong> de {products.length}
           </span>
           <button
             type="button"
