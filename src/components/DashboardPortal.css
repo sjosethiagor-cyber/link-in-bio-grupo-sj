@@ -983,6 +983,10 @@
   background-color: #0f1623;
   border-right: 1.5px solid #283548;
 }
+.dashboard-portal-theme .central-ads-wrapper .image-thumb,
+.dashboard-portal-theme .central-ads-wrapper .uploaded-cover {
+  object-fit: contain !important;
+}
 .dashboard-portal-theme.dark-theme .central-ads-wrapper .product-info strong {
   color: #f8fafc;
 }
