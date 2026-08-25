@@ -1,6 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { createPortal } from "react-dom"
 import { Product, Marketplace, EditorForm, Validation } from "./types"
+import { parseFullRawProductText } from "./smartTextParser"
 
 export interface EditorModalProps {
   editorOpen: boolean
@@ -52,7 +53,79 @@ export const EditorModal: React.FC<EditorModalProps> = ({
   getMarketplaceValidation,
   cleanForMarketplace,
 }) => {
+  const [smartRawText, setSmartRawText] = useState("")
+  const [smartFeedback, setSmartFeedback] = useState<{
+    type: "success" | "info"
+    message: string
+  } | null>(null)
+  const [applyToAllMarketplaces, setApplyToAllMarketplaces] = useState(true)
+
   if (!editorOpen) return null
+
+  const handleSmartImport = () => {
+    if (!smartRawText.trim()) return
+
+    const result = parseFullRawProductText(smartRawText)
+    const titlesList = result.titles.length > 0 ? result.titles : []
+    const paddedTitles = [...titlesList, ...Array(10).fill("")].slice(0, 10)
+    const bulkText = titlesList.join("\n")
+
+    setForm((prev) => {
+      const updated: EditorForm = { ...prev }
+
+      if (applyToAllMarketplaces) {
+        updated.mlTitles = [...paddedTitles]
+        updated.mlBulkText = bulkText
+        if (result.description) updated.mlDescription = result.description
+
+        updated.shopeeTitles = [...paddedTitles]
+        updated.shopeeBulkText = bulkText
+        if (result.description) updated.shopeeDescription = result.description
+
+        updated.tiktokTitles = [...paddedTitles]
+        updated.tiktokBulkText = bulkText
+        if (result.description) updated.tiktokDescription = result.description
+
+        updated.temuTitles = [...paddedTitles]
+        updated.temuBulkText = bulkText
+        if (result.description) updated.temuDescription = result.description
+      } else {
+        if (prev.marketplace === "mercado-livre") {
+          updated.mlTitles = [...paddedTitles]
+          updated.mlBulkText = bulkText
+          if (result.description) updated.mlDescription = result.description
+        } else if (prev.marketplace === "shopee") {
+          updated.shopeeTitles = [...paddedTitles]
+          updated.shopeeBulkText = bulkText
+          if (result.description) updated.shopeeDescription = result.description
+        } else if (prev.marketplace === "tiktok") {
+          updated.tiktokTitles = [...paddedTitles]
+          updated.tiktokBulkText = bulkText
+          if (result.description) updated.tiktokDescription = result.description
+        } else if (prev.marketplace === "temu") {
+          updated.temuTitles = [...paddedTitles]
+          updated.temuBulkText = bulkText
+          if (result.description) updated.temuDescription = result.description
+        }
+      }
+
+      if (result.sku && !prev.sku) updated.sku = result.sku
+      if (result.name && !prev.name) updated.name = result.name
+      if (result.brand && !prev.brand) updated.brand = result.brand
+      if (result.category && !prev.category) updated.category = result.category
+
+      return updated
+    })
+
+    const countTitles = titlesList.length
+    const hasDesc = !!result.description.trim()
+    setSmartFeedback({
+      type: "success",
+      message: `✓ Separado com sucesso: ${countTitles} título(s) e descrição completa identificados e preenchidos!${
+        applyToAllMarketplaces ? " (Aplicado em todos os canais)" : ""
+      }`,
+    })
+  }
 
   const currentTitles =
     form.marketplace === "mercado-livre"
@@ -255,10 +328,107 @@ export const EditorModal: React.FC<EditorModalProps> = ({
 
             {/* Marketplace Content Editor Section */}
             <div className="editor-section">
+              {/* Smart Full-Text Auto-Split Importer */}
+              <div className="smart-importer-card">
+                <div className="smart-importer-header">
+                  <div className="smart-importer-title-group">
+                    <span className="smart-badge">⚡ NOVO</span>
+                    <h4>Importador Inteligente de Texto Completo</h4>
+                  </div>
+                  <label
+                    className="smart-apply-all-checkbox"
+                    title="Preencher automaticamente todos os canais (Mercado Livre, Shopee, TikTok Shop e Temu)"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={applyToAllMarketplaces}
+                      onChange={(e) => setApplyToAllMarketplaces(e.target.checked)}
+                    />
+                    <span>Preencher todos os canais</span>
+                  </label>
+                </div>
+
+                <p className="smart-importer-desc">
+                  Cole todo o texto gerado (ChatGPT, fornecedor ou documento). O sistema identifica e separa <strong>títulos</strong> e <strong>descrição</strong> automaticamente em seus respectivos campos.
+                </p>
+
+                <textarea
+                  rows={4}
+                  value={smartRawText}
+                  onChange={(e) => {
+                    setSmartRawText(e.target.value)
+                    if (smartFeedback) setSmartFeedback(null)
+                  }}
+                  placeholder={"Exemplo:\nTÍTULOS:\n1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix\n2. Cola Mix Argamassa Impermeável 18kg Balde\n\nDESCRIÇÃO:\nA Argamassa Polimérica Cola Mix é indicada para..."}
+                  className="smart-textarea"
+                />
+
+                <div className="smart-importer-actions">
+                  <button
+                    type="button"
+                    className="smart-process-btn"
+                    onClick={handleSmartImport}
+                    disabled={!smartRawText.trim()}
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                    <span>Processar e Separar Texto</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="smart-paste-btn"
+                    onClick={async () => {
+                      try {
+                        const text = await navigator.clipboard.readText()
+                        if (text) {
+                          setSmartRawText(text)
+                          if (smartFeedback) setSmartFeedback(null)
+                        }
+                      } catch {
+                        // Clipboard permission fallback
+                      }
+                    }}
+                    title="Colar texto da área de transferência"
+                  >
+                    📋 Colar
+                  </button>
+
+                  {smartRawText && (
+                    <button
+                      type="button"
+                      className="smart-clear-btn"
+                      onClick={() => {
+                        setSmartRawText("")
+                        setSmartFeedback(null)
+                      }}
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </div>
+
+                {smartFeedback && (
+                  <div className={`smart-feedback ${smartFeedback.type}`}>
+                    {smartFeedback.message}
+                  </div>
+                )}
+              </div>
+
               <div className="section-title marketplace-editor-title">
                 <div>
-                  <h3>Conteúdo do anúncio</h3>
-                  <p>O conteúdo é salvo separadamente para cada marketplace.</p>
+                  <h3>Conteúdo por Marketplace</h3>
+                  <p>Ajuste títulos e descrição para cada canal específico.</p>
                 </div>
                 <div className="mini-tabs" role="tablist" aria-label="Escolher marketplace do anúncio">
                   <button
@@ -317,7 +487,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     Bloco de Títulos (Cole e processe vários títulos juntos)
                   </span>
                   <textarea
-                    rows={4}
+                    rows={3}
                     value={currentBulkText}
                     onChange={(e) => applyTitleBlock(e.target.value)}
                     placeholder={
