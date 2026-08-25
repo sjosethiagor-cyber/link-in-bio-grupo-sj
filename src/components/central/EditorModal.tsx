@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { createPortal } from "react-dom"
 import { Product, Marketplace, EditorForm, Validation } from "./types"
-import { parseFullRawProductText } from "./smartTextParser"
+import { parseMultiMarketplaceProductText } from "./smartTextParser"
 
 export interface EditorModalProps {
   editorOpen: boolean
@@ -65,47 +65,87 @@ export const EditorModal: React.FC<EditorModalProps> = ({
   const handleSmartImport = () => {
     if (!smartRawText.trim()) return
 
-    const result = parseFullRawProductText(smartRawText)
-    const titlesList = result.titles.length > 0 ? result.titles : []
-    const paddedTitles = [...titlesList, ...Array(10).fill("")].slice(0, 10)
-    const bulkText = titlesList.join("\n")
+    const result = parseMultiMarketplaceProductText(smartRawText)
+    const isMultiChannel = result.detectedMarketplaces.length > 0
 
     setForm((prev) => {
       const updated: EditorForm = { ...prev }
 
-      if (applyToAllMarketplaces) {
-        updated.mlTitles = [...paddedTitles]
-        updated.mlBulkText = bulkText
-        if (result.description) updated.mlDescription = result.description
+      if (isMultiChannel) {
+        // Multi-marketplace specific parsing
+        if (result["mercado-livre"]) {
+          const t = result["mercado-livre"].titles
+          updated.mlTitles = [...t, ...Array(10).fill("")].slice(0, 10)
+          updated.mlBulkText = t.join("\n")
+          if (result["mercado-livre"].description) {
+            updated.mlDescription = result["mercado-livre"].description
+          }
+        }
+        if (result.shopee) {
+          const t = result.shopee.titles
+          updated.shopeeTitles = [...t, ...Array(10).fill("")].slice(0, 10)
+          updated.shopeeBulkText = t.join("\n")
+          if (result.shopee.description) {
+            updated.shopeeDescription = result.shopee.description
+          }
+        }
+        if (result.tiktok) {
+          const t = result.tiktok.titles
+          updated.tiktokTitles = [...t, ...Array(10).fill("")].slice(0, 10)
+          updated.tiktokBulkText = t.join("\n")
+          if (result.tiktok.description) {
+            updated.tiktokDescription = result.tiktok.description
+          }
+        }
+        if (result.temu) {
+          const t = result.temu.titles
+          updated.temuTitles = [...t, ...Array(10).fill("")].slice(0, 10)
+          updated.temuBulkText = t.join("\n")
+          if (result.temu.description) {
+            updated.temuDescription = result.temu.description
+          }
+        }
+      } else if (result.generic) {
+        // Generic single block
+        const t = result.generic.titles
+        const paddedTitles = [...t, ...Array(10).fill("")].slice(0, 10)
+        const bulkText = t.join("\n")
+        const desc = result.generic.description
 
-        updated.shopeeTitles = [...paddedTitles]
-        updated.shopeeBulkText = bulkText
-        if (result.description) updated.shopeeDescription = result.description
-
-        updated.tiktokTitles = [...paddedTitles]
-        updated.tiktokBulkText = bulkText
-        if (result.description) updated.tiktokDescription = result.description
-
-        updated.temuTitles = [...paddedTitles]
-        updated.temuBulkText = bulkText
-        if (result.description) updated.temuDescription = result.description
-      } else {
-        if (prev.marketplace === "mercado-livre") {
+        if (applyToAllMarketplaces) {
           updated.mlTitles = [...paddedTitles]
           updated.mlBulkText = bulkText
-          if (result.description) updated.mlDescription = result.description
-        } else if (prev.marketplace === "shopee") {
+          if (desc) updated.mlDescription = desc
+
           updated.shopeeTitles = [...paddedTitles]
           updated.shopeeBulkText = bulkText
-          if (result.description) updated.shopeeDescription = result.description
-        } else if (prev.marketplace === "tiktok") {
+          if (desc) updated.shopeeDescription = desc
+
           updated.tiktokTitles = [...paddedTitles]
           updated.tiktokBulkText = bulkText
-          if (result.description) updated.tiktokDescription = result.description
-        } else if (prev.marketplace === "temu") {
+          if (desc) updated.tiktokDescription = desc
+
           updated.temuTitles = [...paddedTitles]
           updated.temuBulkText = bulkText
-          if (result.description) updated.temuDescription = result.description
+          if (desc) updated.temuDescription = desc
+        } else {
+          if (prev.marketplace === "mercado-livre") {
+            updated.mlTitles = [...paddedTitles]
+            updated.mlBulkText = bulkText
+            if (desc) updated.mlDescription = desc
+          } else if (prev.marketplace === "shopee") {
+            updated.shopeeTitles = [...paddedTitles]
+            updated.shopeeBulkText = bulkText
+            if (desc) updated.shopeeDescription = desc
+          } else if (prev.marketplace === "tiktok") {
+            updated.tiktokTitles = [...paddedTitles]
+            updated.tiktokBulkText = bulkText
+            if (desc) updated.tiktokDescription = desc
+          } else if (prev.marketplace === "temu") {
+            updated.temuTitles = [...paddedTitles]
+            updated.temuBulkText = bulkText
+            if (desc) updated.temuDescription = desc
+          }
         }
       }
 
@@ -117,14 +157,22 @@ export const EditorModal: React.FC<EditorModalProps> = ({
       return updated
     })
 
-    const countTitles = titlesList.length
-    const hasDesc = !!result.description.trim()
-    setSmartFeedback({
-      type: "success",
-      message: `✓ Separado com sucesso: ${countTitles} título(s) e descrição completa identificados e preenchidos!${
-        applyToAllMarketplaces ? " (Aplicado em todos os canais)" : ""
-      }`,
-    })
+    if (isMultiChannel) {
+      setSmartFeedback({
+        type: "success",
+        message: `✓ Reconhecido e preenchido individualmente para cada canal: ${result.detectedMarketplaces.join(
+          ", ",
+        )}!`,
+      })
+    } else {
+      const countTitles = result.generic?.titles.length ?? 0
+      setSmartFeedback({
+        type: "success",
+        message: `✓ Separado com sucesso: ${countTitles} título(s) e descrição identificados!${
+          applyToAllMarketplaces ? " (Aplicado em todos os canais)" : ""
+        }`,
+      })
+    }
   }
 
   const currentTitles =
@@ -349,17 +397,19 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 </div>
 
                 <p className="smart-importer-desc">
-                  Cole todo o texto gerado (ChatGPT, fornecedor ou documento). O sistema identifica e separa <strong>títulos</strong> e <strong>descrição</strong> automaticamente em seus respectivos campos.
+                  Cole todo o texto bruto (pode conter blocos para cada loja como <code>[MERCADO LIVRE]</code>, <code>[SHOPEE]</code>, <code>[TIKTOK]</code>, <code>[TEMU]</code> ou um texto único com <strong>títulos</strong> e <strong>descrição</strong>). O sistema reconhece e distribui tudo automaticamente!
                 </p>
 
                 <textarea
-                  rows={4}
+                  rows={5}
                   value={smartRawText}
                   onChange={(e) => {
                     setSmartRawText(e.target.value)
                     if (smartFeedback) setSmartFeedback(null)
                   }}
-                  placeholder={"Exemplo:\nTÍTULOS:\n1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix\n2. Cola Mix Argamassa Impermeável 18kg Balde\n\nDESCRIÇÃO:\nA Argamassa Polimérica Cola Mix é indicada para..."}
+                  placeholder={
+                    "Exemplo (canais separados ou texto único):\n\n[MERCADO LIVRE]\nTÍTULOS (até 60 carac.):\n1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix\nDESCRIÇÃO:\nA Argamassa Polimérica...\n\n[SHOPEE]\nTÍTULOS (até 120 carac.):\n1. Argamassa Polimérica Cola Mix 18kg Impermeável Balde\nDESCRIÇÃO:\n..."
+                  }
                   className="smart-textarea"
                 />
 

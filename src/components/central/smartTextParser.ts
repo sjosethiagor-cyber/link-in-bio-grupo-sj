@@ -1,19 +1,31 @@
-export interface SmartParseResult {
+export interface MarketplaceContent {
   titles: string[]
   description: string
+}
+
+export interface MultiMarketplaceParseResult {
   name?: string
   sku?: string
   brand?: string
   category?: string
+  "mercado-livre"?: MarketplaceContent
+  shopee?: MarketplaceContent
+  tiktok?: MarketplaceContent
+  temu?: MarketplaceContent
+  generic?: MarketplaceContent
+  detectedMarketplaces: string[]
 }
 
 /**
- * Intelligent parser that takes a full raw text (e.g. from ChatGPT, supplier notes, or doc)
- * and automatically separates titles, description, and metadata (SKU, brand, category).
+ * Intelligent Multi-Marketplace Parser:
+ * Detects whether the pasted text has separate sections for Mercado Livre, Shopee, TikTok Shop, Temu,
+ * or a single generic block, and separates titles, descriptions, and metadata accordingly.
  */
-export function parseFullRawProductText(rawText: string): SmartParseResult {
+export function parseMultiMarketplaceProductText(
+  rawText: string,
+): MultiMarketplaceParseResult {
   if (!rawText || !rawText.trim()) {
-    return { titles: [], description: "" }
+    return { detectedMarketplaces: [] }
   }
 
   const normalized = rawText
@@ -28,17 +40,22 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
   let extractedBrand: string | undefined
   let extractedCategory: string | undefined
 
-  // 1. Check for metadata line patterns:
-  // e.g. "SKU: MIX-18KG", "Marca: Cola Mix", "Categoria: Argamassa", "Produto: Argamassa..."
+  // 1. Extract Top-level Metadata (SKU, Marca, Categoria, Nome)
   const lines = normalized.split("\n")
   const remainingLines: string[] = []
 
   for (const line of lines) {
     const trimmed = line.trim()
-    const nameMatch = trimmed.match(/^(?:nome(?:\s+do\s+produto)?|produto)\s*:\s*(.+)$/i)
-    const skuMatch = trimmed.match(/^(?:sku|c[oó]digo(?:\s+do\s+produto)?|ref(?:er[eê]ncia)?)\s*:\s*(.+)$/i)
+    const nameMatch = trimmed.match(
+      /^(?:nome(?:\s+do\s+produto)?|produto)\s*:\s*(.+)$/i,
+    )
+    const skuMatch = trimmed.match(
+      /^(?:sku|c[oó]digo(?:\s+do\s+produto)?|ref(?:er[eê]ncia)?)\s*:\s*(.+)$/i,
+    )
     const brandMatch = trimmed.match(/^(?:marca|fabricante)\s*:\s*(.+)$/i)
-    const categoryMatch = trimmed.match(/^(?:categoria|departamento|linha)\s*:\s*(.+)$/i)
+    const categoryMatch = trimmed.match(
+      /^(?:categoria|departamento|linha)\s*:\s*(.+)$/i,
+    )
 
     if (nameMatch && !extractedName) {
       extractedName = cleanTitleLine(nameMatch[1])
@@ -55,14 +72,120 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
 
   const contentText = remainingLines.join("\n").trim()
 
-  // 2. Identify Titles vs Description sections using section markers
-  // Markers for titles: TÍTULOS:, OPÇÕES DE TÍTULOS:, TÍTULOS MERCADO LIVRE:, etc.
-  // Markers for description: DESCRIÇÃO:, SOBRE O PRODUTO:, CARACTERÍSTICAS:, FICHA TÉCNICA:, etc.
-  const titleMarkerRegex = /(?:^|\n)(?:#{1,6}\s*)?(?:(?:opç(?:õ|o)es\s+de\s+)?t[ií]tulos?(?:\s*(?:do|para)?\s*[a-zA-Z\s]+)?)\s*:?\s*(?:\n|$)/i
-  const descMarkerRegex = /(?:^|\n)(?:#{1,6}\s*)?(?:descriç(?:ã|a)o(?:\s*(?:do|completa|do\s+produto)?|\s+para\s+[a-zA-Z\s]+)?|sobre\s+o\s+produto|texto\s+do\s+an[uú]ncio|detalhes\s+do\s+produto)\s*:?\s*(?:\n|$)/i
+  // 2. Check for Marketplace Section Markers (e.g. [Mercado Livre], ### Shopee, Mercado Livre:, etc.)
+  // Marketplaces to look for:
+  // - Mercado Livre (ML)
+  // - Shopee (SH)
+  // - TikTok Shop / TikTok (TT)
+  // - Temu (TM)
+  const mktPatterns: {
+    key: "mercado-livre" | "shopee" | "tiktok" | "temu"
+    label: string
+    regex: RegExp
+  }[] = [
+    {
+      key: "mercado-livre",
+      label: "Mercado Livre",
+      regex: /(?:^|\n)(?:#{1,6}\s*|\*+\s*|\[\s*)?(?:mercado\s*livre|mercadolivre|\bml\b)(?:\s*\]|\s*\*+)?\s*(?:\([^\)]*\))?\s*:?\s*(?:\n|$)/i,
+    },
+    {
+      key: "shopee",
+      label: "Shopee",
+      regex: /(?:^|\n)(?:#{1,6}\s*|\*+\s*|\[\s*)?(?:shopee|\bsh\b)(?:\s*\]|\s*\*+)?\s*(?:\([^\)]*\))?\s*:?\s*(?:\n|$)/i,
+    },
+    {
+      key: "tiktok",
+      label: "TikTok Shop",
+      regex: /(?:^|\n)(?:#{1,6}\s*|\*+\s*|\[\s*)?(?:tiktok(?:\s*shop)?|\btt\b)(?:\s*\]|\s*\*+)?\s*(?:\([^\)]*\))?\s*:?\s*(?:\n|$)/i,
+    },
+    {
+      key: "temu",
+      label: "Temu",
+      regex: /(?:^|\n)(?:#{1,6}\s*|\*+\s*|\[\s*)?(?:temu|\btm\b)(?:\s*\]|\s*\*+)?\s*(?:\([^\)]*\))?\s*:?\s*(?:\n|$)/i,
+    },
+  ]
 
-  const titleMatch = contentText.match(titleMarkerRegex)
-  const descMatch = contentText.match(descMarkerRegex)
+  // Find all marketplace matches and their starting index in text
+  interface FoundSection {
+    key: "mercado-livre" | "shopee" | "tiktok" | "temu"
+    label: string
+    startIndex: number
+    contentStart: number
+  }
+
+  const foundSections: FoundSection[] = []
+
+  for (const mkt of mktPatterns) {
+    const match = contentText.match(mkt.regex)
+    if (match && match.index !== undefined) {
+      foundSections.push({
+        key: mkt.key,
+        label: mkt.label,
+        startIndex: match.index,
+        contentStart: match.index + match[0].length,
+      })
+    }
+  }
+
+  // Sort by index in text
+  foundSections.sort((a, b) => a.startIndex - b.startIndex)
+
+  const result: MultiMarketplaceParseResult = {
+    name: extractedName,
+    sku: extractedSku,
+    brand: extractedBrand,
+    category: extractedCategory,
+    detectedMarketplaces: [],
+  }
+
+  if (foundSections.length > 0) {
+    // We found specific marketplace sections!
+    for (let i = 0; i < foundSections.length; i++) {
+      const current = foundSections[i]
+      const next = foundSections[i + 1]
+      const sectionText = contentText
+        .slice(current.contentStart, next ? next.startIndex : undefined)
+        .trim()
+
+      const parsedBlock = parseSingleBlockTitlesAndDescription(sectionText)
+      result[current.key] = parsedBlock
+      result.detectedMarketplaces.push(current.label)
+
+      if (!result.name && parsedBlock.titles.length > 0) {
+        result.name = parsedBlock.titles[0]
+      }
+    }
+  } else {
+    // 3. No specific marketplace headers found; parse as single unified block
+    const parsedGeneric = parseSingleBlockTitlesAndDescription(contentText)
+    result.generic = parsedGeneric
+    if (!result.name && parsedGeneric.titles.length > 0) {
+      result.name = parsedGeneric.titles[0]
+    }
+  }
+
+  return result
+}
+
+/**
+ * Parses a single block of text (either for a specific marketplace or generic)
+ * into titles (up to 10) and clean description.
+ */
+export function parseSingleBlockTitlesAndDescription(
+  text: string,
+): MarketplaceContent {
+  if (!text || !text.trim()) {
+    return { titles: [], description: "" }
+  }
+
+  const normalized = text.trim()
+
+  // Look for title marker vs description marker
+  const titleMarkerRegex = /(?:^|\n)(?:#{1,6}\s*|\*+\s*|\[\s*)?(?:(?:opç(?:õ|o)es\s+de\s+)?t[ií]tulos?(?:\s*(?:do|para)?\s*[a-zA-Z\s]+)?(?:\s*\([^\)]*\))?)\s*(?:\]|\*+)?\s*:?\s*(?:\n|$)/i
+  const descMarkerRegex = /(?:^|\n)(?:#{1,6}\s*|\*+\s*|\[\s*)?(?:descriç(?:ã|a)o(?:\s*(?:do|completa|do\s+produto)?|\s+para\s+[a-zA-Z\s]+)?(?:\s*\([^\)]*\))?|sobre\s+o\s+produto|texto\s+do\s+an[uú]ncio|detalhes\s+do\s+produto)\s*(?:\]|\*+)?\s*:?\s*(?:\n|$)/i
+
+  const titleMatch = normalized.match(titleMarkerRegex)
+  const descMatch = normalized.match(descMarkerRegex)
 
   let rawTitlesSection = ""
   let rawDescSection = ""
@@ -72,27 +195,23 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
     const descIndex = descMatch.index!
 
     if (titleIndex < descIndex) {
-      // Titles section comes first, then Description
-      rawTitlesSection = contentText.slice(
+      rawTitlesSection = normalized.slice(
         titleIndex + titleMatch[0].length,
         descIndex,
       )
-      rawDescSection = contentText.slice(descIndex + descMatch[0].length)
+      rawDescSection = normalized.slice(descIndex + descMatch[0].length)
     } else {
-      // Description section comes first, then Titles
-      rawDescSection = contentText.slice(
+      rawDescSection = normalized.slice(
         descIndex + descMatch[0].length,
         titleIndex,
       )
-      rawTitlesSection = contentText.slice(titleIndex + titleMatch[0].length)
+      rawTitlesSection = normalized.slice(titleIndex + titleMatch[0].length)
     }
   } else if (titleMatch && !descMatch) {
-    // Only title marker found
     const titleIndex = titleMatch.index!
-    const textBefore = contentText.slice(0, titleIndex).trim()
-    const textAfter = contentText.slice(titleIndex + titleMatch[0].length).trim()
+    const textBefore = normalized.slice(0, titleIndex).trim()
+    const textAfter = normalized.slice(titleIndex + titleMatch[0].length).trim()
 
-    // If there's text before the title marker, it might be description
     if (textBefore.length > 80) {
       rawDescSection = textBefore
       rawTitlesSection = textAfter
@@ -100,18 +219,15 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
       rawTitlesSection = textAfter
     }
   } else if (!titleMatch && descMatch) {
-    // Only description marker found
     const descIndex = descMatch.index!
-    const textBefore = contentText.slice(0, descIndex).trim()
-    const textAfter = contentText.slice(descIndex + descMatch[0].length).trim()
+    const textBefore = normalized.slice(0, descIndex).trim()
+    const textAfter = normalized.slice(descIndex + descMatch[0].length).trim()
 
     rawTitlesSection = textBefore
     rawDescSection = textAfter
   } else {
-    // 3. Fallback: No explicit markers found.
-    // Analyze line structures: check if starting lines look like numbered titles (e.g. 1. Title, 2. Title)
-    // or short lines followed by longer paragraph blocks.
-    const allLines = contentText.split("\n")
+    // Fallback: heuristic line-by-line inspection
+    const allLines = normalized.split("\n")
     const potentialTitleLines: string[] = []
     const potentialDescLines: string[] = []
     let inDescription = false
@@ -120,8 +236,6 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
       const line = allLines[i].trim()
       if (!line) {
         if (potentialTitleLines.length > 0 && !inDescription) {
-          // A blank line after some short title lines might indicate transition to description
-          // if subsequent lines are long or contain bullet lists
           const nextNonEmpty = allLines.slice(i + 1).find((l) => l.trim().length > 0)
           if (
             nextNonEmpty &&
@@ -169,14 +283,9 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
     rawDescSection = potentialDescLines.join("\n")
   }
 
-  // 4. Clean and parse individual titles
   const parsedTitles = parseRawTitlesSection(rawTitlesSection)
-
-  // 5. Clean description
   let cleanedDescription = cleanDescriptionText(rawDescSection)
 
-  // If no description was separated and we have more than 10 lines of titles,
-  // or if titles section contains full paragraphs, adjust:
   if (!cleanedDescription && parsedTitles.length > 0) {
     const longTitles = parsedTitles.filter((t) => t.length > 140)
     if (longTitles.length > 0) {
@@ -187,10 +296,6 @@ export function parseFullRawProductText(rawText: string): SmartParseResult {
   return {
     titles: parsedTitles.slice(0, 10),
     description: cleanedDescription,
-    name: extractedName || (parsedTitles.length > 0 ? parsedTitles[0] : undefined),
-    sku: extractedSku,
-    brand: extractedBrand,
-    category: extractedCategory,
   }
 }
 
@@ -233,7 +338,7 @@ function cleanDescriptionText(text: string): string {
   // Remove markdown headings
   cleaned = cleaned.replace(/^#{1,6}\s*(.+)$/gm, "$1")
 
-  // Convert markdown list items to bullets
+  // Convert markdown list items to clean bullets
   cleaned = cleaned.replace(/^[\t ]*[\*\+\-]\s+/gm, "• ")
   cleaned = cleaned.replace(/^[\t ]*\*([^\*\s])/gm, "• $1")
 
@@ -243,13 +348,13 @@ function cleanDescriptionText(text: string): string {
   cleaned = cleaned.replace(/(?<!\w)\*([^*\n]+)\*(?!\w)/g, "$1")
   cleaned = cleaned.replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, "$1")
 
-  // Remove links
+  // Remove markdown links
   cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
 
   // Remove horizontal rules
   cleaned = cleaned.replace(/^[-*_]{3,}\s*$/gm, "")
 
-  // Remove trailing spaces & redundant newlines
+  // Clean extra spaces & blank lines
   cleaned = cleaned
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
