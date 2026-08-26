@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { saveLead } from "../services/storeService"
+import { saveLead, updateLeadDetails } from "../services/storeService"
 import {
   SJ_STORE_INFO,
   WA_LINKS,
@@ -81,6 +81,8 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const hasInitialized = useRef(false)
+  const currentLeadIdRef = useRef<string | null>(null)
+  const isFinalizingRef = useRef(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -210,6 +212,8 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   }
 
   const showInitialMenu = (isReset = false) => {
+    isFinalizingRef.current = false
+    currentLeadIdRef.current = null
     const welcomeText = isReset
       ? "Como posso ajudar você agora?"
       : "Olá! 👋 Seja bem-vindo à Loja SJ.\n\nSou o assistente virtual da loja. Como posso ajudar você hoje? Você pode digitar sua dúvida ou escolher uma opção:"
@@ -1009,6 +1013,8 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   // ── CAPTURA DE LEAD QUALIFICADO (Itens 54, 55, 56) ─────────────────────────
 
   const startLeadCapture = (productDesc: string) => {
+    isFinalizingRef.current = false
+    currentLeadIdRef.current = null
     setLeadData((p) => ({ ...p, product: productDesc }))
     botReply("Qual é o seu nome completo para iniciarmos o seu atendimento?")
     setStep("collect_name")
@@ -1041,15 +1047,40 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
         )
         return
       }
-      setLeadData((p) => ({ ...p, whatsapp: formatWhatsApp(trimmed) }))
+      const formatted = formatWhatsApp(trimmed)
+      const currentLead = { ...leadData, whatsapp: formatted }
+      setLeadData(currentLead)
+
+      // Salva imediatamente como Lead assim que o número de WhatsApp é informado
+      saveLead({
+        name: currentLead.name || "Cliente Loja SJ",
+        whatsapp: formatted,
+        email: "",
+        message: `[Assistente Chatbot] Produto: ${currentLead.product || "Geral"} | Modalidade: ${currentLead.modalidade || "Atendimento Geral"}`,
+      })
+        .then((saved) => {
+          if (saved?.id) {
+            currentLeadIdRef.current = saved.id
+          }
+        })
+        .catch((err) => {
+          console.error("Erro ao registrar lead prévio:", err)
+        })
+
       botReply("Qual é o seu bairro e cidade (para entrega ou retirada)?", [
         {
           label: "📍 Umuarama - Centro",
-          action: () => finalizeLeadWithBairro("Centro, Umuarama - PR"),
+          action: () => {
+            addUserMessage("📍 Umuarama - Centro")
+            finalizeLeadWithBairro("Centro, Umuarama - PR")
+          },
         },
         {
           label: "👍 Combinar no WhatsApp",
-          action: () => finalizeLeadWithBairro("A combinar"),
+          action: () => {
+            addUserMessage("👍 Combinar no WhatsApp")
+            finalizeLeadWithBairro("A combinar")
+          },
         },
       ])
       setStep("collect_bairro")
@@ -1127,20 +1158,34 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   }
 
   const finalizeLeadWithBairro = async (bairroName: string) => {
+    if (isFinalizingRef.current) return
+    isFinalizingRef.current = true
+
     const updatedLead = { ...leadData, bairro: bairroName }
     setLeadData(updatedLead)
     setStep("completed")
 
-    // Salvar no banco de dados local / Firestore
+    // Atualizar ou salvar no banco de dados local / Firestore
+    const finalMessage = `[Assistente Chatbot] Produto: ${updatedLead.product || "Geral"} | Bairro: ${bairroName} | Modalidade: ${updatedLead.modalidade || "Atendimento Geral"}`
     try {
-      await saveLead({
-        name: updatedLead.name || "Cliente Loja SJ",
-        whatsapp: updatedLead.whatsapp,
-        email: "",
-        message: `Produto: ${updatedLead.product || "Geral"} | Bairro: ${bairroName} | Modalidade: ${updatedLead.modalidade}`,
-      })
+      if (currentLeadIdRef.current) {
+        await updateLeadDetails(currentLeadIdRef.current, {
+          message: finalMessage,
+          bairro: bairroName,
+        })
+      } else {
+        const saved = await saveLead({
+          name: updatedLead.name || "Cliente Loja SJ",
+          whatsapp: updatedLead.whatsapp,
+          email: "",
+          message: finalMessage,
+        })
+        if (saved?.id) {
+          currentLeadIdRef.current = saved.id
+        }
+      }
     } catch (e) {
-      console.error("Erro ao salvar lead:", e)
+      console.error("Erro ao atualizar lead:", e)
     }
 
     botReply(

@@ -343,6 +343,33 @@ export async function updateLeadTags(id: string, tags: string[]) {
   }
 }
 
+export async function updateLeadDetails(
+  id: string,
+  updates: Partial<Omit<Lead, "id">>,
+) {
+  // Update local storage
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.LEADS)
+    if (raw) {
+      const leads: Lead[] = JSON.parse(raw)
+      const updated = leads.map((l) => (l.id === id ? { ...l, ...updates } : l))
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LEADS, JSON.stringify(updated))
+    }
+  } catch (err) {
+    console.error("Local storage updateLeadDetails error:", err)
+  }
+
+  // Firebase sync
+  try {
+    const { updateLeadDetailsInFirebase } = await import(
+      "./firebaseStoreService"
+    )
+    await updateLeadDetailsInFirebase(id, updates)
+  } catch (err) {
+    console.warn("Firestore updateLeadDetails warning:", err)
+  }
+}
+
 // ── Store & Social Links CMS Service ─────────────────────────────────────────
 
 export function getStoredMLStoreLinks(): StoreLink[] {
