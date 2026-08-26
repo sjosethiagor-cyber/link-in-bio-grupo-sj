@@ -44,24 +44,33 @@ import {
   onSnapshot,
 } from "firebase/firestore"
 import "./DashboardPortal.css"
+import { lazyWithRetry } from "../utils/lazyWithRetry"
 
 // Modular sub-components with Lazy Loading for maximum performance
 import { AdminLogin } from "./admin/AdminLogin"
-const OverviewMetrics = lazy(() =>
-  import("./admin/OverviewMetrics").then((m) => ({ default: m.OverviewMetrics })),
+const OverviewMetrics = lazyWithRetry(
+  () => import("./admin/OverviewMetrics").then((m) => ({ default: m.OverviewMetrics })),
+  "OverviewMetrics",
 )
-const LeadsManager = lazy(() =>
-  import("./admin/LeadsManager").then((m) => ({ default: m.LeadsManager })),
+const LeadsManager = lazyWithRetry(
+  () => import("./admin/LeadsManager").then((m) => ({ default: m.LeadsManager })),
+  "LeadsManager",
 )
-const LinksCMS = lazy(() =>
-  import("./admin/LinksCMS").then((m) => ({ default: m.LinksCMS })),
+const LinksCMS = lazyWithRetry(
+  () => import("./admin/LinksCMS").then((m) => ({ default: m.LinksCMS })),
+  "LinksCMS",
 )
-const UserRolesManager = lazy(() =>
-  import("./admin/UserRolesManager").then((m) => ({
-    default: m.UserRolesManager,
-  })),
+const UserRolesManager = lazyWithRetry(
+  () =>
+    import("./admin/UserRolesManager").then((m) => ({
+      default: m.UserRolesManager,
+    })),
+  "UserRolesManager",
 )
-const CentralDeAnuncios = lazy(() => import("./CentralDeAnuncios"))
+const CentralDeAnuncios = lazyWithRetry(
+  () => import("./CentralDeAnuncios"),
+  "CentralDeAnuncios",
+)
 import { DashboardRole, DashboardUserRecord } from "../types/dashboardUser"
 
 // Import icons

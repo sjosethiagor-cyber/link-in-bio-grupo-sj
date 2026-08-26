@@ -1,8 +1,10 @@
-import { useState, useEffect, lazy, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { saveLead } from "../services/storeService"
+import { lazyWithRetry } from "../utils/lazyWithRetry"
 
-const LeadChatbot = lazy(() =>
-  import("./LeadChatbot").then((m) => ({ default: m.LeadChatbot })),
+const LeadChatbot = lazyWithRetry(
+  () => import("./LeadChatbot").then((m) => ({ default: m.LeadChatbot })),
+  "LeadChatbot",
 )
 
 interface LeadModalProps {

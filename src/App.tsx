@@ -20,10 +20,14 @@ import {
   type SocialLinks,
   DEFAULT_SOCIAL_LINKS,
 } from "./services/storeService"
+import { lazyWithRetry } from "./utils/lazyWithRetry"
 import grupoSjLogo from "./imports/grupo-sj-logo.png"
 
-const LeadModal = lazy(() => import("./components/LeadModal"))
-const DashboardPortal = lazy(() => import("./components/DashboardPortal"))
+const LeadModal = lazyWithRetry(() => import("./components/LeadModal"), "LeadModal")
+const DashboardPortal = lazyWithRetry(
+  () => import("./components/DashboardPortal"),
+  "DashboardPortal",
+)
 
 import { SocialPill } from "./components/SocialPill"
 import { ContactRow } from "./components/ContactRow"
@@ -54,18 +58,100 @@ class ErrorBoundary extends Component<{ children: ReactNode }, EBState> {
   static getDerivedStateFromError(error: Error): EBState {
     return { error }
   }
+  componentDidCatch(error: Error) {
+    if (
+      error?.message?.includes("dynamically imported module") ||
+      error?.name === "ChunkLoadError"
+    ) {
+      const key = "eb_chunk_retry"
+      const hasRetried = sessionStorage.getItem(key)
+      if (!hasRetried) {
+        sessionStorage.setItem(key, "true")
+        window.location.reload()
+      }
+    }
+  }
+  handleReload = () => {
+    sessionStorage.clear()
+    window.location.reload()
+  }
   render() {
     if (this.state.error) {
+      const isChunkError =
+        this.state.error.message?.includes("dynamically imported module") ||
+        this.state.error.name === "ChunkLoadError"
+
       return (
         <div
           style={{
-            padding: 40,
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+            textAlign: "center",
+            background: "#080c14",
             color: "#f2f0ea",
-            fontFamily: "monospace",
-            fontSize: 13,
+            fontFamily: "system-ui, -apple-system, sans-serif",
           }}
         >
-          <strong>Erro:</strong> {this.state.error.message}
+          <div
+            style={{
+              maxWidth: 420,
+              width: "100%",
+              padding: "32px 24px",
+              borderRadius: 24,
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <div style={{ fontSize: 36, marginBottom: 12 }}>⚡</div>
+            <h3
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                margin: "0 0 10px 0",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {isChunkError
+                ? "Nova atualização disponível!"
+                : "Ops! Ocorreu um erro temporário"}
+            </h3>
+            <p
+              style={{
+                fontSize: 13,
+                color: "#94a3b8",
+                lineHeight: 1.6,
+                margin: "0 0 24px 0",
+              }}
+            >
+              {isChunkError
+                ? "Uma nova versão da plataforma foi carregada. Clique no botão abaixo para acessar os recursos mais recentes."
+                : this.state.error.message}
+            </p>
+            <button
+              type="button"
+              onClick={this.handleReload}
+              style={{
+                background: "linear-gradient(135deg, #e8451f, #ff7a59)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 14,
+                padding: "13px 24px",
+                fontWeight: 800,
+                fontSize: 14,
+                cursor: "pointer",
+                width: "100%",
+                boxShadow: "0 8px 20px rgba(232, 69, 31, 0.3)",
+              }}
+            >
+              Atualizar e Continuar
+            </button>
+          </div>
         </div>
       )
     }
