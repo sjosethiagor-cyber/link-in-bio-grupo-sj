@@ -420,6 +420,23 @@ export function LinksCMS({
               className="px-3 py-2 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-[#e8451f]"
             />
           </label>
+          <label className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-[11px] font-bold text-slate-400 uppercase">
+              Google Maps (Link de Localização da Loja)
+            </span>
+            <input
+              type="url"
+              placeholder="https://maps.google.com/?q=..."
+              value={socialLinks.maps || ""}
+              onChange={(e) =>
+                setSocialLinks({
+                  ...socialLinks,
+                  maps: e.target.value,
+                })
+              }
+              className="px-3 py-2 rounded-xl text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-[#e8451f]"
+            />
+          </label>
         </div>
       </div>
 

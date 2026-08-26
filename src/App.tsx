@@ -38,6 +38,7 @@ import {
   IcoFacebook,
   IcoYouTube,
   IcoWhatsApp,
+  IcoMapPin,
   IcoEmail,
   IcoShield,
   IcoArrow,
@@ -461,10 +462,13 @@ export default function App() {
                 sub={socialLinks.email}
               />
               <ContactRow
-                href={socialLinks.whatsapp}
-                icon={<IcoWhatsApp s={18} />}
-                label="WhatsApp"
-                sub="Atendimento direto"
+                href={
+                  socialLinks.maps ||
+                  "https://maps.google.com/?q=Av.+Portugal,+6759+-+Zona+I-A,+Umuarama+-+PR"
+                }
+                icon={<IcoMapPin s={18} />}
+                label="Localização / Como Chegar"
+                sub="Av. Portugal, 6759 · Umuarama - PR"
                 isLast
               />
             </div>

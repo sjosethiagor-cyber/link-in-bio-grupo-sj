@@ -149,14 +149,16 @@ export interface SocialLinks {
   youtube: string
   whatsapp: string
   email: string
+  maps?: string
 }
 
 export const DEFAULT_SOCIAL_LINKS: SocialLinks = {
   instagram: "https://instagram.com/gruposj",
   facebook: "https://facebook.com/gruposj",
   youtube: "https://youtube.com/@gruposj",
-  whatsapp: "https://wa.me/5511999999999",
+  whatsapp: "https://wa.me/5544999159415",
   email: "contato@gruposj.com.br",
+  maps: "https://maps.google.com/?q=Av.+Portugal,+6759+-+Zona+I-A,+Umuarama+-+PR",
 }
 
 const LOCAL_STORAGE_KEYS = {
@@ -538,6 +540,7 @@ export function getStoredSocialLinks(): SocialLinks {
       youtube: sanitizeUrl(parsed.youtube || DEFAULT_SOCIAL_LINKS.youtube),
       whatsapp: sanitizeUrl(parsed.whatsapp || DEFAULT_SOCIAL_LINKS.whatsapp),
       email: sanitizeText(parsed.email || DEFAULT_SOCIAL_LINKS.email, 150),
+      maps: sanitizeUrl(parsed.maps || DEFAULT_SOCIAL_LINKS.maps || ""),
     }
   } catch {
     return DEFAULT_SOCIAL_LINKS
@@ -552,6 +555,7 @@ export function saveStoredSocialLinks(socialLinks: SocialLinks) {
       youtube: sanitizeUrl(socialLinks.youtube),
       whatsapp: sanitizeUrl(socialLinks.whatsapp),
       email: sanitizeText(socialLinks.email, 150),
+      maps: sanitizeUrl(socialLinks.maps || DEFAULT_SOCIAL_LINKS.maps || ""),
     }
     localStorage.setItem(
       LOCAL_STORAGE_KEYS.SOCIAL_LINKS,
