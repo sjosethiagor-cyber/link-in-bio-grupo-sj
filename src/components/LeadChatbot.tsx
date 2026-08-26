@@ -83,6 +83,9 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
   const hasInitialized = useRef(false)
   const currentLeadIdRef = useRef<string | null>(null)
   const isFinalizingRef = useRef(false)
+  const hasCollectedContactRef = useRef(false)
+  const pendingQueryRef = useRef<string | null>(null)
+  const pendingActionRef = useRef<(() => void) | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -125,54 +128,86 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     }, delay)
   }
 
+  const requireContactThen = (action: () => void, contextName?: string) => {
+    if (hasCollectedContactRef.current) {
+      action()
+      return
+    }
+    pendingActionRef.current = action
+    if (contextName) {
+      setLeadData((prev) => ({ ...prev, product: contextName }))
+    }
+    if (!leadData.name) {
+      botReply(
+        "Para iniciarmos seu atendimento personalizado e prepararmos os detalhes para você, qual é o seu nome completo?",
+      )
+      setStep("collect_name")
+    } else if (!leadData.whatsapp) {
+      botReply(
+        `Muito prazer, ${leadData.name}! 👋 Qual é o seu WhatsApp com DDD para registrarmos seu atendimento?`,
+      )
+      setStep("collect_whatsapp")
+    }
+  }
+
   // 1. Menu Inicial Enxuto e Limpo (Conversacional)
   const getInitialChips = (): ActionChip[] => [
-    {
-      label: "📦 Conhecer Produtos e Linhas",
-      action: () => handleBrowseCategories(),
-    },
     {
       label: "⚡ Solicitar um Orçamento",
       action: () => {
         addUserMessage("Solicitar um Orçamento")
-        botReply(
-          "Com certeza! Para qual produto ou linha você gostaria de solicitar orçamento?",
-          [
-            {
-              label: "🛡️ Impermeabilizantes",
-              action: () => handleImpermeabilizacaoFlow(),
-            },
-            {
-              label: "🎨 Tintas e Revestimentos",
-              action: () => handleTintasFlow(),
-            },
-            { label: "🧱 Cola Bloco", action: () => handleColaBlocoFlow() },
-            { label: "Outro produto", action: () => handleBrowseCategories() },
-          ],
-        )
+        requireContactThen(() => {
+          botReply(
+            "Com certeza! Para qual produto ou linha você gostaria de solicitar orçamento?",
+            [
+              {
+                label: "🛡️ Impermeabilizantes",
+                action: () => handleImpermeabilizacaoFlow(),
+              },
+              {
+                label: "🎨 Tintas e Revestimentos",
+                action: () => handleTintasFlow(),
+              },
+              { label: "🧱 Cola Bloco", action: () => handleColaBlocoFlow() },
+              { label: "Outro produto", action: () => handleBrowseCategories() },
+            ],
+          )
+        }, "Solicitação de Orçamento")
+      },
+    },
+    {
+      label: "📦 Conhecer Produtos e Linhas",
+      action: () => {
+        addUserMessage("Conhecer Produtos e Linhas")
+        requireContactThen(() => handleBrowseCategories(), "Catálogo de Produtos")
       },
     },
     {
       label: "🚚 Entrega e Retirada",
-      action: () => handleEntregaRetiradaFlow(),
+      action: () => {
+        addUserMessage("Entrega e Retirada")
+        requireContactThen(() => handleEntregaRetiradaFlow(), "Entrega e Retirada")
+      },
     },
     {
       label: "💬 Falar com um Atendente",
       action: () => {
         addUserMessage("Falar com um Atendente")
-        botReply(
-          "Nosso atendimento comercial funciona das 09h às 17h. Deseja continuar seu atendimento com um vendedor pelo WhatsApp?",
-          [
-            {
-              label: "💬 CONTINUAR NO WHATSAPP",
-              url: WA_LINKS.falarComVendedor,
-            },
-            {
-              label: "🔎 Continuar no Chatbot",
-              action: () => showInitialMenu(true),
-            },
-          ],
-        )
+        requireContactThen(() => {
+          botReply(
+            "Nosso atendimento comercial funciona das 09h às 17h. Deseja continuar seu atendimento com um vendedor pelo WhatsApp?",
+            [
+              {
+                label: "💬 CONTINUAR NO WHATSAPP",
+                url: WA_LINKS.falarComVendedor,
+              },
+              {
+                label: "🔎 Continuar no Chatbot",
+                action: () => showInitialMenu(true),
+              },
+            ],
+          )
+        }, "Falar com Atendente")
       },
     },
   ]
@@ -213,15 +248,15 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
 
   const showInitialMenu = (isReset = false) => {
     isFinalizingRef.current = false
-    currentLeadIdRef.current = null
     const welcomeText = isReset
       ? "Como posso ajudar você agora?"
-      : "Olá! 👋 Seja bem-vindo à Loja SJ.\n\nSou o assistente virtual da loja. Como posso ajudar você hoje? Você pode digitar sua dúvida ou escolher uma opção:"
+      : "Olá! 👋 Seja bem-vindo à Loja SJ.\n\nSou o assistente virtual da loja. Para iniciarmos seu atendimento personalizado e tirar suas dúvidas ou passar orçamentos, como posso te chamar? (Digite seu nome abaixo ou escolha uma opção):"
 
     const initialChips = getInitialChips()
 
     if (isReset) {
       botReply(welcomeText, initialChips, 250)
+      setStep("chat")
     } else {
       setIsTyping(false)
       setMessages([
@@ -233,8 +268,8 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           chips: initialChips,
         },
       ])
+      setStep(hasCollectedContactRef.current ? "chat" : "collect_name")
     }
-    setStep("chat")
   }
 
   useEffect(() => {
@@ -1012,93 +1047,24 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
 
   // ── CAPTURA DE LEAD QUALIFICADO (Itens 54, 55, 56) ─────────────────────────
 
-  const startLeadCapture = (productDesc: string) => {
-    isFinalizingRef.current = false
-    currentLeadIdRef.current = null
-    setLeadData((p) => ({ ...p, product: productDesc }))
-    botReply("Qual é o seu nome completo para iniciarmos o seu atendimento?")
-    setStep("collect_name")
-  }
+  // ── CAPTURA DE LEAD QUALIFICADO (Itens 54, 55, 56) ─────────────────────────
 
-  // Processamento de Entrada de Texto do Usuário
-  const handleSendMessage = (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    const trimmed = inputValue.trim()
-    if (!trimmed) return
-
-    setInputValue("")
-    addUserMessage(trimmed)
-
-    // Se estiver no fluxo de coleta de dados
-    if (step === "collect_name") {
-      setLeadData((p) => ({ ...p, name: trimmed }))
-      botReply(
-        `Muito prazer, ${trimmed}! 👋\nQual é o seu WhatsApp com DDD para enviarmos os detalhes do seu pedido?`,
-      )
-      setStep("collect_whatsapp")
-      return
-    }
-
-    if (step === "collect_whatsapp") {
-      const raw = trimmed.replace(/\D/g, "")
-      if (raw.length < 10 || raw.length > 11) {
-        botReply(
-          "⚠️ Por favor, digite um número de WhatsApp válido com DDD (ex: 44 99915-9415).",
-        )
-        return
-      }
-      const formatted = formatWhatsApp(trimmed)
-      const currentLead = { ...leadData, whatsapp: formatted }
-      setLeadData(currentLead)
-
-      // Salva imediatamente como Lead assim que o número de WhatsApp é informado
-      saveLead({
-        name: currentLead.name || "Cliente Loja SJ",
-        whatsapp: formatted,
-        email: "",
-        message: `[Assistente Chatbot] Produto: ${currentLead.product || "Geral"} | Modalidade: ${currentLead.modalidade || "Atendimento Geral"}`,
-      })
-        .then((saved) => {
-          if (saved?.id) {
-            currentLeadIdRef.current = saved.id
-          }
-        })
-        .catch((err) => {
-          console.error("Erro ao registrar lead prévio:", err)
-        })
-
-      botReply("Qual é o seu bairro e cidade (para entrega ou retirada)?", [
-        {
-          label: "📍 Umuarama - Centro",
-          action: () => {
-            addUserMessage("📍 Umuarama - Centro")
-            finalizeLeadWithBairro("Centro, Umuarama - PR")
-          },
-        },
-        {
-          label: "👍 Combinar no WhatsApp",
-          action: () => {
-            addUserMessage("👍 Combinar no WhatsApp")
-            finalizeLeadWithBairro("A combinar")
-          },
-        },
-      ])
-      setStep("collect_bairro")
-      return
-    }
-
-    if (step === "collect_bairro") {
-      finalizeLeadWithBairro(trimmed)
-      return
-    }
-
-    // Consulta Inteligente à Base de Conhecimento Oficial SJ
-    const kbResult = querySJKnowledge(trimmed)
-
-    const mappedChips: ActionChip[] = (kbResult.chips || []).map((c) => {
+  const mapKnowledgeChips = (
+    chips?: { label: string; actionId?: string; url?: string; payload?: any }[],
+  ): ActionChip[] => {
+    return (chips || []).map((c) => {
       if (c.url) return c
       if (c.actionId === "fluxo_entrega" || c.actionId === "entrega_info") {
-        return { label: c.label, action: () => handleEntregaRetiradaFlow() }
+        return {
+          label: c.label,
+          action: () => {
+            addUserMessage(c.label)
+            requireContactThen(
+              () => handleEntregaRetiradaFlow(),
+              "Entrega / Retirada",
+            )
+          },
+        }
       }
       if (c.actionId === "retirada_info" || c.actionId === "endereco_info") {
         return {
@@ -1153,7 +1119,185 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
         action: () => showInitialMenu(true),
       }
     })
+  }
 
+  const startLeadCapture = (productDesc: string) => {
+    isFinalizingRef.current = false
+    setLeadData((p) => ({ ...p, product: productDesc }))
+    if (!hasCollectedContactRef.current) {
+      botReply(
+        `Para prepararmos seu orçamento personalizado de *${productDesc}*, qual é o seu nome completo?`,
+      )
+      setStep("collect_name")
+    } else {
+      botReply(
+        `Ótima escolha para *${productDesc}*! Qual é o seu bairro e cidade para entrega ou retirada?`,
+        [
+          {
+            label: "📍 Umuarama - Centro",
+            action: () => {
+              addUserMessage("📍 Umuarama - Centro")
+              finalizeLeadWithBairro("Centro, Umuarama - PR")
+            },
+          },
+          {
+            label: "👍 Combinar no WhatsApp",
+            action: () => {
+              addUserMessage("👍 Combinar no WhatsApp")
+              finalizeLeadWithBairro("A combinar")
+            },
+          },
+        ],
+      )
+      setStep("collect_bairro")
+    }
+  }
+
+  // Processamento de Entrada de Texto do Usuário
+  const handleSendMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
+
+    setInputValue("")
+    addUserMessage(trimmed)
+
+    // Se o cliente ainda não informou nome e contato
+    if (!hasCollectedContactRef.current) {
+      if (step === "collect_name" || step === "welcome") {
+        // Se a mensagem enviada for uma dúvida/pergunta de produto em vez de um nome simples
+        const isQuestionOrInquiry =
+          trimmed.includes("?") ||
+          /\b(quanto|qual|valor|preco|preço|entrega|frete|orcar|orçar|orcamento|orçamento|comprar|tem|vende|funciona|como|horario|horário|endereco|endereço|onde|rendimento|laje|piscina|parede|wurth|cola|tinta|filamento)\b/i.test(
+            trimmed,
+          )
+
+        if (isQuestionOrInquiry) {
+          pendingQueryRef.current = trimmed
+          botReply(
+            "Com certeza! Vou te passar todos os detalhes sobre isso agora mesmo. 😊\n\nAntes, como posso te chamar? (Qual seu nome completo?)",
+          )
+          setStep("collect_name")
+          return
+        }
+
+        // Se for um cumprimento simples como "oi", "olá", "bom dia"
+        if (
+          /^(oi|ol[aá]|bom dia|boa tarde|boa noite|opa|ei|ola)$/i.test(trimmed)
+        ) {
+          botReply(
+            "Olá! Seja muito bem-vindo(a) à Loja SJ! 👋\n\nPara iniciarmos seu atendimento personalizado, como posso te chamar? (Qual seu nome?)",
+          )
+          setStep("collect_name")
+          return
+        }
+
+        // Caso contrário, é o nome do cliente
+        const cleanedName = trimmed
+          .replace(/^(meu nome [eé]|sou o|sou a|me chamo)\s+/i, "")
+          .trim()
+        setLeadData((p) => ({ ...p, name: cleanedName }))
+        botReply(
+          `Muito prazer, ${cleanedName}! 👋\nQual é o seu WhatsApp com DDD para mantermos o registro do seu atendimento?`,
+        )
+        setStep("collect_whatsapp")
+        return
+      }
+
+      if (step === "collect_whatsapp") {
+        const raw = trimmed.replace(/\D/g, "")
+        if (raw.length < 10 || raw.length > 11) {
+          botReply(
+            "⚠️ Por favor, digite um número de WhatsApp válido com DDD (ex: 44 99915-9415).",
+          )
+          return
+        }
+        const formatted = formatWhatsApp(trimmed)
+        const currentLead = { ...leadData, whatsapp: formatted }
+        setLeadData(currentLead)
+        hasCollectedContactRef.current = true
+
+        // Salva imediatamente como Lead assim que o número de WhatsApp é informado
+        const initialLeadMessage = pendingQueryRef.current
+          ? `[Assistente Chatbot] Dúvida inicial: "${pendingQueryRef.current}" | Produto: ${currentLead.product || "Geral"}`
+          : `[Assistente Chatbot] Produto: ${currentLead.product || "Geral"} | Modalidade: ${currentLead.modalidade || "Atendimento Geral"}`
+
+        saveLead({
+          name: currentLead.name || "Cliente Loja SJ",
+          whatsapp: formatted,
+          email: "",
+          message: initialLeadMessage,
+        })
+          .then((saved) => {
+            if (saved?.id) {
+              currentLeadIdRef.current = saved.id
+            }
+          })
+          .catch((err) => {
+            console.error("Erro ao registrar lead prévio:", err)
+          })
+
+        // Se havia uma dúvida/pergunta pendente feita antes do cadastro:
+        if (pendingQueryRef.current) {
+          const query = pendingQueryRef.current
+          pendingQueryRef.current = null
+          const kbResult = querySJKnowledge(query)
+          const mappedChips = mapKnowledgeChips(kbResult.chips)
+          botReply(
+            `Perfeito, ${currentLead.name}! 🎉 Seu contato foi registrado com sucesso.\n\n${kbResult.text}`,
+            mappedChips,
+          )
+          setStep("chat")
+          return
+        }
+
+        // Se havia uma ação/fluxo pendente:
+        if (pendingActionRef.current) {
+          const action = pendingActionRef.current
+          pendingActionRef.current = null
+          botReply(
+            `Perfeito, ${currentLead.name}! 🎉 Seu contato foi registrado com sucesso.`,
+          )
+          setTimeout(() => {
+            action()
+          }, 350)
+          setStep("chat")
+          return
+        }
+
+        // Caso contrário, continua o fluxo para saber o bairro
+        botReply(
+          `Perfeito, ${currentLead.name}! 🎉 Seu atendimento foi iniciado.\n\nQual é o seu bairro e cidade (para entrega ou retirada)?`,
+          [
+            {
+              label: "📍 Umuarama - Centro",
+              action: () => {
+                addUserMessage("📍 Umuarama - Centro")
+                finalizeLeadWithBairro("Centro, Umuarama - PR")
+              },
+            },
+            {
+              label: "👍 Combinar no WhatsApp",
+              action: () => {
+                addUserMessage("👍 Combinar no WhatsApp")
+                finalizeLeadWithBairro("A combinar")
+              },
+            },
+          ],
+        )
+        setStep("collect_bairro")
+        return
+      }
+    }
+
+    if (step === "collect_bairro") {
+      finalizeLeadWithBairro(trimmed)
+      return
+    }
+
+    // Consulta Inteligente à Base de Conhecimento Oficial SJ
+    const kbResult = querySJKnowledge(trimmed)
+    const mappedChips = mapKnowledgeChips(kbResult.chips)
     botReply(kbResult.text, mappedChips)
   }
 
