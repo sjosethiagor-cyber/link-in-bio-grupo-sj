@@ -71,6 +71,13 @@ const CentralDeAnuncios = lazyWithRetry(
   () => import("./CentralDeAnuncios"),
   "CentralDeAnuncios",
 )
+const PromptsManager = lazyWithRetry(
+  () =>
+    import("./admin/PromptsManager").then((m) => ({
+      default: m.PromptsManager,
+    })),
+  "PromptsManager",
+)
 import { DashboardRole, DashboardUserRecord } from "../types/dashboardUser"
 
 // Import icons
@@ -85,6 +92,7 @@ import {
   IcoSearch,
   IcoBell,
   IcoInfo,
+  IcoSparkles,
 } from "./Icons"
 
 const AUTHORIZED_EMAIL = "sjosethiago.r@gmail.com"
@@ -99,7 +107,7 @@ export default function DashboardPortal({
   navigateBack,
 }: DashboardPortalProps) {
   const [activeTab, setActiveTab] =
-    useState<"metrics" | "leads" | "cms" | "ads" | "users">("metrics")
+    useState<"metrics" | "leads" | "cms" | "ads" | "prompts" | "users">("metrics")
   const [clicks, setClicks] = useState<ClickEvent[]>([])
   const [leads, setLeads] = useState<Lead[]>([])
   const [mlLinks, setMlLinks] = useState<StoreLink[]>([])
@@ -600,6 +608,18 @@ export default function DashboardPortal({
           >
             <IcoLayers />
           </button>
+          <button
+            onClick={() => {
+              setActiveTab("prompts")
+              setIsSidebarOpen(false)
+            }}
+            className={`sidebar-icon-btn ${
+              activeTab === "prompts" ? "active" : ""
+            }`}
+            title="Biblioteca de Prompts"
+          >
+            <IcoSparkles />
+          </button>
           {user?.email?.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase() && (
             <button
               onClick={() => {
@@ -878,7 +898,7 @@ export default function DashboardPortal({
         {/* ── Main View Viewport ── */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <div className="fade-up">
-            {loading && activeTab !== "ads" ? (
+            {loading && activeTab !== "ads" && activeTab !== "prompts" ? (
               <div className="flex justify-center items-center py-24 text-slate-400 font-bold">
                 Carregando dados do Firebase...
               </div>
@@ -936,7 +956,12 @@ export default function DashboardPortal({
                   />
                 )}
 
-                {/* ── VIEW 5: DASHBOARD USERS / ACCESS CONTROL ── */}
+                {/* ── VIEW 5: PROMPTS LIBRARY & MANAGEMENT ── */}
+                {activeTab === "prompts" && (
+                  <PromptsManager isReadOnly={isReadOnly} />
+                )}
+
+                {/* ── VIEW 6: DASHBOARD USERS / ACCESS CONTROL ── */}
                 {activeTab === "users" &&
                   user?.email?.toLowerCase() ===
                     AUTHORIZED_EMAIL.toLowerCase() && (
