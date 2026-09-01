@@ -7,9 +7,9 @@ export function runSanitizationSecurityTests(): {
   total: number
   passed: number
   failed: number
-  results: Array<{ name: string passed: boolean error?: string }>
+  results: Array<{ name: string; passed: boolean; error?: string }>
 } {
-  const tests: Array<{ name: string test: () => void }> = [
+  const tests: Array<{ name: string; test: () => void }> = [
     {
       name: "sanitizeText escapes HTML entities (<script> tag)",
       test: () => {
@@ -74,7 +74,7 @@ export function runSanitizationSecurityTests(): {
 
   let passed = 0
   let failed = 0
-  const results: Array<{ name: string passed: boolean error?: string }> = []
+  const results: Array<{ name: string; passed: boolean; error?: string }> = []
 
   for (const t of tests) {
     try {

@@ -4347,4 +4347,321 @@ a { color: inherit; }
   border-color: #93c5fd !important;
 }
 
+/* ==========================================================================
+   2-COLUMN & KEYWORDS ENHANCEMENTS FOR EDITOR MODAL & WORKSPACE DETAIL
+   ========================================================================== */
+
+/* Sub-tabs Navigation inside Editor Modal */
+.editor-subtabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 16px 0;
+  padding: 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+}
+
+.editor-subtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.editor-subtab:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.editor-subtab.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Layout Wrapper for 2 Columns in Editor Modal */
+.mkt-content-layout-wrapper.mode-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 920px) {
+  .mkt-content-layout-wrapper.mode-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.mkt-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.mkt-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
+.mkt-column-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mkt-column-title .col-icon {
+  font-size: 18px;
+}
+
+.mkt-column-title strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  display: block;
+}
+
+.mkt-column-title .col-hint {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.modal-copy-all-kw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-copy-all-kw-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Keywords Editor List in Modal */
+.keywords-editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.keyword-edit-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 34px 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+}
+
+.keyword-edit-row .row-number {
+  font-weight: 800;
+  color: #475569;
+  font-size: 12px;
+}
+
+.keyword-edit-input-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.keyword-edit-input-wrapper input {
+  padding: 7px 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-size: 13px !important;
+  border-radius: 6px !important;
+}
+
+.copy-kw-item-btn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.copy-kw-item-btn:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.copy-kw-item-btn.copied {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #86efac;
+}
+
+/* 2-Column Workspace Grid in Product Detail */
+.workspace-cards-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .workspace-cards-grid-2col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  margin-left: 6px;
+}
+
+/* Interactive Keywords Cloud Pills in Product Detail */
+.keyword-pills-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.keyword-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+
+.keyword-pill:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+.keyword-pill.copied {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border-color: #86efac !important;
+}
+
+.keyword-pill .kw-pill-num {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.keyword-pill .kw-pill-text {
+  letter-spacing: -0.2px;
+}
+
+.keyword-pill .kw-pill-copy-icon {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* Detailed Numbered List for Keywords */
+.keyword-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keyword-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.keyword-option-row:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.keyword-option-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.keyword-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.keyword-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
 

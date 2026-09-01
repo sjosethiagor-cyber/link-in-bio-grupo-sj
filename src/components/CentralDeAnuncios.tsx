@@ -24,6 +24,8 @@ import {
 } from "./central/types"
 import "./CentralDeAnuncios.css"
 
+import { parseRawKeywordsSection } from "./central/smartTextParser"
+
 const AUTHORIZED_EMAIL = "sjosethiago.r@gmail.com"
 
 const blankForm = (marketplace: Marketplace): EditorForm => ({
@@ -35,17 +37,25 @@ const blankForm = (marketplace: Marketplace): EditorForm => ({
   driveUrl: "",
   marketplace,
   mlTitles: Array(10).fill(""),
+  mlKeywords: Array(10).fill(""),
   mlDescription: "",
   mlBulkText: "",
+  mlBulkKeywords: "",
   shopeeTitles: Array(10).fill(""),
+  shopeeKeywords: Array(10).fill(""),
   shopeeDescription: "",
   shopeeBulkText: "",
+  shopeeBulkKeywords: "",
   tiktokTitles: Array(10).fill(""),
+  tiktokKeywords: Array(10).fill(""),
   tiktokDescription: "",
   tiktokBulkText: "",
+  tiktokBulkKeywords: "",
   temuTitles: Array(10).fill(""),
+  temuKeywords: Array(10).fill(""),
   temuDescription: "",
   temuBulkText: "",
+  temuBulkKeywords: "",
   coverKey: null,
   coverUrl: null,
   coverColor: "#3159d9",
@@ -57,24 +67,32 @@ function getFieldNames(marketplace: Marketplace) {
       return {
         listField: "mlTitles" as const,
         textField: "mlBulkText" as const,
+        keywordListField: "mlKeywords" as const,
+        keywordTextField: "mlBulkKeywords" as const,
         descField: "mlDescription" as const,
       }
     case "shopee":
       return {
         listField: "shopeeTitles" as const,
         textField: "shopeeBulkText" as const,
+        keywordListField: "shopeeKeywords" as const,
+        keywordTextField: "shopeeBulkKeywords" as const,
         descField: "shopeeDescription" as const,
       }
     case "tiktok":
       return {
         listField: "tiktokTitles" as const,
         textField: "tiktokBulkText" as const,
+        keywordListField: "tiktokKeywords" as const,
+        keywordTextField: "tiktokBulkKeywords" as const,
         descField: "tiktokDescription" as const,
       }
     case "temu":
       return {
         listField: "temuTitles" as const,
         textField: "temuBulkText" as const,
+        keywordListField: "temuKeywords" as const,
+        keywordTextField: "temuBulkKeywords" as const,
         descField: "temuDescription" as const,
       }
   }
@@ -88,16 +106,32 @@ function formFromProduct(
     0,
     10,
   )
+  const mlKeywords = [
+    ...(product.mlKeywords ?? []),
+    ...Array(10).fill(""),
+  ].slice(0, 10)
   const shopeeTitles = [
     ...(product.shopeeTitles ?? []),
+    ...Array(10).fill(""),
+  ].slice(0, 10)
+  const shopeeKeywords = [
+    ...(product.shopeeKeywords ?? []),
     ...Array(10).fill(""),
   ].slice(0, 10)
   const tiktokTitles = [
     ...(product.tiktokTitles ?? []),
     ...Array(10).fill(""),
   ].slice(0, 10)
+  const tiktokKeywords = [
+    ...(product.tiktokKeywords ?? []),
+    ...Array(10).fill(""),
+  ].slice(0, 10)
   const temuTitles = [
     ...(product.temuTitles ?? []),
+    ...Array(10).fill(""),
+  ].slice(0, 10)
+  const temuKeywords = [
+    ...(product.temuKeywords ?? []),
     ...Array(10).fill(""),
   ].slice(0, 10)
 
@@ -111,17 +145,25 @@ function formFromProduct(
     driveUrl: product.driveUrl ?? "",
     marketplace,
     mlTitles,
+    mlKeywords,
     mlDescription: product.mlDescription ?? "",
     mlBulkText: (product.mlTitles ?? []).filter(Boolean).join("\n"),
+    mlBulkKeywords: (product.mlKeywords ?? []).filter(Boolean).join(", "),
     shopeeTitles,
+    shopeeKeywords,
     shopeeDescription: product.shopeeDescription ?? "",
     shopeeBulkText: (product.shopeeTitles ?? []).filter(Boolean).join("\n"),
+    shopeeBulkKeywords: (product.shopeeKeywords ?? []).filter(Boolean).join(", "),
     tiktokTitles,
+    tiktokKeywords,
     tiktokDescription: product.tiktokDescription ?? "",
     tiktokBulkText: (product.tiktokTitles ?? []).filter(Boolean).join("\n"),
+    tiktokBulkKeywords: (product.tiktokKeywords ?? []).filter(Boolean).join(", "),
     temuTitles,
+    temuKeywords,
     temuDescription: product.temuDescription ?? "",
     temuBulkText: (product.temuTitles ?? []).filter(Boolean).join("\n"),
+    temuBulkKeywords: (product.temuKeywords ?? []).filter(Boolean).join(", "),
     coverKey: product.coverKey,
     coverUrl: product.coverUrl,
     coverColor: product.coverColor,
@@ -343,6 +385,16 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
               : (selected.temuTitles ?? [])
         ).filter(Boolean)
       : []
+    const keywords = selected
+      ? (marketplace === "mercado-livre"
+          ? (selected.mlKeywords ?? [])
+          : marketplace === "shopee"
+            ? (selected.shopeeKeywords ?? [])
+            : marketplace === "tiktok"
+              ? (selected.tiktokKeywords ?? [])
+              : (selected.temuKeywords ?? [])
+        ).filter(Boolean)
+      : []
     const description = selected
       ? marketplace === "mercado-livre"
         ? selected.mlDescription
@@ -510,6 +562,71 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
           ...current,
           [textField]: value,
           [listField]: newTitles,
+        }
+      })
+    }
+
+    const updateKeyword = (index: number, value: string) => {
+      setForm((current) => {
+        const { keywordListField, keywordTextField } = getFieldNames(
+          current.marketplace,
+        )
+        const currentList = current[keywordListField]
+        const updatedList = currentList.map((kw, kwIndex) =>
+          kwIndex === index ? value : kw,
+        )
+        return {
+          ...current,
+          [keywordListField]: updatedList,
+          [keywordTextField]: updatedList.filter(Boolean).join(", "),
+        }
+      })
+    }
+
+    const addKeywordField = () => {
+      setForm((current) => {
+        const { keywordListField, keywordTextField } = getFieldNames(
+          current.marketplace,
+        )
+        const currentList = current[keywordListField]
+        const updatedList = [...currentList, ""]
+        return {
+          ...current,
+          [keywordListField]: updatedList,
+          [keywordTextField]: updatedList.filter(Boolean).join(", "),
+        }
+      })
+    }
+
+    const removeKeywordField = (index: number) => {
+      setForm((current) => {
+        const { keywordListField, keywordTextField } = getFieldNames(
+          current.marketplace,
+        )
+        const currentList = current[keywordListField]
+        const updatedList = currentList.filter((_, i) => i !== index)
+        return {
+          ...current,
+          [keywordListField]: updatedList,
+          [keywordTextField]: updatedList.filter(Boolean).join(", "),
+        }
+      })
+    }
+
+    const applyKeywordBlock = (value: string) => {
+      const parsed = parseRawKeywordsSection(value)
+      setForm((current) => {
+        const { keywordListField, keywordTextField } = getFieldNames(
+          current.marketplace,
+        )
+        const newKeywords = [
+          ...parsed,
+          ...Array(10).fill(""),
+        ].slice(0, Math.max(10, parsed.length))
+        return {
+          ...current,
+          [keywordTextField]: value,
+          [keywordListField]: newKeywords,
         }
       })
     }
@@ -692,6 +809,7 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
             titles={titles}
             selectedTitle={selectedTitle}
             setSelectedTitle={setSelectedTitle}
+            keywords={keywords}
             description={description}
             copied={copied}
             copyText={copyText}
@@ -728,6 +846,10 @@ const CentralDeAnuncios = forwardRef<any, CentralDeAnunciosProps>(
           removeTitleField={removeTitleField}
           applyTitleBlock={applyTitleBlock}
           parseTitleBlock={parseTitleBlock}
+          addKeywordField={addKeywordField}
+          updateKeywordField={updateKeyword}
+          removeKeywordField={removeKeywordField}
+          applyKeywordBlock={applyKeywordBlock}
           saveProduct={saveProduct}
           getMarketplaceValidation={getMarketplaceValidation}
           cleanForMarketplace={cleanForMarketplace}

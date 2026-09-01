@@ -14,12 +14,16 @@ export type Product = {
   coverUrl: string | null
   coverColor: string
   mlTitles: string[]
+  mlKeywords?: string[]
   mlDescription: string
   shopeeTitles: string[]
+  shopeeKeywords?: string[]
   shopeeDescription: string
   tiktokTitles?: string[]
+  tiktokKeywords?: string[]
   tiktokDescription?: string
   temuTitles?: string[]
+  temuKeywords?: string[]
   temuDescription?: string
   updatedAt: string
 }
@@ -34,17 +38,25 @@ export type EditorForm = {
   driveUrl: string
   marketplace: Marketplace
   mlTitles: string[]
+  mlKeywords: string[]
   mlDescription: string
   mlBulkText: string
+  mlBulkKeywords: string
   shopeeTitles: string[]
+  shopeeKeywords: string[]
   shopeeDescription: string
   shopeeBulkText: string
+  shopeeBulkKeywords: string
   tiktokTitles: string[]
+  tiktokKeywords: string[]
   tiktokDescription: string
   tiktokBulkText: string
+  tiktokBulkKeywords: string
   temuTitles: string[]
+  temuKeywords: string[]
   temuDescription: string
   temuBulkText: string
+  temuBulkKeywords: string
   coverKey: string | null
   coverUrl: string | null
   coverColor: string
@@ -62,7 +74,7 @@ export type AdminSession = {
   canEdit: boolean
   canDelete: boolean
   canManageUsers: boolean
-  user: { email: string name: string } | null
+  user: { email: string; name: string } | null
   signInUrl: string
   signOutUrl: string
 }

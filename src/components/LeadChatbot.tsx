@@ -255,7 +255,7 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     const initialChips = getInitialChips()
 
     if (isReset) {
-      botReply(welcomeText, initialChips, 250)
+      botReply(welcomeText, initialChips, undefined, 250)
       setStep("chat")
     } else {
       setIsTyping(false)

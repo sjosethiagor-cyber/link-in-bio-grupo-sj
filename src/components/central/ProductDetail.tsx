@@ -3,7 +3,7 @@ import { Product, Marketplace, Validation } from "./types"
 import { generateEAN13 } from "./barcode"
 
 export interface ProductDetailProps {
-  selected?: Product
+  selected?: Product | null
   loading: boolean
   canEdit: boolean
   marketplace: Marketplace
@@ -11,6 +11,7 @@ export interface ProductDetailProps {
   titles: string[]
   selectedTitle: number
   setSelectedTitle: (index: number) => void
+  keywords?: string[]
   description: string
   copied: string | null
   copyText: (key: string, text: string) => void
@@ -39,6 +40,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   titles,
   selectedTitle,
   setSelectedTitle,
+  keywords = [],
   description,
   copied,
   copyText,
@@ -54,6 +56,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   onClose,
   isMobileOpen = false,
 }) => {
+  const [keywordsOpen, setKeywordsOpen] = React.useState(true)
   const [generatedBarcode, setGeneratedBarcode] = React.useState<string | null>(
     null,
   )
@@ -863,97 +866,227 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </p>
           </div>
 
-          {/* Collapsible Titles Card */}
-          <article
-            className={`copy-card titles-card ${!titlesOpen ? "collapsed" : ""}`}
-          >
-            <div
-              className="card-heading"
-              onClick={() => setTitlesOpen(!titlesOpen)}
-              style={{ cursor: "pointer" }}
+          {/* 2-Column Grid for Titles and Keywords in Workspace */}
+          <div className="workspace-cards-grid-2col">
+            {/* Collapsible Titles Card */}
+            <article
+              className={`copy-card titles-card ${!titlesOpen ? "collapsed" : ""}`}
             >
-              <div className="card-heading-title">
-                <button
-                  type="button"
-                  className="collapse-toggle-btn"
-                  aria-label={
-                    titlesOpen
-                      ? "Ocultar opções de título"
-                      : "Mostrar opções de título"
-                  }
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+              <div
+                className="card-heading"
+                onClick={() => setTitlesOpen(!titlesOpen)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card-heading-title">
+                  <button
+                    type="button"
+                    className="collapse-toggle-btn"
+                    aria-label={
+                      titlesOpen
+                        ? "Ocultar opções de título"
+                        : "Mostrar opções de título"
+                    }
                   >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                <h3>Títulos Otimizados</h3>
-              </div>
-            </div>
-
-            <div className="card-content">
-              {titles.length === 0 ? (
-                <p className="empty-text">
-                  Nenhum título cadastrado para este canal.
-                </p>
-              ) : (
-                <div className="title-options-list">
-                  {titles.map((title, index) => {
-                    const validation = getMarketplaceValidation(
-                      title,
-                      marketplace,
-                    )
-                    const isSelected = selectedTitle === index
-                    return (
-                      <div
-                        key={index}
-                        className={`title-option-row ${
-                          isSelected ? "selected" : ""
-                        }`}
-                        onClick={() => setSelectedTitle(index)}
-                      >
-                        <div className="title-option-left">
-                          <span className="title-number">{index + 1}</span>
-                          <p className="title-text">{title}</p>
-                        </div>
-
-                        <div className="title-option-actions">
-                          {validation && (
-                            <span
-                              className={`validation-badge ${validation.status}`}
-                            >
-                              {validation.label}
-                            </span>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              copyText(`title-${index}`, title)
-                            }}
-                            className={`copy-btn ${
-                              copied === `title-${index}` ? "copied" : ""
-                            }`}
-                          >
-                            {copied === `title-${index}`
-                              ? "Copiado ✓"
-                              : "Copiar"}
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  <h3>📝 Títulos Otimizados</h3>
+                  {titles.length > 0 && (
+                    <span className="count-badge">{titles.length}</span>
+                  )}
                 </div>
-              )}
-            </div>
-          </article>
+              </div>
+
+              <div className="card-content">
+                {titles.length === 0 ? (
+                  <p className="empty-text">
+                    Nenhum título cadastrado para este canal.
+                  </p>
+                ) : (
+                  <div className="title-options-list">
+                    {titles.map((title, index) => {
+                      const validation = getMarketplaceValidation(
+                        title,
+                        marketplace,
+                      )
+                      const isSelected = selectedTitle === index
+                      return (
+                        <div
+                          key={index}
+                          className={`title-option-row ${
+                            isSelected ? "selected" : ""
+                          }`}
+                          onClick={() => setSelectedTitle(index)}
+                        >
+                          <div className="title-option-left">
+                            <span className="title-number">{index + 1}</span>
+                            <p className="title-text">{title}</p>
+                          </div>
+
+                          <div className="title-option-actions">
+                            {validation && (
+                              <span
+                                className={`validation-badge ${validation.status}`}
+                              >
+                                {validation.label}
+                              </span>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                copyText(`title-${index}`, title)
+                              }}
+                              className={`copy-btn ${
+                                copied === `title-${index}` ? "copied" : ""
+                              }`}
+                            >
+                              {copied === `title-${index}`
+                                ? "Copiado ✓"
+                                : "Copiar"}
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </article>
+
+            {/* Collapsible Keywords Card */}
+            <article
+              className={`copy-card keywords-card ${!keywordsOpen ? "collapsed" : ""}`}
+            >
+              <div
+                className="card-heading"
+                onClick={() => setKeywordsOpen(!keywordsOpen)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card-heading-title">
+                  <button
+                    type="button"
+                    className="collapse-toggle-btn"
+                    aria-label={
+                      keywordsOpen
+                        ? "Ocultar palavras-chave"
+                        : "Mostrar palavras-chave"
+                    }
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  <h3>🔑 Palavras-chave (SEO)</h3>
+                  {keywords.length > 0 && (
+                    <span className="count-badge">{keywords.length}</span>
+                  )}
+                </div>
+
+                {keywords.length > 0 && (
+                  <div
+                    className="card-heading-actions"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      className={`copy-all ${copied === "all-kw-comma" ? "copied" : ""}`}
+                      onClick={() => copyText("all-kw-comma", keywords.join(", "))}
+                      title="Copiar todas as palavras-chave separadas por vírgula"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      <span>
+                        {copied === "all-kw-comma" ? "Copiado ✓" : "Copiar Todas"}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="card-content">
+                {keywords.length === 0 ? (
+                  <p className="empty-text">
+                    Nenhuma palavra-chave cadastrada para este canal. Clique em Editar para cadastrar termos de busca.
+                  </p>
+                ) : (
+                  <>
+                    {/* Interactive Keywords Pills Cloud */}
+                    <div className="keyword-pills-cloud">
+                      {keywords.map((kw, index) => {
+                        const isCopied = copied === `kw-pill-${index}`
+                        return (
+                          <button
+                            key={index}
+                            type="button"
+                            className={`keyword-pill ${isCopied ? "copied" : ""}`}
+                            onClick={() => copyText(`kw-pill-${index}`, kw)}
+                            title={`Clique para copiar "${kw}"`}
+                          >
+                            <span className="kw-pill-num">#{index + 1}</span>
+                            <span className="kw-pill-text">{kw}</span>
+                            <span className="kw-pill-copy-icon">
+                              {isCopied ? "✓" : "📋"}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* Detailed Numbered List of Keywords */}
+                    <div className="keyword-options-list" style={{ marginTop: 14 }}>
+                      {keywords.map((kw, index) => {
+                        const isCopied = copied === `kw-${index}`
+                        return (
+                          <div key={index} className="keyword-option-row">
+                            <div className="keyword-option-left">
+                              <span className="keyword-number">{index + 1}</span>
+                              <p className="keyword-text">{kw}</p>
+                            </div>
+                            <button
+                              onClick={() => copyText(`kw-${index}`, kw)}
+                              className={`copy-btn ${isCopied ? "copied" : ""}`}
+                            >
+                              {isCopied ? "Copiado ✓" : "Copiar"}
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            </article>
+          </div>
 
           {/* Collapsible Description Card */}
           <article
@@ -987,7 +1120,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
-                <h3>Descrição do Anúncio</h3>
+                <h3>📋 Descrição do Anúncio</h3>
               </div>
               {description && (
                 <button

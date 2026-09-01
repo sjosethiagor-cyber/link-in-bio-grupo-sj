@@ -22,6 +22,10 @@ export interface EditorModalProps {
   removeTitleField: (index: number) => void
   applyTitleBlock: (val: string) => void
   parseTitleBlock: (val: string) => string[]
+  addKeywordField: () => void
+  updateKeywordField: (index: number, val: string) => void
+  removeKeywordField: (index: number) => void
+  applyKeywordBlock: (val: string) => void
   saveProduct: (e: React.FormEvent) => Promise<void>
   getMarketplaceValidation: (
     title: string,
@@ -48,7 +52,10 @@ export const EditorModal: React.FC<EditorModalProps> = ({
   updateTitleField,
   removeTitleField,
   applyTitleBlock,
-  parseTitleBlock,
+  addKeywordField,
+  updateKeywordField,
+  removeKeywordField,
+  applyKeywordBlock,
   saveProduct,
   getMarketplaceValidation,
   cleanForMarketplace,
@@ -59,6 +66,8 @@ export const EditorModal: React.FC<EditorModalProps> = ({
     message: string
   } | null>(null)
   const [applyToAllMarketplaces, setApplyToAllMarketplaces] = useState(true)
+  const [activeTabMode, setActiveTabMode] = useState<"columns" | "titles" | "keywords" | "description">("columns")
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   if (!editorOpen) return null
 
@@ -75,32 +84,44 @@ export const EditorModal: React.FC<EditorModalProps> = ({
         // Multi-marketplace specific parsing
         if (result["mercado-livre"]) {
           const t = result["mercado-livre"].titles
+          const k = result["mercado-livre"].keywords || []
           updated.mlTitles = [...t, ...Array(10).fill("")].slice(0, 10)
           updated.mlBulkText = t.join("\n")
+          updated.mlKeywords = [...k, ...Array(10).fill("")].slice(0, Math.max(10, k.length))
+          updated.mlBulkKeywords = k.join(", ")
           if (result["mercado-livre"].description) {
             updated.mlDescription = result["mercado-livre"].description
           }
         }
         if (result.shopee) {
           const t = result.shopee.titles
+          const k = result.shopee.keywords || []
           updated.shopeeTitles = [...t, ...Array(10).fill("")].slice(0, 10)
           updated.shopeeBulkText = t.join("\n")
+          updated.shopeeKeywords = [...k, ...Array(10).fill("")].slice(0, Math.max(10, k.length))
+          updated.shopeeBulkKeywords = k.join(", ")
           if (result.shopee.description) {
             updated.shopeeDescription = result.shopee.description
           }
         }
         if (result.tiktok) {
           const t = result.tiktok.titles
+          const k = result.tiktok.keywords || []
           updated.tiktokTitles = [...t, ...Array(10).fill("")].slice(0, 10)
           updated.tiktokBulkText = t.join("\n")
+          updated.tiktokKeywords = [...k, ...Array(10).fill("")].slice(0, Math.max(10, k.length))
+          updated.tiktokBulkKeywords = k.join(", ")
           if (result.tiktok.description) {
             updated.tiktokDescription = result.tiktok.description
           }
         }
         if (result.temu) {
           const t = result.temu.titles
+          const k = result.temu.keywords || []
           updated.temuTitles = [...t, ...Array(10).fill("")].slice(0, 10)
           updated.temuBulkText = t.join("\n")
+          updated.temuKeywords = [...k, ...Array(10).fill("")].slice(0, Math.max(10, k.length))
+          updated.temuBulkKeywords = k.join(", ")
           if (result.temu.description) {
             updated.temuDescription = result.temu.description
           }
@@ -108,42 +129,61 @@ export const EditorModal: React.FC<EditorModalProps> = ({
       } else if (result.generic) {
         // Generic single block
         const t = result.generic.titles
+        const k = result.generic.keywords || []
         const paddedTitles = [...t, ...Array(10).fill("")].slice(0, 10)
+        const paddedKeywords = [...k, ...Array(10).fill("")].slice(0, Math.max(10, k.length))
         const bulkText = t.join("\n")
+        const bulkKw = k.join(", ")
         const desc = result.generic.description
 
         if (applyToAllMarketplaces) {
           updated.mlTitles = [...paddedTitles]
           updated.mlBulkText = bulkText
+          updated.mlKeywords = [...paddedKeywords]
+          updated.mlBulkKeywords = bulkKw
           if (desc) updated.mlDescription = desc
 
           updated.shopeeTitles = [...paddedTitles]
           updated.shopeeBulkText = bulkText
+          updated.shopeeKeywords = [...paddedKeywords]
+          updated.shopeeBulkKeywords = bulkKw
           if (desc) updated.shopeeDescription = desc
 
           updated.tiktokTitles = [...paddedTitles]
           updated.tiktokBulkText = bulkText
+          updated.tiktokKeywords = [...paddedKeywords]
+          updated.tiktokBulkKeywords = bulkKw
           if (desc) updated.tiktokDescription = desc
 
           updated.temuTitles = [...paddedTitles]
           updated.temuBulkText = bulkText
+          updated.temuKeywords = [...paddedKeywords]
+          updated.temuBulkKeywords = bulkKw
           if (desc) updated.temuDescription = desc
         } else {
           if (prev.marketplace === "mercado-livre") {
             updated.mlTitles = [...paddedTitles]
             updated.mlBulkText = bulkText
+            updated.mlKeywords = [...paddedKeywords]
+            updated.mlBulkKeywords = bulkKw
             if (desc) updated.mlDescription = desc
           } else if (prev.marketplace === "shopee") {
             updated.shopeeTitles = [...paddedTitles]
             updated.shopeeBulkText = bulkText
+            updated.shopeeKeywords = [...paddedKeywords]
+            updated.shopeeBulkKeywords = bulkKw
             if (desc) updated.shopeeDescription = desc
           } else if (prev.marketplace === "tiktok") {
             updated.tiktokTitles = [...paddedTitles]
             updated.tiktokBulkText = bulkText
+            updated.tiktokKeywords = [...paddedKeywords]
+            updated.tiktokBulkKeywords = bulkKw
             if (desc) updated.tiktokDescription = desc
           } else if (prev.marketplace === "temu") {
             updated.temuTitles = [...paddedTitles]
             updated.temuBulkText = bulkText
+            updated.temuKeywords = [...paddedKeywords]
+            updated.temuBulkKeywords = bulkKw
             if (desc) updated.temuDescription = desc
           }
         }
@@ -166,9 +206,10 @@ export const EditorModal: React.FC<EditorModalProps> = ({
       })
     } else {
       const countTitles = result.generic?.titles.length ?? 0
+      const countKw = result.generic?.keywords?.length ?? 0
       setSmartFeedback({
         type: "success",
-        message: `✓ Separado com sucesso: ${countTitles} título(s) e descrição identificados!${
+        message: `✓ Separado com sucesso: ${countTitles} título(s), ${countKw} palavra(s)-chave e descrição identificados!${
           applyToAllMarketplaces ? " (Aplicado em todos os canais)" : ""
         }`,
       })
@@ -183,6 +224,15 @@ export const EditorModal: React.FC<EditorModalProps> = ({
         : form.marketplace === "tiktok"
           ? form.tiktokTitles
           : form.temuTitles
+
+  const currentKeywords =
+    form.marketplace === "mercado-livre"
+      ? form.mlKeywords
+      : form.marketplace === "shopee"
+        ? form.shopeeKeywords
+        : form.marketplace === "tiktok"
+          ? form.tiktokKeywords
+          : form.temuKeywords
 
   const currentDescription =
     form.marketplace === "mercado-livre"
@@ -202,6 +252,15 @@ export const EditorModal: React.FC<EditorModalProps> = ({
           ? form.tiktokBulkText
           : form.temuBulkText
 
+  const currentBulkKeywords =
+    form.marketplace === "mercado-livre"
+      ? form.mlBulkKeywords
+      : form.marketplace === "shopee"
+        ? form.shopeeBulkKeywords
+        : form.marketplace === "tiktok"
+          ? form.tiktokBulkKeywords
+          : form.temuBulkKeywords
+
   const descField =
     form.marketplace === "mercado-livre"
       ? "mlDescription"
@@ -210,6 +269,22 @@ export const EditorModal: React.FC<EditorModalProps> = ({
         : form.marketplace === "tiktok"
           ? "tiktokDescription"
           : "temuDescription"
+
+  const handleCopyInModal = async (key: string, text: string) => {
+    if (!text) return
+    await navigator.clipboard.writeText(cleanForMarketplace(text))
+    setCopiedKey(key)
+    setTimeout(() => setCopiedKey(null), 1600)
+  }
+
+  const handleCopyAllKeywordsInModal = async () => {
+    const validKeywords = currentKeywords.filter(Boolean)
+    if (validKeywords.length === 0) return
+    const textToCopy = validKeywords.join(", ")
+    await navigator.clipboard.writeText(textToCopy)
+    setCopiedKey("all-kw")
+    setTimeout(() => setCopiedKey(null), 1600)
+  }
 
   return createPortal(
     <div
@@ -380,8 +455,8 @@ export const EditorModal: React.FC<EditorModalProps> = ({
               <div className="smart-importer-card">
                 <div className="smart-importer-header">
                   <div className="smart-importer-title-group">
-                    <span className="smart-badge">⚡ NOVO</span>
-                    <h4>Importador Inteligente de Texto Completo</h4>
+                    <span className="smart-badge">⚡ INTELIGENTE</span>
+                    <h4>Importador Completo (Títulos, Palavras-chave e Descrição)</h4>
                   </div>
                   <label
                     className="smart-apply-all-checkbox"
@@ -397,7 +472,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 </div>
 
                 <p className="smart-importer-desc">
-                  Cole todo o texto bruto (pode conter blocos para cada loja como <code>[MERCADO LIVRE]</code>, <code>[SHOPEE]</code>, <code>[TIKTOK]</code>, <code>[TEMU]</code> ou um texto único com <strong>títulos</strong> e <strong>descrição</strong>). O sistema reconhece e distribui tudo automaticamente!
+                  Cole todo o texto bruto com <strong>títulos</strong>, <strong>palavras-chave (keywords / tags)</strong> e <strong>descrição</strong>. Suporta tags por canal (<code>[MERCADO LIVRE]</code>, <code>[SHOPEE]</code>, <code>[TIKTOK]</code>, <code>[TEMU]</code>) ou texto único geral.
                 </p>
 
                 <textarea
@@ -408,7 +483,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     if (smartFeedback) setSmartFeedback(null)
                   }}
                   placeholder={
-                    "Exemplo (canais separados ou texto único):\n\n[MERCADO LIVRE]\nTÍTULOS (até 60 carac.):\n1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix\nDESCRIÇÃO:\nA Argamassa Polimérica...\n\n[SHOPEE]\nTÍTULOS (até 120 carac.):\n1. Argamassa Polimérica Cola Mix 18kg Impermeável Balde\nDESCRIÇÃO:\n..."
+                    "Exemplo:\n\n[MERCADO LIVRE]\nTÍTULOS (até 60 carac.):\n1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix\n2. Cola Bloco Massa Pronta 18kg\n\nPALAVRAS-CHAVE:\nargamassa polimerica, cola bloco, impermeabilizante, massa pronta, assentamento tijolo\n\nDESCRIÇÃO:\nA Argamassa Polimérica..."
                   }
                   className="smart-textarea"
                 />
@@ -446,7 +521,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                           if (smartFeedback) setSmartFeedback(null)
                         }
                       } catch {
-                        // Clipboard permission fallback
+                        // Clipboard fallback
                       }
                     }}
                     title="Colar texto da área de transferência"
@@ -478,7 +553,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
               <div className="section-title marketplace-editor-title">
                 <div>
                   <h3>Conteúdo por Marketplace</h3>
-                  <p>Ajuste títulos e descrição para cada canal específico.</p>
+                  <p>Ajuste títulos, palavras-chave e descrição para cada canal específico.</p>
                 </div>
                 <div className="mini-tabs" role="tablist" aria-label="Escolher marketplace do anúncio">
                   <button
@@ -530,141 +605,289 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 </div>
               </div>
 
-              {/* Bulk Text Import Card */}
-              <div className="bulk-title-import">
-                <label className="field full">
-                  <span>
-                    Bloco de Títulos (Cole e processe vários títulos juntos)
-                  </span>
-                  <textarea
-                    rows={3}
-                    value={currentBulkText}
-                    onChange={(e) => applyTitleBlock(e.target.value)}
-                    placeholder={
-                      form.marketplace === "mercado-livre"
-                        ? "Exemplo:\n1. Título do meu anúncio 1\n2. Segunda opção de título (até 60 carac.)..."
-                        : form.marketplace === "shopee"
-                          ? "Dica: Títulos devem ter entre 20 e 120 caracteres para Shopee."
-                          : form.marketplace === "tiktok"
-                            ? "Dica: Títulos para TikTok Shop (até 255 caracteres)."
-                            : "Dica: Títulos para Temu (até 100 caracteres)."
-                    }
-                  />
-                </label>
+              {/* Layout Mode Sub-Tabs (2 Colunas vs Abas Focadas) */}
+              <div className="editor-subtabs-nav">
+                <button
+                  type="button"
+                  className={`editor-subtab ${activeTabMode === "columns" ? "active" : ""}`}
+                  onClick={() => setActiveTabMode("columns")}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <line x1="12" y1="3" x2="12" y2="21" />
+                  </svg>
+                  <span>2 Colunas (Títulos e Palavras-chave lado a lado)</span>
+                </button>
+                <button
+                  type="button"
+                  className={`editor-subtab ${activeTabMode === "titles" ? "active" : ""}`}
+                  onClick={() => setActiveTabMode("titles")}
+                >
+                  <span>📝 Títulos ({currentTitles.filter(Boolean).length})</span>
+                </button>
+                <button
+                  type="button"
+                  className={`editor-subtab ${activeTabMode === "keywords" ? "active" : ""}`}
+                  onClick={() => setActiveTabMode("keywords")}
+                >
+                  <span>🔑 Palavras-chave ({currentKeywords.filter(Boolean).length})</span>
+                </button>
+                <button
+                  type="button"
+                  className={`editor-subtab ${activeTabMode === "description" ? "active" : ""}`}
+                  onClick={() => setActiveTabMode("description")}
+                >
+                  <span>📋 Descrição</span>
+                </button>
               </div>
 
-              {/* Single Titles List */}
-              <div className="individual-titles">
-                <p className="editor-subtitle">
-                  Opções de títulos individuais (Max 10)
-                </p>
-                <div className="titles-editor-list">
-                  {currentTitles.map((title, index) => {
-                    const validation = getMarketplaceValidation(
-                      title,
-                      form.marketplace,
-                    )
-                    return (
-                      <div key={index} className="title-edit-row">
-                        <span className="row-number">{index + 1}</span>
-                        <div className="title-edit-input-wrapper">
-                          <input
-                            value={title}
-                            onChange={(e) =>
-                              updateTitleField(index, e.target.value)
-                            }
-                            placeholder={`Título opção ${index + 1}`}
-                          />
-                          {validation && (
-                            <span
-                              className={`validation-indicator ${validation.status}`}
-                            >
-                              {validation.label}
-                            </span>
-                          )}
+              {/* 2-Column or Single Tab Content Grid */}
+              <div className={`mkt-content-layout-wrapper mode-${activeTabMode}`}>
+                {/* Column 1: Titles */}
+                {(activeTabMode === "columns" || activeTabMode === "titles") && (
+                  <div className="mkt-col mkt-titles-column">
+                    <div className="mkt-column-header">
+                      <div className="mkt-column-title">
+                        <span className="col-icon">📝</span>
+                        <div>
+                          <strong>Títulos Otimizados</strong>
+                          <span className="col-hint">Max 10 opções</span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Bulk Text Import Card */}
+                    <div className="bulk-title-import">
+                      <label className="field full">
+                        <span>
+                          Bloco de Títulos (Cole e processe vários títulos juntos)
+                        </span>
+                        <textarea
+                          rows={3}
+                          value={currentBulkText}
+                          onChange={(e) => applyTitleBlock(e.target.value)}
+                          placeholder={
+                            form.marketplace === "mercado-livre"
+                              ? "Exemplo:\n1. Título do meu anúncio 1\n2. Segunda opção de título (até 60 carac.)..."
+                              : form.marketplace === "shopee"
+                                ? "Dica: Títulos devem ter entre 20 e 120 caracteres para Shopee."
+                                : form.marketplace === "tiktok"
+                                  ? "Dica: Títulos para TikTok Shop (até 255 caracteres)."
+                                  : "Dica: Títulos para Temu (até 100 caracteres)."
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    {/* Single Titles List */}
+                    <div className="individual-titles">
+                      <p className="editor-subtitle">
+                        Opções de títulos individuais (1 a 10)
+                      </p>
+                      <div className="titles-editor-list">
+                        {currentTitles.map((title, index) => {
+                          const validation = getMarketplaceValidation(
+                            title,
+                            form.marketplace,
+                          )
+                          return (
+                            <div key={index} className="title-edit-row">
+                              <span className="row-number">{index + 1}</span>
+                              <div className="title-edit-input-wrapper">
+                                <input
+                                  value={title}
+                                  onChange={(e) =>
+                                    updateTitleField(index, e.target.value)
+                                  }
+                                  placeholder={`Título opção ${index + 1}`}
+                                />
+                                {validation && (
+                                  <span
+                                    className={`validation-indicator ${validation.status}`}
+                                  >
+                                    {validation.label}
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                className="remove-title-row"
+                                onClick={() => removeTitleField(index)}
+                                title="Remover título"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )
+                        })}
+
+                        {currentTitles.length < 10 && (
+                          <button
+                            type="button"
+                            className="add-title-row-btn"
+                            onClick={addTitleField}
+                          >
+                            + Adicionar nova opção de título
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Column 2: Keywords */}
+                {(activeTabMode === "columns" || activeTabMode === "keywords") && (
+                  <div className="mkt-col mkt-keywords-column">
+                    <div className="mkt-column-header">
+                      <div className="mkt-column-title">
+                        <span className="col-icon">🔑</span>
+                        <div>
+                          <strong>Palavras-chave (SEO / Tags)</strong>
+                          <span className="col-hint">Pelo menos 10 palavras-chave</span>
+                        </div>
+                      </div>
+                      {currentKeywords.some(Boolean) && (
                         <button
                           type="button"
-                          className="remove-title-row"
-                          onClick={() => removeTitleField(index)}
-                          title="Remover título"
+                          className="modal-copy-all-kw-btn"
+                          onClick={handleCopyAllKeywordsInModal}
+                          title="Copiar todas as palavras-chave separadas por vírgula"
                         >
-                          ×
+                          {copiedKey === "all-kw" ? "Copiadas! ✓" : "📋 Copiar Todas"}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Bulk Keywords Import Card */}
+                    <div className="bulk-keywords-import">
+                      <label className="field full">
+                        <span>
+                          Bloco de Palavras-chave (Cole termos separados por vírgula ou por linha)
+                        </span>
+                        <textarea
+                          rows={3}
+                          value={currentBulkKeywords}
+                          onChange={(e) => applyKeywordBlock(e.target.value)}
+                          placeholder="Exemplo:\nargamassa polimerica, cola bloco, impermeabilizante, massa pronta alvenaria, tijolo ecologico, selante..."
+                        />
+                      </label>
+                    </div>
+
+                    {/* Single Keywords List */}
+                    <div className="individual-keywords">
+                      <p className="editor-subtitle">
+                        Palavras-chave individuais ({currentKeywords.filter(Boolean).length} cadastradas)
+                      </p>
+                      <div className="keywords-editor-list">
+                        {currentKeywords.map((kw, index) => {
+                          const isCopied = copiedKey === `kw-${index}`
+                          return (
+                            <div key={index} className="keyword-edit-row">
+                              <span className="row-number">{index + 1}</span>
+                              <div className="keyword-edit-input-wrapper">
+                                <input
+                                  value={kw}
+                                  onChange={(e) =>
+                                    updateKeywordField(index, e.target.value)
+                                  }
+                                  placeholder={`Palavra-chave ${index + 1}`}
+                                />
+                              </div>
+                              {kw.trim() && (
+                                <button
+                                  type="button"
+                                  className={`copy-kw-item-btn ${isCopied ? "copied" : ""}`}
+                                  onClick={() => handleCopyInModal(`kw-${index}`, kw)}
+                                  title="Copiar esta palavra-chave"
+                                >
+                                  {isCopied ? "✓" : "📋"}
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="remove-title-row"
+                                onClick={() => removeKeywordField(index)}
+                                title="Remover palavra-chave"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )
+                        })}
+
+                        <button
+                          type="button"
+                          className="add-title-row-btn"
+                          onClick={addKeywordField}
+                        >
+                          + Adicionar nova palavra-chave
                         </button>
                       </div>
-                    )
-                  })}
-
-                  {currentTitles.length < 10 && (
-                    <button
-                      type="button"
-                      className="add-title-row-btn"
-                      onClick={addTitleField}
-                    >
-                      + Adicionar nova opção de título
-                    </button>
-                  )}
-                </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Description field */}
-              <div className="description-editor" style={{ marginTop: 24 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 6,
-                  }}
-                >
-                  <span
+              {/* Description field (Visible in all or focused tab) */}
+              {(activeTabMode === "columns" || activeTabMode === "description") && (
+                <div className="description-editor" style={{ marginTop: 24 }}>
+                  <div
                     style={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "var(--text-primary)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 6,
                     }}
                   >
-                    Descrição do produto
-                  </span>
-                  {currentDescription && (
-                    <button
-                      type="button"
-                      onClick={() =>
+                    <span
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      Descrição do produto
+                    </span>
+                    {currentDescription && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((curr) => ({
+                            ...curr,
+                            [descField]: cleanForMarketplace(curr[descField] || ""),
+                          }))
+                        }
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                          border: "1px solid var(--border-color, #e2e8f0)",
+                          background: "var(--bg-sunken, #f8fafc)",
+                          color: "#e8451f",
+                          cursor: "pointer",
+                        }}
+                        title="Remove hashtags (#), asteriscos (*) e formata marcadores para o marketplace ativo"
+                      >
+                        ✨ Limpar formatação (# e *)
+                      </button>
+                    )}
+                  </div>
+                  <label className="field full" style={{ marginTop: 0 }}>
+                    <textarea
+                      rows={8}
+                      value={currentDescription}
+                      onChange={(e) =>
                         setForm((curr) => ({
                           ...curr,
-                          [descField]: cleanForMarketplace(curr[descField] || ""),
+                          [descField]: e.target.value,
                         }))
                       }
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        padding: "3px 8px",
-                        borderRadius: 6,
-                        border: "1px solid var(--border-color, #e2e8f0)",
-                        background: "var(--bg-sunken, #f8fafc)",
-                        color: "#e8451f",
-                        cursor: "pointer",
-                      }}
-                      title="Remove hashtags (#), asteriscos (*) e formata marcadores para o marketplace ativo"
-                    >
-                      ✨ Limpar formatação (# e *)
-                    </button>
-                  )}
+                      placeholder="Cole aqui a descrição completa de vendas do produto..."
+                    />
+                  </label>
                 </div>
-                <label className="field full" style={{ marginTop: 0 }}>
-                  <textarea
-                    rows={8}
-                    value={currentDescription}
-                    onChange={(e) =>
-                      setForm((curr) => ({
-                        ...curr,
-                        [descField]: e.target.value,
-                      }))
-                    }
-                    placeholder="Cole aqui a descrição completa de vendas do produto..."
-                  />
-                </label>
-              </div>
+              )}
             </div>
           </div>
 

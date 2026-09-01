@@ -5,7 +5,7 @@
 
 export interface KnowledgeResponse {
   text: string
-  chips?: { label: string actionId?: string url?: string payload?: any }[]
+  chips?: { label: string; actionId?: string; url?: string; payload?: any }[]
   intent?: "buy_intent" | "quote_intent" | "delivery_intent" | "human_intent" | "product_info" | "general_faq" | "unknown"
   autoTransfer?: boolean
   transferType?: "compra" | "orcamento" | "entrega" | "atendente" | "geral"

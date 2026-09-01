@@ -36,12 +36,16 @@ export interface ProductDoc {
   coverUrl: string | null
   coverColor: string
   mlTitles: string[]
+  mlKeywords?: string[]
   mlDescription: string
   shopeeTitles: string[]
+  shopeeKeywords?: string[]
   shopeeDescription: string
   tiktokTitles?: string[]
+  tiktokKeywords?: string[]
   tiktokDescription?: string
   temuTitles?: string[]
+  temuKeywords?: string[]
   temuDescription?: string
   updatedAt: string
   createdAt?: string
@@ -260,12 +264,20 @@ export async function getProductsFromFirebase(): Promise<ProductDoc[]> {
         coverUrl: coverUrl || data.coverUrl || null,
         coverColor: String(data.coverColor || "#3159d9"),
         mlTitles: Array.isArray(data.mlTitles) ? data.mlTitles : [],
+        mlKeywords: Array.isArray(data.mlKeywords) ? data.mlKeywords : [],
         mlDescription: String(data.mlDescription || ""),
         shopeeTitles: Array.isArray(data.shopeeTitles) ? data.shopeeTitles : [],
+        shopeeKeywords: Array.isArray(data.shopeeKeywords)
+          ? data.shopeeKeywords
+          : [],
         shopeeDescription: String(data.shopeeDescription || ""),
         tiktokTitles: Array.isArray(data.tiktokTitles) ? data.tiktokTitles : [],
+        tiktokKeywords: Array.isArray(data.tiktokKeywords)
+          ? data.tiktokKeywords
+          : [],
         tiktokDescription: String(data.tiktokDescription || ""),
         temuTitles: Array.isArray(data.temuTitles) ? data.temuTitles : [],
+        temuKeywords: Array.isArray(data.temuKeywords) ? data.temuKeywords : [],
         temuDescription: String(data.temuDescription || ""),
         updatedAt: data.updatedAt
           ? String(data.updatedAt)
@@ -313,16 +325,24 @@ export async function saveProductInFirebase(
     coverKey: product.coverKey || null,
     coverColor: product.coverColor || "#3159d9",
     mlTitles: (product.mlTitles || []).map((t) => DOMPurify.sanitize(t)),
+    mlKeywords: (product.mlKeywords || []).map((k) => DOMPurify.sanitize(k)),
     mlDescription: DOMPurify.sanitize(product.mlDescription || ""),
     shopeeTitles: (product.shopeeTitles || []).map((t) =>
       DOMPurify.sanitize(t),
+    ),
+    shopeeKeywords: (product.shopeeKeywords || []).map((k) =>
+      DOMPurify.sanitize(k),
     ),
     shopeeDescription: DOMPurify.sanitize(product.shopeeDescription || ""),
     tiktokTitles: (product.tiktokTitles || []).map((t) =>
       DOMPurify.sanitize(t),
     ),
+    tiktokKeywords: (product.tiktokKeywords || []).map((k) =>
+      DOMPurify.sanitize(k),
+    ),
     tiktokDescription: DOMPurify.sanitize(product.tiktokDescription || ""),
     temuTitles: (product.temuTitles || []).map((t) => DOMPurify.sanitize(t)),
+    temuKeywords: (product.temuKeywords || []).map((k) => DOMPurify.sanitize(k)),
     temuDescription: DOMPurify.sanitize(product.temuDescription || ""),
     updatedAt: now,
   }
