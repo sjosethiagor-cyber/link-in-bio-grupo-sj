@@ -57,7 +57,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   isMobileOpen = false,
 }) => {
   const [keywordsOpen, setKeywordsOpen] = React.useState(true)
-  const [detailTab, setDetailTab] = React.useState<"titles" | "keywords" | "description" | "all">("titles")
+  const [detailTab, setDetailTab] = React.useState<"titles" | "keywords" | "description">("titles")
   const [generatedBarcode, setGeneratedBarcode] = React.useState<string | null>(
     null,
   )
@@ -867,7 +867,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </p>
           </div>
 
-          {/* Top Segmented Navigation Menu for Product Content (Titles, Keywords, Description, 2-Columns) */}
+          {/* Top Segmented Navigation Menu for Product Content (Titles, Keywords, Description) */}
           <div className="workspace-section-tabs-nav" role="tablist" aria-label="Navegar por seções do anúncio">
             <button
               type="button"
@@ -912,26 +912,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </svg>
               <span>📋 Descrição</span>
             </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={detailTab === "all"}
-              className={`workspace-section-tab ${detailTab === "all" ? "active" : ""}`}
-              onClick={() => setDetailTab("all")}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <line x1="12" y1="3" x2="12" y2="21" />
-              </svg>
-              <span>⚡ Ver Tudo Lado a Lado</span>
-            </button>
           </div>
 
           {/* Titles & Keywords Container */}
           <div className={`workspace-content-wrapper mode-${detailTab}`}>
             {/* Titles Card */}
-            {(detailTab === "titles" || detailTab === "all") && (
+            {detailTab === "titles" && (
               <article className="copy-card titles-card full-focus-card">
                 <div className="card-heading">
                   <div className="card-heading-title">
@@ -1031,7 +1017,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             )}
 
             {/* Keywords Card */}
-            {(detailTab === "keywords" || detailTab === "all") && (
+            {detailTab === "keywords" && (
               <article className="copy-card keywords-card full-focus-card">
                 <div className="card-heading">
                   <div className="card-heading-title">
@@ -1143,8 +1129,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
 
           {/* Description Card */}
-          {(detailTab === "description" || detailTab === "all") && (
-            <article className="copy-card description-card full-focus-card" style={{ marginTop: 20 }}>
+          {detailTab === "description" && (
+            <article className="copy-card description-card full-focus-card" style={{ marginTop: 0 }}>
               <div className="card-heading">
                 <div className="card-heading-title">
                   <div className="col-icon-circle blue" style={{ width: 32, height: 32 }}>
