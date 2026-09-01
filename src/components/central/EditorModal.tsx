@@ -68,6 +68,8 @@ export const EditorModal: React.FC<EditorModalProps> = ({
   const [applyToAllMarketplaces, setApplyToAllMarketplaces] = useState(true)
   const [activeTabMode, setActiveTabMode] = useState<"columns" | "titles" | "keywords" | "description">("columns")
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [showBulkTitles, setShowBulkTitles] = useState(false)
+  const [showBulkKeywords, setShowBulkKeywords] = useState(false)
 
   if (!editorOpen) return null
 
@@ -286,6 +288,9 @@ export const EditorModal: React.FC<EditorModalProps> = ({
     setTimeout(() => setCopiedKey(null), 1600)
   }
 
+  const filledTitlesCount = currentTitles.filter(Boolean).length
+  const filledKeywordsCount = currentKeywords.filter(Boolean).length
+
   return createPortal(
     <div
       className="modal-backdrop"
@@ -295,7 +300,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
       }}
     >
       <section
-        className="editor-modal"
+        className="editor-modal editor-modal-wide"
         role="dialog"
         aria-modal="true"
         aria-labelledby="editor-title"
@@ -313,140 +318,146 @@ export const EditorModal: React.FC<EditorModalProps> = ({
             disabled={saving}
             aria-label="Fechar"
           >
-            ×
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </header>
 
         <form onSubmit={saveProduct}>
           <div className="editor-scroll">
-            <div className="editor-grid">
-              <label className="field full">
-                <span>Produto que deseja editar</span>
-                <select
-                  value={form.id ?? "new"}
-                  onChange={(e) => changeEditorProduct(e.target.value)}
-                >
-                  <option value="new">+ Novo produto</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} · {p.sku}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            {/* Top Product Information Card */}
+            <div className="editor-top-fields-card">
+              <div className="editor-grid">
+                <label className="field full">
+                  <span>Produto que deseja editar</span>
+                  <select
+                    value={form.id ?? "new"}
+                    onChange={(e) => changeEditorProduct(e.target.value)}
+                  >
+                    <option value="new">+ Novo produto</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} · {p.sku}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              <label className="field">
-                <span>Nome do produto *</span>
-                <input
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Ex.: Tinta Emborrachada Premium"
-                />
-              </label>
+                <label className="field">
+                  <span>Nome do produto *</span>
+                  <input
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="Ex.: Tinta Emborrachada Premium"
+                  />
+                </label>
 
-              <label className="field">
-                <span>SKU *</span>
-                <input
-                  required
-                  value={form.sku}
-                  onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                  placeholder="Ex.: SKU-123"
-                />
-              </label>
+                <label className="field">
+                  <span>SKU *</span>
+                  <input
+                    required
+                    value={form.sku}
+                    onChange={(e) => setForm({ ...form, sku: e.target.value })}
+                    placeholder="Ex.: SKU-123"
+                  />
+                </label>
 
-              <label className="field">
-                <span>Marca do produto</span>
-                <input
-                  list="existing-brand-options"
-                  value={form.brand || ""}
-                  onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                  placeholder="Ex.: Cola Mix, RevCollor, Maximper"
-                />
-                <datalist id="existing-brand-options">
-                  {brands.map((b) => (
-                    <option key={b} value={b} />
-                  ))}
-                </datalist>
-              </label>
+                <label className="field">
+                  <span>Marca do produto</span>
+                  <input
+                    list="existing-brand-options"
+                    value={form.brand || ""}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                    placeholder="Ex.: Cola Mix, RevCollor, Maximper"
+                  />
+                  <datalist id="existing-brand-options">
+                    {brands.map((b) => (
+                      <option key={b} value={b} />
+                    ))}
+                  </datalist>
+                </label>
 
-              <label className="field">
-                <span>Categoria</span>
-                <input
-                  list="existing-category-options"
-                  value={form.category}
-                  onChange={(e) =>
-                    setForm({ ...form, category: e.target.value })
-                  }
-                  placeholder="Ex.: Tintas, Revestimento"
-                />
-                <datalist id="existing-category-options">
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat} />
-                  ))}
-                </datalist>
-              </label>
+                <label className="field">
+                  <span>Categoria</span>
+                  <input
+                    list="existing-category-options"
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm({ ...form, category: e.target.value })
+                    }
+                    placeholder="Ex.: Tintas, Revestimento"
+                  />
+                  <datalist id="existing-category-options">
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat} />
+                    ))}
+                  </datalist>
+                </label>
 
-              <label className="field">
-                <span>Situação</span>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                >
-                  <option value="Publicado">Publicado</option>
-                  <option value="Em revisão">Em revisão</option>
-                </select>
-              </label>
+                <label className="field">
+                  <span>Situação</span>
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  >
+                    <option value="Publicado">Publicado</option>
+                    <option value="Em revisão">Em revisão</option>
+                  </select>
+                </label>
 
-              <label className="field full">
-                <span>Link da pasta de fotos no Google Drive</span>
-                <input
-                  value={form.driveUrl}
-                  onChange={(e) =>
-                    setForm({ ...form, driveUrl: e.target.value })
-                  }
-                  placeholder="https://drive.google.com/drive/folders/..."
-                />
-              </label>
+                <label className="field">
+                  <span>Link da pasta de fotos no Google Drive</span>
+                  <input
+                    value={form.driveUrl}
+                    onChange={(e) =>
+                      setForm({ ...form, driveUrl: e.target.value })
+                    }
+                    placeholder="https://drive.google.com/drive/folders/..."
+                  />
+                </label>
 
-              {/* Cover Image Upload Area */}
-              <label className="field full cover-field">
-                <span>Imagem de capa</span>
-                {coverPreview || form.coverUrl ? (
-                  <div className="cover-preview-box">
-                    <img
-                      src={coverPreview ?? form.coverUrl ?? ""}
-                      alt="Prévia da capa"
-                    />
-                    <div className="cover-preview-overlay">
-                      <span>Alterar foto</span>
+                {/* Cover Image Upload Area */}
+                <label className="field full cover-field">
+                  <span>Imagem de capa</span>
+                  {coverPreview || form.coverUrl ? (
+                    <div className="cover-preview-box">
+                      <img
+                        src={coverPreview ?? form.coverUrl ?? ""}
+                        alt="Prévia da capa"
+                      />
+                      <div className="cover-preview-overlay">
+                        <span>Alterar foto</span>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="cover-empty-dropzone">
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                    <b>Adicionar capa</b>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => chooseCover(e.target.files?.[0] ?? null)}
-                />
-              </label>
+                  ) : (
+                    <div className="cover-empty-dropzone">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                      <b>Adicionar capa</b>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => chooseCover(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              </div>
             </div>
 
             {/* Marketplace Content Editor Section */}
@@ -472,19 +483,17 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 </div>
 
                 <p className="smart-importer-desc">
-                  Cole todo o texto bruto com <strong>títulos</strong>, <strong>palavras-chave (keywords / tags)</strong> e <strong>descrição</strong>. Suporta tags por canal (<code>[MERCADO LIVRE]</code>, <code>[SHOPEE]</code>, <code>[TIKTOK]</code>, <code>[TEMU]</code>) ou texto único geral.
+                  Cole todo o texto bruto com <strong>títulos</strong>, <strong>palavras-chave (keywords / tags)</strong> e <strong>descrição</strong>. O sistema reconhece blocos por loja (<code>[MERCADO LIVRE]</code>, <code>[SHOPEE]</code>, <code>[TIKTOK]</code>, <code>[TEMU]</code>) ou texto geral e distribui automaticamente nos campos abaixo.
                 </p>
 
                 <textarea
-                  rows={5}
+                  rows={4}
                   value={smartRawText}
                   onChange={(e) => {
                     setSmartRawText(e.target.value)
                     if (smartFeedback) setSmartFeedback(null)
                   }}
-                  placeholder={
-                    "Exemplo:\n\n[MERCADO LIVRE]\nTÍTULOS (até 60 carac.):\n1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix\n2. Cola Bloco Massa Pronta 18kg\n\nPALAVRAS-CHAVE:\nargamassa polimerica, cola bloco, impermeabilizante, massa pronta, assentamento tijolo\n\nDESCRIÇÃO:\nA Argamassa Polimérica..."
-                  }
+                  placeholder="Exemplo de texto para colar aqui:&#10;&#10;[MERCADO LIVRE]&#10;TÍTULOS (até 60 carac.):&#10;1. Argamassa Polimérica Impermeabilizante 18kg Cola Mix&#10;2. Cola Bloco Massa Pronta 18kg Assentamento&#10;&#10;PALAVRAS-CHAVE:&#10;argamassa polimerica, cola bloco, impermeabilizante, massa pronta alvenaria&#10;&#10;DESCRIÇÃO:&#10;A Argamassa Polimérica Cola Mix é uma massa pronta..."
                   className="smart-textarea"
                 />
 
@@ -526,7 +535,11 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                     }}
                     title="Colar texto da área de transferência"
                   >
-                    📋 Colar
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    <span>Colar</span>
                   </button>
 
                   {smartRawText && (
@@ -550,10 +563,11 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 )}
               </div>
 
+              {/* Marketplace Selector Header */}
               <div className="section-title marketplace-editor-title">
                 <div>
                   <h3>Conteúdo por Marketplace</h3>
-                  <p>Ajuste títulos, palavras-chave e descrição para cada canal específico.</p>
+                  <p>Ajuste títulos, palavras-chave e descrição para o canal ativo.</p>
                 </div>
                 <div className="mini-tabs" role="tablist" aria-label="Escolher marketplace do anúncio">
                   <button
@@ -605,101 +619,142 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 </div>
               </div>
 
-              {/* Layout Mode Sub-Tabs (2 Colunas vs Abas Focadas) */}
-              <div className="editor-subtabs-nav">
+              {/* Ergonomic Segmented Control for Layout & Focus */}
+              <div className="editor-subtabs-nav" role="tablist" aria-label="Modo de visualização dos campos">
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={activeTabMode === "columns"}
                   className={`editor-subtab ${activeTabMode === "columns" ? "active" : ""}`}
                   onClick={() => setActiveTabMode("columns")}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <line x1="12" y1="3" x2="12" y2="21" />
                   </svg>
-                  <span>2 Colunas (Títulos e Palavras-chave lado a lado)</span>
+                  <span>2 Colunas (Títulos + Palavras-chave)</span>
                 </button>
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={activeTabMode === "titles"}
                   className={`editor-subtab ${activeTabMode === "titles" ? "active" : ""}`}
                   onClick={() => setActiveTabMode("titles")}
                 >
-                  <span>📝 Títulos ({currentTitles.filter(Boolean).length})</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                  <span>Títulos ({filledTitlesCount})</span>
                 </button>
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={activeTabMode === "keywords"}
                   className={`editor-subtab ${activeTabMode === "keywords" ? "active" : ""}`}
                   onClick={() => setActiveTabMode("keywords")}
                 >
-                  <span>🔑 Palavras-chave ({currentKeywords.filter(Boolean).length})</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                  </svg>
+                  <span>Palavras-chave ({filledKeywordsCount})</span>
                 </button>
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={activeTabMode === "description"}
                   className={`editor-subtab ${activeTabMode === "description" ? "active" : ""}`}
                   onClick={() => setActiveTabMode("description")}
                 >
-                  <span>📋 Descrição</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
+                  <span>Descrição</span>
                 </button>
               </div>
 
-              {/* 2-Column or Single Tab Content Grid */}
+              {/* Content Columns Wrapper */}
               <div className={`mkt-content-layout-wrapper mode-${activeTabMode}`}>
                 {/* Column 1: Titles */}
                 {(activeTabMode === "columns" || activeTabMode === "titles") && (
                   <div className="mkt-col mkt-titles-column">
                     <div className="mkt-column-header">
                       <div className="mkt-column-title">
-                        <span className="col-icon">📝</span>
+                        <div className="col-icon-circle blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </div>
                         <div>
-                          <strong>Títulos Otimizados</strong>
-                          <span className="col-hint">Max 10 opções</span>
+                          <strong className="col-main-heading">Títulos Otimizados</strong>
+                          <span className="col-hint">
+                            {form.marketplace === "mercado-livre"
+                              ? "Até 60 carac. (10 opções)"
+                              : form.marketplace === "shopee"
+                                ? "De 20 a 120 carac. (10 opções)"
+                                : form.marketplace === "tiktok"
+                                  ? "Até 255 carac. (10 opções)"
+                                  : "Até 100 carac. (10 opções)"}
+                          </span>
                         </div>
                       </div>
+
+                      <button
+                        type="button"
+                        className={`toggle-bulk-btn ${showBulkTitles ? "active" : ""}`}
+                        onClick={() => setShowBulkTitles(!showBulkTitles)}
+                        title="Alternar caixa de colagem em lote"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                        <span>{showBulkTitles ? "Ocultar Bloco" : "Colar em Lote"}</span>
+                      </button>
                     </div>
 
-                    {/* Bulk Text Import Card */}
-                    <div className="bulk-title-import">
-                      <label className="field full">
-                        <span>
-                          Bloco de Títulos (Cole e processe vários títulos juntos)
-                        </span>
+                    {/* Bulk Text Import Card (Collapsible) */}
+                    {showBulkTitles && (
+                      <div className="bulk-field-box">
+                        <div className="bulk-box-header">
+                          <span>Cole vários títulos juntos (um por linha):</span>
+                        </div>
                         <textarea
                           rows={3}
                           value={currentBulkText}
                           onChange={(e) => applyTitleBlock(e.target.value)}
                           placeholder={
                             form.marketplace === "mercado-livre"
-                              ? "Exemplo:\n1. Título do meu anúncio 1\n2. Segunda opção de título (até 60 carac.)..."
-                              : form.marketplace === "shopee"
-                                ? "Dica: Títulos devem ter entre 20 e 120 caracteres para Shopee."
-                                : form.marketplace === "tiktok"
-                                  ? "Dica: Títulos para TikTok Shop (até 255 caracteres)."
-                                  : "Dica: Títulos para Temu (até 100 caracteres)."
+                              ? "1. Título opção 1 (até 60 caracteres)&#10;2. Título opção 2..."
+                              : "1. Título para Shopee&#10;2. Segundo título..."
                           }
                         />
-                      </label>
-                    </div>
+                      </div>
+                    )}
 
                     {/* Single Titles List */}
                     <div className="individual-titles">
-                      <p className="editor-subtitle">
-                        Opções de títulos individuais (1 a 10)
-                      </p>
                       <div className="titles-editor-list">
                         {currentTitles.map((title, index) => {
                           const validation = getMarketplaceValidation(
                             title,
                             form.marketplace,
                           )
+                          const isCopied = copiedKey === `title-row-${index}`
                           return (
                             <div key={index} className="title-edit-row">
-                              <span className="row-number">{index + 1}</span>
+                              <span className="row-number-pill">#{index + 1}</span>
                               <div className="title-edit-input-wrapper">
                                 <input
                                   value={title}
                                   onChange={(e) =>
                                     updateTitleField(index, e.target.value)
                                   }
-                                  placeholder={`Título opção ${index + 1}`}
+                                  placeholder={`Título opção ${index + 1}...`}
                                 />
                                 {validation && (
                                   <span
@@ -709,11 +764,25 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                                   </span>
                                 )}
                               </div>
+
+                              {title.trim() && (
+                                <button
+                                  type="button"
+                                  className={`copy-item-btn ${isCopied ? "copied" : ""}`}
+                                  onClick={() => handleCopyInModal(`title-row-${index}`, title)}
+                                  title="Copiar este título"
+                                  aria-label={`Copiar título ${index + 1}`}
+                                >
+                                  {isCopied ? "✓" : "📋"}
+                                </button>
+                              )}
+
                               <button
                                 type="button"
                                 className="remove-title-row"
                                 onClick={() => removeTitleField(index)}
                                 title="Remover título"
+                                aria-label={`Remover opção de título ${index + 1}`}
                               >
                                 ×
                               </button>
@@ -724,10 +793,14 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                         {currentTitles.length < 10 && (
                           <button
                             type="button"
-                            className="add-title-row-btn"
+                            className="add-field-row-btn"
                             onClick={addTitleField}
                           >
-                            + Adicionar nova opção de título
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="12" y1="5" x2="12" y2="19" />
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            <span>Adicionar nova opção de título ({currentTitles.length}/10)</span>
                           </button>
                         )}
                       </div>
@@ -740,74 +813,99 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   <div className="mkt-col mkt-keywords-column">
                     <div className="mkt-column-header">
                       <div className="mkt-column-title">
-                        <span className="col-icon">🔑</span>
+                        <div className="col-icon-circle amber">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                            <line x1="7" y1="7" x2="7.01" y2="7" />
+                          </svg>
+                        </div>
                         <div>
-                          <strong>Palavras-chave (SEO / Tags)</strong>
-                          <span className="col-hint">Pelo menos 10 palavras-chave</span>
+                          <strong className="col-main-heading">Palavras-chave (SEO / Tags)</strong>
+                          <span className="col-hint">Termos de busca relevantes</span>
                         </div>
                       </div>
-                      {currentKeywords.some(Boolean) && (
+
+                      <div className="col-header-actions">
                         <button
                           type="button"
-                          className="modal-copy-all-kw-btn"
-                          onClick={handleCopyAllKeywordsInModal}
-                          title="Copiar todas as palavras-chave separadas por vírgula"
+                          className={`toggle-bulk-btn ${showBulkKeywords ? "active" : ""}`}
+                          onClick={() => setShowBulkKeywords(!showBulkKeywords)}
+                          title="Alternar caixa de colagem em lote de palavras-chave"
                         >
-                          {copiedKey === "all-kw" ? "Copiadas! ✓" : "📋 Copiar Todas"}
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                          <span>{showBulkKeywords ? "Ocultar Bloco" : "Colar em Lote"}</span>
                         </button>
-                      )}
+
+                        {currentKeywords.some(Boolean) && (
+                          <button
+                            type="button"
+                            className="modal-copy-all-kw-btn"
+                            onClick={handleCopyAllKeywordsInModal}
+                            title="Copiar todas as palavras-chave separadas por vírgula"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            <span>{copiedKey === "all-kw" ? "Copiadas! ✓" : "Copiar Todas"}</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Bulk Keywords Import Card */}
-                    <div className="bulk-keywords-import">
-                      <label className="field full">
-                        <span>
-                          Bloco de Palavras-chave (Cole termos separados por vírgula ou por linha)
-                        </span>
+                    {/* Bulk Keywords Import Card (Collapsible) */}
+                    {showBulkKeywords && (
+                      <div className="bulk-field-box">
+                        <div className="bulk-box-header">
+                          <span>Cole termos separados por vírgula ou quebras de linha:</span>
+                        </div>
                         <textarea
                           rows={3}
                           value={currentBulkKeywords}
                           onChange={(e) => applyKeywordBlock(e.target.value)}
-                          placeholder="Exemplo:\nargamassa polimerica, cola bloco, impermeabilizante, massa pronta alvenaria, tijolo ecologico, selante..."
+                          placeholder="Exemplo: argamassa polimerica, cola bloco, impermeabilizante, massa pronta alvenaria, tijolo ecologico, vedacao..."
                         />
-                      </label>
-                    </div>
+                      </div>
+                    )}
 
                     {/* Single Keywords List */}
                     <div className="individual-keywords">
-                      <p className="editor-subtitle">
-                        Palavras-chave individuais ({currentKeywords.filter(Boolean).length} cadastradas)
-                      </p>
                       <div className="keywords-editor-list">
                         {currentKeywords.map((kw, index) => {
-                          const isCopied = copiedKey === `kw-${index}`
+                          const isCopied = copiedKey === `kw-row-${index}`
                           return (
                             <div key={index} className="keyword-edit-row">
-                              <span className="row-number">{index + 1}</span>
+                              <span className="row-number-pill">#{index + 1}</span>
                               <div className="keyword-edit-input-wrapper">
                                 <input
                                   value={kw}
                                   onChange={(e) =>
                                     updateKeywordField(index, e.target.value)
                                   }
-                                  placeholder={`Palavra-chave ${index + 1}`}
+                                  placeholder={`Palavra-chave ${index + 1}...`}
                                 />
                               </div>
+
                               {kw.trim() && (
                                 <button
                                   type="button"
-                                  className={`copy-kw-item-btn ${isCopied ? "copied" : ""}`}
-                                  onClick={() => handleCopyInModal(`kw-${index}`, kw)}
+                                  className={`copy-item-btn ${isCopied ? "copied" : ""}`}
+                                  onClick={() => handleCopyInModal(`kw-row-${index}`, kw)}
                                   title="Copiar esta palavra-chave"
+                                  aria-label={`Copiar palavra-chave ${index + 1}`}
                                 >
                                   {isCopied ? "✓" : "📋"}
                                 </button>
                               )}
+
                               <button
                                 type="button"
                                 className="remove-title-row"
                                 onClick={() => removeKeywordField(index)}
                                 title="Remover palavra-chave"
+                                aria-label={`Remover palavra-chave ${index + 1}`}
                               >
                                 ×
                               </button>
@@ -817,10 +915,14 @@ export const EditorModal: React.FC<EditorModalProps> = ({
 
                         <button
                           type="button"
-                          className="add-title-row-btn"
+                          className="add-field-row-btn"
                           onClick={addKeywordField}
                         >
-                          + Adicionar nova palavra-chave
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                          </svg>
+                          <span>Adicionar nova palavra-chave</span>
                         </button>
                       </div>
                     </div>
@@ -828,7 +930,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                 )}
               </div>
 
-              {/* Description field (Visible in all or focused tab) */}
+              {/* Description field */}
               {(activeTabMode === "columns" || activeTabMode === "description") && (
                 <div className="description-editor" style={{ marginTop: 24 }}>
                   <div
@@ -836,14 +938,14 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      marginBottom: 6,
+                      marginBottom: 8,
                     }}
                   >
                     <span
                       style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: "var(--text-primary)",
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: "#0f172a",
                       }}
                     >
                       Descrição do produto
@@ -857,16 +959,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                             [descField]: cleanForMarketplace(curr[descField] || ""),
                           }))
                         }
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: "3px 8px",
-                          borderRadius: 6,
-                          border: "1px solid var(--border-color, #e2e8f0)",
-                          background: "var(--bg-sunken, #f8fafc)",
-                          color: "#e8451f",
-                          cursor: "pointer",
-                        }}
+                        className="clean-desc-btn"
                         title="Remove hashtags (#), asteriscos (*) e formata marcadores para o marketplace ativo"
                       >
                         ✨ Limpar formatação (# e *)
@@ -875,7 +968,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                   </div>
                   <label className="field full" style={{ marginTop: 0 }}>
                     <textarea
-                      rows={8}
+                      rows={7}
                       value={currentDescription}
                       onChange={(e) =>
                         setForm((curr) => ({
@@ -884,6 +977,7 @@ export const EditorModal: React.FC<EditorModalProps> = ({
                         }))
                       }
                       placeholder="Cole aqui a descrição completa de vendas do produto..."
+                      style={{ fontSize: 13.5, lineHeight: 1.6 }}
                     />
                   </label>
                 </div>

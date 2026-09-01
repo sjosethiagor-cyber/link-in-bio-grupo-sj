@@ -57,6 +57,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   isMobileOpen = false,
 }) => {
   const [keywordsOpen, setKeywordsOpen] = React.useState(true)
+  const [detailTab, setDetailTab] = React.useState<"titles" | "keywords" | "description" | "all">("titles")
   const [generatedBarcode, setGeneratedBarcode] = React.useState<string | null>(
     null,
   )
@@ -866,302 +867,340 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </p>
           </div>
 
-          {/* 2-Column Grid for Titles and Keywords in Workspace */}
-          <div className="workspace-cards-grid-2col">
-            {/* Collapsible Titles Card */}
-            <article
-              className={`copy-card titles-card ${!titlesOpen ? "collapsed" : ""}`}
+          {/* Top Segmented Navigation Menu for Product Content (Titles, Keywords, Description, 2-Columns) */}
+          <div className="workspace-section-tabs-nav" role="tablist" aria-label="Navegar por seções do anúncio">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={detailTab === "titles"}
+              className={`workspace-section-tab ${detailTab === "titles" ? "active" : ""}`}
+              onClick={() => setDetailTab("titles")}
             >
-              <div
-                className="card-heading"
-                onClick={() => setTitlesOpen(!titlesOpen)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="card-heading-title">
-                  <button
-                    type="button"
-                    className="collapse-toggle-btn"
-                    aria-label={
-                      titlesOpen
-                        ? "Ocultar opções de título"
-                        : "Mostrar opções de título"
-                    }
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  <h3>📝 Títulos Otimizados</h3>
-                  {titles.length > 0 && (
-                    <span className="count-badge">{titles.length}</span>
-                  )}
-                </div>
-              </div>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              <span>📝 Títulos ({titles.length})</span>
+            </button>
 
-              <div className="card-content">
-                {titles.length === 0 ? (
-                  <p className="empty-text">
-                    Nenhum título cadastrado para este canal.
-                  </p>
-                ) : (
-                  <div className="title-options-list">
-                    {titles.map((title, index) => {
-                      const validation = getMarketplaceValidation(
-                        title,
-                        marketplace,
-                      )
-                      const isSelected = selectedTitle === index
-                      return (
-                        <div
-                          key={index}
-                          className={`title-option-row ${
-                            isSelected ? "selected" : ""
-                          }`}
-                          onClick={() => setSelectedTitle(index)}
-                        >
-                          <div className="title-option-left">
-                            <span className="title-number">{index + 1}</span>
-                            <p className="title-text">{title}</p>
-                          </div>
-
-                          <div className="title-option-actions">
-                            {validation && (
-                              <span
-                                className={`validation-badge ${validation.status}`}
-                              >
-                                {validation.label}
-                              </span>
-                            )}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                copyText(`title-${index}`, title)
-                              }}
-                              className={`copy-btn ${
-                                copied === `title-${index}` ? "copied" : ""
-                              }`}
-                            >
-                              {copied === `title-${index}`
-                                ? "Copiado ✓"
-                                : "Copiar"}
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            </article>
-
-            {/* Collapsible Keywords Card */}
-            <article
-              className={`copy-card keywords-card ${!keywordsOpen ? "collapsed" : ""}`}
+            <button
+              type="button"
+              role="tab"
+              aria-selected={detailTab === "keywords"}
+              className={`workspace-section-tab ${detailTab === "keywords" ? "active" : ""}`}
+              onClick={() => setDetailTab("keywords")}
             >
-              <div
-                className="card-heading"
-                onClick={() => setKeywordsOpen(!keywordsOpen)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="card-heading-title">
-                  <button
-                    type="button"
-                    className="collapse-toggle-btn"
-                    aria-label={
-                      keywordsOpen
-                        ? "Ocultar palavras-chave"
-                        : "Mostrar palavras-chave"
-                    }
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  <h3>🔑 Palavras-chave (SEO)</h3>
-                  {keywords.length > 0 && (
-                    <span className="count-badge">{keywords.length}</span>
-                  )}
-                </div>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+              <span>🔑 Palavras-chave ({keywords.length})</span>
+            </button>
 
-                {keywords.length > 0 && (
-                  <div
-                    className="card-heading-actions"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      type="button"
-                      className={`copy-all ${copied === "all-kw-comma" ? "copied" : ""}`}
-                      onClick={() => copyText("all-kw-comma", keywords.join(", "))}
-                      title="Copiar todas as palavras-chave separadas por vírgula"
-                    >
-                      <svg
-                        width="13"
-                        height="13"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
-                      <span>
-                        {copied === "all-kw-comma" ? "Copiado ✓" : "Copiar Todas"}
-                      </span>
-                    </button>
-                  </div>
-                )}
-              </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={detailTab === "description"}
+              className={`workspace-section-tab ${detailTab === "description" ? "active" : ""}`}
+              onClick={() => setDetailTab("description")}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+              <span>📋 Descrição</span>
+            </button>
 
-              <div className="card-content">
-                {keywords.length === 0 ? (
-                  <p className="empty-text">
-                    Nenhuma palavra-chave cadastrada para este canal. Clique em Editar para cadastrar termos de busca.
-                  </p>
-                ) : (
-                  <>
-                    {/* Interactive Keywords Pills Cloud */}
-                    <div className="keyword-pills-cloud">
-                      {keywords.map((kw, index) => {
-                        const isCopied = copied === `kw-pill-${index}`
-                        return (
-                          <button
-                            key={index}
-                            type="button"
-                            className={`keyword-pill ${isCopied ? "copied" : ""}`}
-                            onClick={() => copyText(`kw-pill-${index}`, kw)}
-                            title={`Clique para copiar "${kw}"`}
-                          >
-                            <span className="kw-pill-num">#{index + 1}</span>
-                            <span className="kw-pill-text">{kw}</span>
-                            <span className="kw-pill-copy-icon">
-                              {isCopied ? "✓" : "📋"}
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    {/* Detailed Numbered List of Keywords */}
-                    <div className="keyword-options-list" style={{ marginTop: 14 }}>
-                      {keywords.map((kw, index) => {
-                        const isCopied = copied === `kw-${index}`
-                        return (
-                          <div key={index} className="keyword-option-row">
-                            <div className="keyword-option-left">
-                              <span className="keyword-number">{index + 1}</span>
-                              <p className="keyword-text">{kw}</p>
-                            </div>
-                            <button
-                              onClick={() => copyText(`kw-${index}`, kw)}
-                              className={`copy-btn ${isCopied ? "copied" : ""}`}
-                            >
-                              {isCopied ? "Copiado ✓" : "Copiar"}
-                            </button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
-            </article>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={detailTab === "all"}
+              className={`workspace-section-tab ${detailTab === "all" ? "active" : ""}`}
+              onClick={() => setDetailTab("all")}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="12" y1="3" x2="12" y2="21" />
+              </svg>
+              <span>⚡ Ver Tudo Lado a Lado</span>
+            </button>
           </div>
 
-          {/* Collapsible Description Card */}
-          <article
-            className={`copy-card description-card ${
-              !descriptionOpen ? "collapsed" : ""
-            }`}
-          >
-            <div
-              className="card-heading"
-              onClick={() => setDescriptionOpen(!descriptionOpen)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="card-heading-title">
-                <button
-                  type="button"
-                  className="collapse-toggle-btn"
-                  aria-label={
-                    descriptionOpen ? "Ocultar descrição" : "Mostrar descrição"
-                  }
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                <h3>📋 Descrição do Anúncio</h3>
-              </div>
-              {description && (
-                <button
-                  type="button"
-                  className={`copy-all ${copied === "desc" ? "copied" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    copyText("desc", description)
-                  }}
-                  title="Copiar texto da descrição para a área de transferência"
-                >
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                  <span>{copied === "desc" ? "Copiado ✓" : "Copiar"}</span>
-                </button>
-              )}
-            </div>
+          {/* Titles & Keywords Container */}
+          <div className={`workspace-content-wrapper mode-${detailTab}`}>
+            {/* Titles Card */}
+            {(detailTab === "titles" || detailTab === "all") && (
+              <article className="copy-card titles-card full-focus-card">
+                <div className="card-heading">
+                  <div className="card-heading-title">
+                    <div className="col-icon-circle blue" style={{ width: 32, height: 32 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3>Títulos Otimizados</h3>
+                      <span className="col-hint" style={{ marginTop: 2 }}>
+                        {marketplace === "mercado-livre"
+                          ? "Até 60 caracteres por título"
+                          : marketplace === "shopee"
+                            ? "De 20 a 120 caracteres por título"
+                            : marketplace === "tiktok"
+                              ? "Até 255 caracteres por título"
+                              : "Até 100 caracteres por título"}
+                      </span>
+                    </div>
+                    {titles.length > 0 && (
+                      <span className="count-badge">{titles.length}</span>
+                    )}
+                  </div>
 
-            <div className="card-content">
-              {!description ? (
-                <p className="empty-text">
-                  Nenhuma descrição cadastrada para este canal.
-                </p>
-              ) : (
-                <pre className="description-pre">
-                  {cleanForMarketplace(description)}
-                </pre>
-              )}
-            </div>
-          </article>
+                  {titles[selectedTitle] && (
+                    <div className="card-heading-actions">
+                      <button
+                        type="button"
+                        className={`copy-all ${copied === `title-${selectedTitle}` ? "copied" : ""}`}
+                        onClick={() => copyText(`title-${selectedTitle}`, titles[selectedTitle])}
+                        title="Copiar título selecionado"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        <span>{copied === `title-${selectedTitle}` ? "Copiado ✓" : `Copiar Título #${selectedTitle + 1}`}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="card-content">
+                  {titles.length === 0 ? (
+                    <p className="empty-text">
+                      Nenhum título cadastrado para este canal. Clique em Editar para cadastrar opções.
+                    </p>
+                  ) : (
+                    <div className="title-options-list">
+                      {titles.map((title, index) => {
+                        const validation = getMarketplaceValidation(
+                          title,
+                          marketplace,
+                        )
+                        const isSelected = selectedTitle === index
+                        const isCopied = copied === `title-${index}`
+                        return (
+                          <div
+                            key={index}
+                            className={`title-option-row ${
+                              isSelected ? "selected" : ""
+                            }`}
+                            onClick={() => setSelectedTitle(index)}
+                          >
+                            <div className="title-option-left">
+                              <span className="title-number">#{index + 1}</span>
+                              <p className="title-text">{title}</p>
+                            </div>
+
+                            <div className="title-option-actions">
+                              {validation && (
+                                <span
+                                  className={`validation-badge ${validation.status}`}
+                                >
+                                  {validation.label}
+                                </span>
+                              )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  copyText(`title-${index}`, title)
+                                }}
+                                className={`copy-btn ${isCopied ? "copied" : ""}`}
+                              >
+                                {isCopied ? "Copiado ✓" : "Copiar"}
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              </article>
+            )}
+
+            {/* Keywords Card */}
+            {(detailTab === "keywords" || detailTab === "all") && (
+              <article className="copy-card keywords-card full-focus-card">
+                <div className="card-heading">
+                  <div className="card-heading-title">
+                    <div className="col-icon-circle amber" style={{ width: 32, height: 32 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                        <line x1="7" y1="7" x2="7.01" y2="7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3>Palavras-chave (SEO / Tags)</h3>
+                      <span className="col-hint" style={{ marginTop: 2 }}>
+                        Termos de busca de alta conversão
+                      </span>
+                    </div>
+                    {keywords.length > 0 && (
+                      <span className="count-badge">{keywords.length}</span>
+                    )}
+                  </div>
+
+                  {keywords.length > 0 && (
+                    <div className="card-heading-actions">
+                      <button
+                        type="button"
+                        className={`copy-all ${copied === "all-kw-comma" ? "copied" : ""}`}
+                        onClick={() => copyText("all-kw-comma", keywords.join(", "))}
+                        title="Copiar todas as palavras-chave separadas por vírgula"
+                      >
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        <span>
+                          {copied === "all-kw-comma" ? "Copiadas! ✓" : "Copiar Todas (com vírgula)"}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="card-content">
+                  {keywords.length === 0 ? (
+                    <p className="empty-text">
+                      Nenhuma palavra-chave cadastrada para este canal. Clique em Editar para cadastrar termos de busca.
+                    </p>
+                  ) : (
+                    <>
+                      {/* Interactive Keywords Pills Cloud */}
+                      <div className="keyword-pills-cloud-wrapper">
+                        <div className="keyword-cloud-header">
+                          <span className="cloud-tip">💡 Clique em qualquer tag abaixo para copiar individualmente:</span>
+                        </div>
+                        <div className="keyword-pills-cloud">
+                          {keywords.map((kw, index) => {
+                            const isCopied = copied === `kw-pill-${index}`
+                            return (
+                              <button
+                                key={index}
+                                type="button"
+                                className={`keyword-pill ${isCopied ? "copied" : ""}`}
+                                onClick={() => copyText(`kw-pill-${index}`, kw)}
+                                title={`Clique para copiar "${kw}"`}
+                              >
+                                <span className="kw-pill-num">#{index + 1}</span>
+                                <span className="kw-pill-text">{kw}</span>
+                                <span className="kw-pill-copy-icon">
+                                  {isCopied ? "✓" : "📋"}
+                                </span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Detailed Numbered List of Keywords */}
+                      <div className="keyword-options-list" style={{ marginTop: 16 }}>
+                        {keywords.map((kw, index) => {
+                          const isCopied = copied === `kw-${index}`
+                          return (
+                            <div key={index} className="keyword-option-row">
+                              <div className="keyword-option-left">
+                                <span className="keyword-number">#{index + 1}</span>
+                                <p className="keyword-text">{kw}</p>
+                              </div>
+                              <button
+                                onClick={() => copyText(`kw-${index}`, kw)}
+                                className={`copy-btn ${isCopied ? "copied" : ""}`}
+                              >
+                                {isCopied ? "Copiado ✓" : "Copiar"}
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </article>
+            )}
+          </div>
+
+          {/* Description Card */}
+          {(detailTab === "description" || detailTab === "all") && (
+            <article className="copy-card description-card full-focus-card" style={{ marginTop: 20 }}>
+              <div className="card-heading">
+                <div className="card-heading-title">
+                  <div className="col-icon-circle blue" style={{ width: 32, height: 32 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>Descrição do Anúncio</h3>
+                    <span className="col-hint" style={{ marginTop: 2 }}>
+                      Texto completo formatado para conversão
+                    </span>
+                  </div>
+                </div>
+
+                {description && (
+                  <button
+                    type="button"
+                    className={`copy-all ${copied === "desc" ? "copied" : ""}`}
+                    onClick={() => copyText("desc", description)}
+                    title="Copiar texto da descrição para a área de transferência"
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    <span>{copied === "desc" ? "Copiado ✓" : "Copiar Descrição Completa"}</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="card-content">
+                {!description ? (
+                  <p className="empty-text">
+                    Nenhuma descrição cadastrada para este canal.
+                  </p>
+                ) : (
+                  <pre className="description-pre">
+                    {cleanForMarketplace(description)}
+                  </pre>
+                )}
+              </div>
+            </article>
+          )}
         </>
       )}
     </section>
