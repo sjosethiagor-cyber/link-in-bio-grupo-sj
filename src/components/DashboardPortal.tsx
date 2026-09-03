@@ -78,6 +78,10 @@ const PromptsManager = lazyWithRetry(
     })),
   "PromptsManager",
 )
+const Calculator3D = lazyWithRetry(
+  () => import("./calculator3d/Calculator3D"),
+  "Calculator3D",
+)
 import { DashboardRole, DashboardUserRecord } from "../types/dashboardUser"
 
 // Import icons
@@ -93,21 +97,26 @@ import {
   IcoBell,
   IcoInfo,
   IcoSparkles,
+  IcoPrinter3D,
 } from "./Icons"
 
 const AUTHORIZED_EMAIL = "sjosethiago.r@gmail.com"
 
 interface DashboardPortalProps {
   navigateBack: () => void
+  initialTab?: "metrics" | "leads" | "cms" | "ads" | "prompts" | "calc3d" | "users"
 }
 
 // ── Main Dashboard Portal Component ───────────────────────────────────────────
 
 export default function DashboardPortal({
   navigateBack,
+  initialTab = "metrics",
 }: DashboardPortalProps) {
   const [activeTab, setActiveTab] =
-    useState<"metrics" | "leads" | "cms" | "ads" | "prompts" | "users">("metrics")
+    useState<"metrics" | "leads" | "cms" | "ads" | "prompts" | "calc3d" | "users">(
+      initialTab,
+    )
   const [clicks, setClicks] = useState<ClickEvent[]>([])
   const [leads, setLeads] = useState<Lead[]>([])
   const [mlLinks, setMlLinks] = useState<StoreLink[]>([])
@@ -620,6 +629,18 @@ export default function DashboardPortal({
           >
             <IcoSparkles />
           </button>
+          <button
+            onClick={() => {
+              setActiveTab("calc3d")
+              setIsSidebarOpen(false)
+            }}
+            className={`sidebar-icon-btn ${
+              activeTab === "calc3d" ? "active" : ""
+            }`}
+            title="Calculadora de Impressão 3D"
+          >
+            <IcoPrinter3D />
+          </button>
           {user?.email?.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase() && (
             <button
               onClick={() => {
@@ -898,7 +919,10 @@ export default function DashboardPortal({
         {/* ── Main View Viewport ── */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <div className="fade-up">
-            {loading && activeTab !== "ads" && activeTab !== "prompts" ? (
+            {loading &&
+            activeTab !== "ads" &&
+            activeTab !== "prompts" &&
+            activeTab !== "calc3d" ? (
               <div className="flex justify-center items-center py-24 text-slate-400 font-bold">
                 Carregando dados do Firebase...
               </div>
@@ -961,7 +985,10 @@ export default function DashboardPortal({
                   <PromptsManager isReadOnly={isReadOnly} />
                 )}
 
-                {/* ── VIEW 6: DASHBOARD USERS / ACCESS CONTROL ── */}
+                {/* ── VIEW 6: CALCULADORA DE IMPRESSÃO 3D (GRUPO SJ) ── */}
+                {activeTab === "calc3d" && <Calculator3D />}
+
+                {/* ── VIEW 7: DASHBOARD USERS / ACCESS CONTROL ── */}
                 {activeTab === "users" &&
                   user?.email?.toLowerCase() ===
                     AUTHORIZED_EMAIL.toLowerCase() && (

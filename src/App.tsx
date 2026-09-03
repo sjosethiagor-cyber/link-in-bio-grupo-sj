@@ -255,7 +255,12 @@ export default function App() {
     return () => window.clearTimeout(syncTimeout)
   }, [])
 
-  if (currentPath === "/dashboard" || currentPath === "/admin") {
+  const isCalc3DRoute =
+    currentPath === "/calculadora-3d" ||
+    currentPath === "/calc3d" ||
+    currentPath === "/calculadora"
+
+  if (currentPath === "/dashboard" || currentPath === "/admin" || isCalc3DRoute) {
     return (
       <ErrorBoundary>
         <Suspense
@@ -271,11 +276,16 @@ export default function App() {
                 fontFamily: "Montserrat, sans-serif",
               }}
             >
-              Carregando Painel Administrativo...
+              {isCalc3DRoute
+                ? "Carregando Calculadora de Impressão 3D..."
+                : "Carregando Painel Administrativo..."}
             </div>
           }
         >
-          <DashboardPortal navigateBack={() => navigateTo("/")} />
+          <DashboardPortal
+            navigateBack={() => navigateTo("/")}
+            initialTab={isCalc3DRoute ? "calc3d" : "metrics"}
+          />
         </Suspense>
       </ErrorBoundary>
     )
@@ -604,34 +614,44 @@ export default function App() {
               {"Movimento que impulsiona crescimento"}
             </p>
 
-            <button
-              type="button"
-              onClick={() => {
-                navigateTo("/dashboard")
-              }}
+            <div
               style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+                justifyContent: "center",
                 marginTop: 10,
-                padding: "6px 14px",
-                borderRadius: 99,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid var(--border)",
-                color: "var(--muted-foreground)",
-                fontSize: 11,
-                fontWeight: 700,
-                cursor: "pointer",
-                transition: "background 0.2s ease, color 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.1)"
-                e.currentTarget.style.color = "var(--foreground)"
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)"
-                e.currentTarget.style.color = "var(--muted-foreground)"
               }}
             >
-              🔒 Painel Admin & Métricas
-            </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  navigateTo("/dashboard")
+                }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 99,
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid var(--border)",
+                  color: "var(--muted-foreground)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "background 0.2s ease, color 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.color = "var(--foreground)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+                  e.currentTarget.style.color = "var(--muted-foreground)"
+                }}
+              >
+                🔒 Painel Admin & Métricas
+              </button>
+            </div>
           </footer>
         </main>
       </div>

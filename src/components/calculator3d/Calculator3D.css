@@ -1,0 +1,419 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   CALCULADORA SIMPLES DE IMPRESSÃO 3D - GRUPO SJ
+   Inspirada no modelo de referência com o visual oficial do Grupo SJ
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.sj-calc-wrapper {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 16px 16px 60px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Top Header ─── */
+
+.sj-calc-header {
+  text-align: center;
+  position: relative;
+  padding: 20px 0 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sj-calc-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 48px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(232, 69, 31, 0.28) 0px,
+    rgba(232, 69, 31, 0.28) 1.5px,
+    transparent 1.5px,
+    transparent 6px
+  );
+  opacity: 0.7;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+}
+
+.sj-calc-brand-title {
+  margin: 12px 0 0 0;
+  font-size: 32px;
+  font-weight: 900;
+  color: #e8451f;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 10px rgba(232, 69, 31, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sj-calc-brand-subtitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid rgba(232, 69, 31, 0.35);
+  padding-bottom: 6px;
+  display: inline-block;
+}
+
+/* ─── White/Themed Card ─── */
+
+.sj-calc-card {
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.sj-calc-card:hover {
+  border-color: rgba(232, 69, 31, 0.4);
+}
+
+.sj-calc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sj-calc-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-title);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sj-calc-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: lowercase;
+  background-color: rgba(232, 69, 31, 0.12);
+  color: #e8451f;
+  letter-spacing: 0.02em;
+}
+
+.sj-calc-desc {
+  margin: -6px 0 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ─── Form Fields ─── */
+
+.sj-calc-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 560px) {
+  .sj-calc-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sj-calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sj-calc-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-title);
+  margin-bottom: 2px;
+}
+
+.sj-calc-sublabel {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-top: -2px;
+  margin-bottom: 4px;
+}
+
+.sj-calc-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.sj-calc-input-prefix,
+.sj-calc-input-suffix {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-faint);
+  pointer-events: none;
+  user-select: none;
+}
+
+.sj-calc-input-prefix {
+  left: 14px;
+}
+
+.sj-calc-input-suffix {
+  right: 14px;
+}
+
+.sj-calc-input,
+.sj-calc-select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.18s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.sj-calc-input.has-prefix {
+  padding-left: 38px;
+}
+
+.sj-calc-input.has-suffix {
+  padding-right: 36px;
+}
+
+.sj-calc-input:focus,
+.sj-calc-select:focus {
+  border-color: #e8451f;
+  background-color: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(232, 69, 31, 0.15);
+}
+
+.sj-calc-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8451f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 38px;
+}
+
+.sj-calc-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sj-calc-footnote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: var(--bg-input);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  margin-top: 4px;
+}
+
+/* ─── Red/Orange SJ Result Card ─── */
+
+.sj-calc-result-card {
+  background: linear-gradient(135deg, #c83214 0%, #e8451f 55%, #d13617 100%);
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 24px 26px;
+  box-shadow: 0 16px 36px rgba(232, 69, 31, 0.32);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sj-calc-result-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.sj-calc-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sj-calc-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sj-calc-result-row strong {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.sj-calc-divider {
+  height: 1px;
+  border: none;
+  border-top: 1.5px dashed rgba(255, 255, 255, 0.35);
+  margin: 4px 0;
+}
+
+/* Big Center Highlight Box */
+
+.sj-calc-price-box {
+  background: rgba(0, 0, 0, 0.16);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 16px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sj-calc-price-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sj-calc-price-value {
+  font-size: 38px;
+  font-weight: 900;
+  color: #ffe600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Two Bottom KPI Pills */
+
+.sj-calc-kpi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sj-calc-kpi-card {
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 10px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sj-calc-kpi-val {
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.sj-calc-kpi-sub {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Action Buttons */
+
+.sj-calc-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.sj-calc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  transition: all 0.18s ease;
+}
+
+.sj-calc-btn:hover {
+  background-color: var(--hover-bg);
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
+}
+
+.sj-calc-btn-copy {
+  background: rgba(232, 69, 31, 0.1);
+  border-color: rgba(232, 69, 31, 0.3);
+  color: #e8451f;
+}
+
+.sj-calc-btn-copy:hover {
+  background-color: #e8451f;
+  color: #ffffff;
+  border-color: #e8451f;
+}
+
+/* Footer Credit */
+
+.sj-calc-footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
