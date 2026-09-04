@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@types/dompurify": "^3.0.5",
+    "clsx": "^2.1.1",
     "dompurify": "^3.4.14",
     "firebase": "^11.3.0",
+    "framer-motion": "^13.2.0",
+    "lucide-react": "^1.41.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

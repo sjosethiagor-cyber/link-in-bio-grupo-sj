@@ -34,6 +34,7 @@ import { ContactRow } from "./components/ContactRow"
 import { StoreCardTrigger } from "./components/StoreCardTrigger"
 import { PWAInstallBanner } from "./components/PWAInstallBanner"
 import { StoreDrawerModal, StoreModalData } from "./components/StoreDrawerModal"
+import { GradientBackground } from "./components/ui/gradient-background"
 import {
   IcoML,
   IcoShopee,
@@ -182,7 +183,16 @@ function SJMark({ size = 96 }: { size?: number }) {
 // ─── Ambient background ───────────────────────────────────────────────────────
 
 function Background() {
-  return <div aria-hidden className="ambient-background" />
+  return (
+    <div aria-hidden className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      <GradientBackground
+        className="w-full h-full min-h-screen"
+        overlay
+        overlayOpacity={0.65}
+      />
+      <div className="ambient-background" />
+    </div>
+  )
 }
 
 // ─── Store Trigger Card & Drawer Modal ───────────────────────────────────────
