@@ -1,27 +1,7 @@
 import React, { useState } from "react"
 import { Lead, updateLeadTags } from "../../services/storeService"
 import { IcoWhatsApp } from "../Icons"
-import {
-  Search,
-  Download,
-  Phone,
-  Mail,
-  Tag as TagIcon,
-  MessageSquare,
-  Check,
-  Copy,
-  Plus,
-  ChevronDown,
-  Bot,
-  Filter,
-  X,
-  Clock,
-  Sparkles,
-  Users,
-  CheckCircle2,
-  AlertCircle,
-  Clock3,
-} from "lucide-react"
+import { Search, Download, Phone, Mail, Check, Copy, Plus, ChevronDown, Bot, X, Clock, Sparkles, Users, CheckCircle2, Clock3 } from "lucide-react"
 
 interface LeadsManagerProps {
   leads: Lead[]
