@@ -20,6 +20,7 @@ export interface SimpleCalc3DResult {
   filamentCost: number
   energyCost: number
   fixedCost: number
+  packagingCost: number
   laborCost: number
   totalKWh: number
   totalHours: number

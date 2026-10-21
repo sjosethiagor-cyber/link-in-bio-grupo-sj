@@ -1,5 +1,10 @@
 import React, { useMemo, useState } from "react"
-import { ClickEvent, Lead, StoreLink } from "../../services/storeService"
+import {
+  ClickEvent,
+  Lead,
+  StoreLink,
+  detectLeadUnit,
+} from "../../services/storeService"
 
 interface OverviewMetricsProps {
   clicks: ClickEvent[]
@@ -65,6 +70,8 @@ export function OverviewMetrics({
   const {
     totalClicks,
     totalLeads,
+    leadsLojaSJ,
+    leadsSJDistribuidora,
     mlClicks,
     shopeeClicks,
     tiktokClicks,
@@ -81,6 +88,13 @@ export function OverviewMetrics({
   } = useMemo(() => {
     const tClicks = filteredClicks.length
     const tLeads = filteredLeads.length
+    const lLojaSJ = filteredLeads.filter(
+      (l) => detectLeadUnit(l) === "Loja SJ",
+    ).length
+    const lSJDistribuidora = filteredLeads.filter(
+      (l) => detectLeadUnit(l) === "SJ Distribuidora",
+    ).length
+
     const ml = filteredClicks.filter(
       (c) => c.category === "Mercado Livre",
     ).length
@@ -114,6 +128,8 @@ export function OverviewMetrics({
     return {
       totalClicks: tClicks,
       totalLeads: tLeads,
+      leadsLojaSJ: lLojaSJ,
+      leadsSJDistribuidora: lSJDistribuidora,
       mlClicks: ml,
       shopeeClicks: shopee,
       tiktokClicks: tiktok,
@@ -224,15 +240,22 @@ export function OverviewMetrics({
 
         {/* CARD 2: Leads Coletados */}
         <div className="stat-card">
-          <div>
+          <div className="flex-1 min-w-0">
             <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
               Leads Coletados
             </span>
-            <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">
-              {totalLeads}
-            </h3>
+            <div className="flex items-baseline gap-2 mt-1">
+              <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100">
+                {totalLeads}
+              </h3>
+            </div>
+            <div className="flex items-center gap-1.5 mt-1.5 text-[10px] font-bold truncate">
+              <span className="text-amber-600 dark:text-amber-400">🖨️ {leadsLojaSJ} 3D</span>
+              <span className="text-slate-300 dark:text-slate-700">·</span>
+              <span className="text-cyan-600 dark:text-cyan-400">🎨 {leadsSJDistribuidora} Obras</span>
+            </div>
           </div>
-          <div className="stat-icon-wrapper bg-blue-50 dark:bg-blue-950/20 text-blue-500">
+          <div className="stat-icon-wrapper bg-blue-50 dark:bg-blue-950/20 text-blue-500 shrink-0">
             ✉️
           </div>
         </div>
@@ -465,24 +488,57 @@ export function OverviewMetrics({
             <div>
               <div className="flex justify-between items-center mb-2">
                 <h4 className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  Atendimento de Leads
+                  Atendimento de Leads por Empresa
                 </h4>
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  {activeLeadsCount + completedLeadsCount}/{totalLeads} Leads
+                  {activeLeadsCount + completedLeadsCount}/{totalLeads} Atendidos
                 </span>
               </div>
 
               {/* Progress bar */}
-              <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-2">
+              <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-3">
                 <div
                   className="h-full bg-gradient-to-r from-[#ff7a59] to-[#e8451f] rounded-full transition-all"
                   style={{ width: `${leadsProgressPct}%` }}
                 />
               </div>
 
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-normal">
-                Porcentagem de leads atendidos ou concluídos.
-              </p>
+              {/* Business division cards */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("leads")}
+                  className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 cursor-pointer transition-all text-left group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                      <span>🖨️</span>
+                      <span>Loja SJ</span>
+                    </span>
+                    <span className="text-[10px] text-amber-600/70 group-hover:text-amber-600 font-semibold">Ver →</span>
+                  </div>
+                  <div className="text-lg font-black text-amber-900 dark:text-amber-100 mt-1">
+                    {leadsLojaSJ} <span className="text-[10px] font-medium opacity-70">leads 3D</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("leads")}
+                  className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 hover:border-cyan-500/40 cursor-pointer transition-all text-left group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-cyan-700 dark:text-cyan-300 flex items-center gap-1">
+                      <span>🎨</span>
+                      <span>Distribuidora</span>
+                    </span>
+                    <span className="text-[10px] text-cyan-600/70 group-hover:text-cyan-600 font-semibold">Ver →</span>
+                  </div>
+                  <div className="text-lg font-black text-cyan-900 dark:text-cyan-100 mt-1">
+                    {leadsSJDistribuidora} <span className="text-[10px] font-medium opacity-70">leads obras</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* Quick Action buttons */}

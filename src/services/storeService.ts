@@ -6,6 +6,8 @@ export interface ClickEvent {
   timestamp: number
 }
 
+export type LeadUnit = "Loja SJ" | "SJ Distribuidora"
+
 export interface Lead {
   id: string
   name: string
@@ -14,6 +16,7 @@ export interface Lead {
   message: string
   status: "Novo" | "Em Atendimento" | "Concluído"
   createdAt: number
+  unit?: LeadUnit | string
   tags?: string[]
   product?: string
   modalidade?: string
@@ -231,6 +234,48 @@ export async function getClicks(): Promise<ClickEvent[]> {
   }
 }
 
+export function detectLeadUnit(lead: {
+  unit?: string
+  tags?: string[]
+  product?: string
+  message?: string
+}): LeadUnit {
+  if (lead.unit === "Loja SJ" || lead.unit === "SJ Distribuidora") {
+    return lead.unit
+  }
+  if (lead.tags?.includes("Loja SJ")) return "Loja SJ"
+  if (lead.tags?.includes("SJ Distribuidora")) return "SJ Distribuidora"
+
+  const fullText = `${lead.product || ""} ${lead.message || ""}`.toLowerCase()
+  if (
+    fullText.includes("impressora") ||
+    fullText.includes("filamento") ||
+    fullText.includes("bambu") ||
+    fullText.includes("3d") ||
+    fullText.includes("pla") ||
+    fullText.includes("vumora")
+  ) {
+    return "Loja SJ"
+  }
+  if (
+    fullText.includes("tinta") ||
+    fullText.includes("impermeabiliz") ||
+    fullText.includes("blindamix") ||
+    fullText.includes("maximper") ||
+    fullText.includes("pedra") ||
+    fullText.includes("argamassa") ||
+    fullText.includes("cola bloco") ||
+    fullText.includes("grafiato") ||
+    fullText.includes("wurth") ||
+    fullText.includes("laje") ||
+    fullText.includes("piscina") ||
+    fullText.includes("selante")
+  ) {
+    return "SJ Distribuidora"
+  }
+  return "Loja SJ"
+}
+
 // ── Lead Capture Service ─────────────────────────────────────────────────────
 
 export async function saveLead(data: {
@@ -238,7 +283,18 @@ export async function saveLead(data: {
   whatsapp: string
   email: string
   message: string
+  unit?: LeadUnit | string
+  tags?: string[]
+  product?: string
+  modalidade?: string
+  bairro?: string
 }): Promise<Lead> {
+  const chosenUnit = data.unit || detectLeadUnit(data)
+  const initialTags = data.tags || []
+  const autoTags = initialTags.includes(chosenUnit)
+    ? initialTags
+    : [...initialTags, chosenUnit]
+
   const newLead: Lead = {
     id: "lead_" + Math.random().toString(36).substring(2, 9),
     name: sanitizeText(data.name, 100),
@@ -247,6 +303,11 @@ export async function saveLead(data: {
     message: sanitizeText(data.message, 1000),
     status: "Novo",
     createdAt: Date.now(),
+    unit: chosenUnit,
+    tags: autoTags,
+    product: data.product ? sanitizeText(data.product, 200) : undefined,
+    modalidade: data.modalidade ? sanitizeText(data.modalidade, 100) : undefined,
+    bairro: data.bairro ? sanitizeText(data.bairro, 100) : undefined,
   }
 
   // Local Storage (limit to most recent 100 leads to prevent quota exhaustion)
@@ -272,6 +333,35 @@ export async function saveLead(data: {
   }
 
   return newLead
+}
+
+export async function updateLeadUnit(id: string, unit: LeadUnit) {
+  // Update local storage
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.LEADS)
+    if (raw) {
+      const leads: Lead[] = JSON.parse(raw)
+      const updated = leads.map((l) => {
+        if (l.id === id) {
+          const oldTags = l.tags || []
+          const filteredTags = oldTags.filter((t) => t !== "Loja SJ" && t !== "SJ Distribuidora")
+          return { ...l, unit, tags: [...filteredTags, unit] }
+        }
+        return l
+      })
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LEADS, JSON.stringify(updated))
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
+  // Firebase sync
+  try {
+    const { updateLeadDetailsInFirebase } = await import("./firebaseStoreService")
+    await updateLeadDetailsInFirebase(id, { unit })
+  } catch (err) {
+    console.warn("Firestore updateLeadUnit warning:", err)
+  }
 }
 
 export async function getLeads(): Promise<Lead[]> {

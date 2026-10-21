@@ -62,6 +62,17 @@ export const WA_LINKS = {
     productName: string,
     actionType: "compra" | "orcamento" | "duvida" | "entrega" = "compra",
   ) => buildProductWhatsAppLink(productName, actionType),
+  catalogoCoresFilamento: (marca?: "Bambu Lab" | "Maxprint" | "todas") => {
+    const brandText =
+      marca === "Bambu Lab"
+        ? " da Bambu Lab"
+        : marca === "Maxprint"
+          ? " da Maxprint"
+          : " (Maxprint e Bambu Lab)"
+    return buildWhatsAppLink(
+      `Olá! Vim pelo site da Loja SJ e gostaria de ver as cores disponíveis de filamento${brandText}. Quais cores vocês têm em estoque hoje?`,
+    )
+  },
   customLead: (data: {
     name?: string
     product?: string
@@ -220,12 +231,15 @@ export const SJ_CATALOG = {
     brand: "Bambu Lab",
     products: [
       "Impressoras 3D (A1, A1 Mini, etc.)",
+      "Filamentos Originais Bambu Lab (Ampla variedade de cores)",
       "Peças e componentes de manutenção",
     ],
   },
   maxprint: {
     brand: "Maxprint",
-    products: ["Filamento PLA (Cores: Preto, Branco, Cinza e Marrom)"],
+    products: [
+      "Filamento PLA Maxprint (Grande variedade e variação de cores)",
+    ],
   },
   vumora: {
     brand: "Vumora",
@@ -613,7 +627,53 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
     }
   }
 
-  // 14. Impressão 3D e Bambu Lab (Itens 27, 28, 29, 63, 64)
+  // 14.1 Cores de Filamentos (Maxprint & Bambu Lab)
+  const isColorKeyword =
+    norm.includes("cor") ||
+    norm.includes("cores") ||
+    norm.includes("qual cor") ||
+    norm.includes("quais cores") ||
+    norm.includes("catalogo") ||
+    norm.includes("tabela") ||
+    /\b(preto|branco|cinza|marrom|azul|vermelho|amarelo|verde|laranja|roxo|rosa|dourado|prata|silk)\b/.test(
+      norm,
+    )
+
+  if (
+    isColorKeyword &&
+    (norm.includes("filamento") ||
+      norm.includes("pla") ||
+      norm.includes("petg") ||
+      norm.includes("bambu") ||
+      norm.includes("maxprint") ||
+      norm.includes("impressora 3d") ||
+      norm.includes("3d"))
+  ) {
+    return {
+      text: `Trabalhamos com filamentos de alta qualidade das marcas **Maxprint** e **Bambu Lab**! 🧵✨\n\nTemos uma **variação muito grande de cores** em estoque (básicas, especiais, silk, translúcidas e metálicas).\n\nComo o estoque e as opções de cores são muito amplos e dinâmicos, para conferir o catálogo completo com as cores disponíveis hoje, fale diretamente no WhatsApp da loja:`,
+      chips: [
+        {
+          label: "📲 VER CORES DISPONÍVEIS NO WHATSAPP",
+          url: WA_LINKS.catalogoCoresFilamento("todas"),
+        },
+        {
+          label: "🧵 Cores Filamento Bambu Lab",
+          url: WA_LINKS.catalogoCoresFilamento("Bambu Lab"),
+        },
+        {
+          label: "🧵 Cores Filamento Maxprint",
+          url: WA_LINKS.catalogoCoresFilamento("Maxprint"),
+        },
+        {
+          label: "🖨️ Ver Impressoras 3D",
+          actionId: "bambu_impressoras",
+        },
+      ],
+      intent: "product_info",
+    }
+  }
+
+  // 14.2 Impressão 3D e Filamentos em Geral (Itens 27, 28, 29, 63, 64)
   if (
     norm.includes("impressora 3d") ||
     norm.includes("impressao 3d") ||
@@ -623,14 +683,14 @@ export function querySJKnowledge(userInput: string): KnowledgeResponse {
     norm.includes("pla")
   ) {
     return {
-      text: `Sim. Trabalhamos com impressoras 3D Bambu Lab, peças de manutenção e filamentos PLA Maxprint nas cores preto, branco, cinza e marrom.\n\nVocê procura uma impressora, peça de manutenção ou filamento?`,
+      text: `Sim! Na Loja SJ trabalhamos com impressoras 3D Bambu Lab, peças de manutenção e reposição, e filamentos de alta qualidade das marcas **Maxprint** e **Bambu Lab** com uma ampla variação de cores.\n\nVocê procura uma impressora, filamento ou peças de manutenção?`,
       chips: [
         { label: "🖨️ Impressoras Bambu Lab", actionId: "bambu_impressoras" },
-        { label: "🧵 Filamento PLA Maxprint", actionId: "maxprint_filamentos" },
+        { label: "🧵 Filamentos (Cores & Marcas)", actionId: "filamentos_cores" },
         { label: "🔧 Peça de Manutenção", actionId: "bambu_pecas" },
         {
-          label: "💬 Falar com Vendas 3D",
-          url: WA_LINKS.produto("Impressão 3D / Filamentos", "duvida"),
+          label: "💬 WhatsApp da Loja",
+          url: WA_LINKS.produto("Impressão 3D e Filamentos", "duvida"),
         },
       ],
       intent: "product_info",

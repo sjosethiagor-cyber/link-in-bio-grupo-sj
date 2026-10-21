@@ -1,7 +1,29 @@
 import React, { useState } from "react"
-import { Lead, updateLeadTags } from "../../services/storeService"
+import {
+  Lead,
+  LeadUnit,
+  detectLeadUnit,
+  updateLeadTags,
+  updateLeadUnit,
+} from "../../services/storeService"
 import { IcoWhatsApp } from "../Icons"
-import { Search, Download, Phone, Mail, Check, Copy, Plus, ChevronDown, Bot, X, Clock, Sparkles, Users, CheckCircle2, Clock3 } from "lucide-react"
+import {
+  Search,
+  Download,
+  Phone,
+  Mail,
+  Check,
+  Copy,
+  Plus,
+  ChevronDown,
+  Bot,
+  X,
+  Clock,
+  Sparkles,
+  Users,
+  CheckCircle2,
+  Clock3,
+} from "lucide-react"
 
 interface LeadsManagerProps {
   leads: Lead[]
@@ -49,24 +71,41 @@ export const AVAILABLE_TAGS = [
   },
 ]
 
-function getWhatsAppUrl(name: string, phone: string, tags?: string[]) {
+function getWhatsAppUrl(
+  name: string,
+  phone: string,
+  unit: LeadUnit,
+  tags?: string[],
+) {
   const digits = phone.replace(/\D/g, "")
   const fullPhone = digits.startsWith("55") ? digits : `55${digits}`
   const firstName = name.trim().split(" ")[0] || "Cliente"
   const tagContext =
     tags && tags.length > 0 ? ` referente a (${tags.join(", ")})` : ""
-  const message = `Olá, ${firstName}! Sou da equipe do Grupo SJ. Recebemos seu contato através da nossa página${tagContext} e estou à disposição para ajudar com seu orçamento e tirar todas as suas dúvidas.`
+  const businessName =
+    unit === "Loja SJ"
+      ? "Loja SJ (Impressão 3D e Filamentos)"
+      : "SJ Distribuidora (Tintas, Impermeabilizantes e Obras)"
+  const message = `Olá, ${firstName}! Sou da equipe da ${businessName}. Recebemos seu contato através da nossa página${tagContext} e estou à disposição para ajudar com seu orçamento e tirar todas as suas dúvidas.`
   return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`
 }
 
 export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
   const [localTagsMap, setLocalTagsMap] = useState<Record<string, string[]>>({})
+  const [localUnitsMap, setLocalUnitsMap] = useState<Record<string, LeadUnit>>(
+    {},
+  )
+  const [leadUnitFilter, setLeadUnitFilter] = useState<
+    "Todos" | "Loja SJ" | "SJ Distribuidora"
+  >("Todos")
   const [leadSearch, setLeadSearch] = useState("")
   const [leadStatusFilter, setLeadStatusFilter] =
     useState<"Todos" | "Novo" | "Em Atendimento" | "Concluído">("Todos")
   const [leadTagFilter, setLeadTagFilter] = useState<string>("Todas")
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [activeTagDropdownId, setActiveTagDropdownId] = useState<string | null>(null)
+  const [activeTagDropdownId, setActiveTagDropdownId] = useState<string | null>(
+    null,
+  )
 
   const copyPhone = (id: string, phone: string) => {
     navigator.clipboard.writeText(phone)
@@ -76,6 +115,19 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
 
   const getLeadTags = (lead: Lead): string[] => {
     return localTagsMap[lead.id] ?? lead.tags ?? []
+  }
+
+  const getLeadUnit = (lead: Lead): LeadUnit => {
+    return (
+      localUnitsMap[lead.id] ??
+      (lead.unit as LeadUnit) ??
+      detectLeadUnit(lead)
+    )
+  }
+
+  const handleSwitchLeadUnit = async (lead: Lead, newUnit: LeadUnit) => {
+    setLocalUnitsMap((prev) => ({ ...prev, [lead.id]: newUnit }))
+    await updateLeadUnit(lead.id, newUnit)
   }
 
   const toggleLeadTag = async (lead: Lead, tagName: string) => {
@@ -90,8 +142,17 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
 
   // Counts
   const countTotal = leads.length
+  const countLojaSJ = leads.filter(
+    (l) => getLeadUnit(l) === "Loja SJ",
+  ).length
+  const countSJDistribuidora = leads.filter(
+    (l) => getLeadUnit(l) === "SJ Distribuidora",
+  ).length
+
   const countNovos = leads.filter((l) => l.status === "Novo").length
-  const countAtendimento = leads.filter((l) => l.status === "Em Atendimento").length
+  const countAtendimento = leads.filter(
+    (l) => l.status === "Em Atendimento",
+  ).length
   const countConcluidos = leads.filter((l) => l.status === "Concluído").length
 
   const filteredLeads = leads.filter((lead) => {
@@ -108,7 +169,10 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
     const matchesTag =
       leadTagFilter === "Todas" || currentTags.includes(leadTagFilter)
 
-    return matchesSearch && matchesStatus && matchesTag
+    const matchesUnit =
+      leadUnitFilter === "Todos" || getLeadUnit(lead) === leadUnitFilter
+
+    return matchesSearch && matchesStatus && matchesTag && matchesUnit
   })
 
   const exportToCsv = () => {
@@ -116,6 +180,7 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
 
     const headers = [
       "ID",
+      "Empresa / Setor",
       "Nome",
       "WhatsApp",
       "E-mail",
@@ -126,6 +191,7 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
     ]
     const rows = filteredLeads.map((l) => [
       `"${l.id}"`,
+      `"${getLeadUnit(l)}"`,
       `"${l.name.replace(/"/g, '""')}"`,
       `"${l.whatsapp}"`,
       `"${(l.email || "").replace(/"/g, '""')}"`,
@@ -154,13 +220,100 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
   // Parse message for chatbot tags
   const parseMessage = (msg?: string) => {
     if (!msg) return null
-    const isBot = msg.includes("[Assistente Chatbot]")
-    const cleanMsg = msg.replace("[Assistente Chatbot]", "").trim()
+    const isBot =
+      msg.includes("[Assistente Chatbot]") ||
+      msg.includes("[Assistente Loja SJ]") ||
+      msg.includes("[Assistente SJ Distribuidora]")
+    const cleanMsg = msg
+      .replace(/\[Assistente (Chatbot|Loja SJ|SJ Distribuidora)\]/, "")
+      .trim()
     return { isBot, text: cleanMsg }
   }
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+      {/* ── Divisão de Empresas / Segmented Unit Filter Tabs ── */}
+      <div className="bg-white dark:bg-slate-900/95 p-2 sm:p-2.5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row gap-2">
+        <button
+          type="button"
+          onClick={() => setLeadUnitFilter("Todos")}
+          className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+            leadUnitFilter === "Todos"
+              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md scale-[1.01]"
+              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          }`}
+        >
+          <span className="text-base">🏢</span>
+          <span>Todos os Clientes</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+              leadUnitFilter === "Todos"
+                ? "bg-white/20 dark:bg-black/20 text-white dark:text-slate-900"
+                : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+            }`}
+          >
+            {countTotal}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setLeadUnitFilter("Loja SJ")}
+          className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+            leadUnitFilter === "Loja SJ"
+              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/25 scale-[1.01]"
+              : "text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-600"
+          }`}
+        >
+          <span className="text-base">🖨️</span>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span>Cliente Loja SJ</span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                  leadUnitFilter === "Loja SJ"
+                    ? "bg-white/25 text-white"
+                    : "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
+                }`}
+              >
+                {countLojaSJ}
+              </span>
+            </div>
+            <div className="text-[10px] font-medium opacity-90 hidden sm:block">
+              Impressoras 3D, Filamentos e Peças
+            </div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setLeadUnitFilter("SJ Distribuidora")}
+          className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+            leadUnitFilter === "SJ Distribuidora"
+              ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-500/25 scale-[1.01]"
+              : "text-slate-600 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 hover:text-cyan-600"
+          }`}
+        >
+          <span className="text-base">🎨</span>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span>Cliente SJ Distribuidora</span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
+                  leadUnitFilter === "SJ Distribuidora"
+                    ? "bg-white/25 text-white"
+                    : "bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300"
+                }`}
+              >
+                {countSJDistribuidora}
+              </span>
+            </div>
+            <div className="text-[10px] font-medium opacity-90 hidden sm:block">
+              Tintas, Impermeabilizantes e Pedras
+            </div>
+          </div>
+        </button>
+      </div>
       {/* ── KPI Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <button
@@ -337,6 +490,9 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                   Lead / Nome
                 </th>
                 <th className="py-3.5 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                  Empresa / Setor
+                </th>
+                <th className="py-3.5 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                   Contato WhatsApp
                 </th>
                 <th className="py-3.5 px-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
@@ -362,19 +518,23 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center">
+                  <td colSpan={9} className="py-16 text-center">
                     <div className="flex flex-col items-center justify-center gap-3 text-slate-400">
                       <Users className="w-10 h-10 opacity-30 stroke-[1.5]" />
                       <p className="text-sm font-semibold">
                         Nenhum lead encontrado com os filtros atuais.
                       </p>
-                      {(leadSearch || leadStatusFilter !== "Todos" || leadTagFilter !== "Todas") && (
+                      {(leadSearch ||
+                        leadStatusFilter !== "Todos" ||
+                        leadTagFilter !== "Todas" ||
+                        leadUnitFilter !== "Todos") && (
                         <button
                           type="button"
                           onClick={() => {
                             setLeadSearch("")
                             setLeadStatusFilter("Todos")
                             setLeadTagFilter("Todas")
+                            setLeadUnitFilter("Todos")
                           }}
                           className="text-xs text-orange-600 hover:underline font-bold"
                         >
@@ -387,6 +547,7 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
               ) : (
                 filteredLeads.map((lead) => {
                   const currentTags = getLeadTags(lead)
+                  const leadUnit = getLeadUnit(lead)
                   const isTagPickerOpen =
                     activeTagDropdownId === `desktop-${lead.id}`
                   const parsedMsg = parseMessage(lead.message)
@@ -411,6 +572,37 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                               {new Date(lead.createdAt).toLocaleDateString("pt-BR")}
                             </span>
                           </div>
+                        </div>
+                      </td>
+
+                      {/* Empresa / Setor */}
+                      <td className="py-4 px-4 align-middle whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-2xs ${
+                              leadUnit === "Loja SJ"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30"
+                                : "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/30"
+                            }`}
+                          >
+                            <span>{leadUnit === "Loja SJ" ? "🖨️" : "🎨"}</span>
+                            <span>{leadUnit}</span>
+                          </span>
+
+                          <select
+                            value={leadUnit}
+                            onChange={(e) =>
+                              void handleSwitchLeadUnit(
+                                lead,
+                                e.target.value as LeadUnit,
+                              )
+                            }
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 bg-transparent border-0 cursor-pointer p-0"
+                            title="Mudar empresa deste lead"
+                          >
+                            <option value="Loja SJ">Mover p/ Loja SJ</option>
+                            <option value="SJ Distribuidora">Mover p/ SJ Distribuidora</option>
+                          </select>
                         </div>
                       </td>
 
@@ -474,7 +666,7 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                                 <span>{tagDef?.icon || "🏷️"}</span>
                                 <span>{tagName}</span>
                                 <span className="opacity-40 hover:opacity-100 ml-0.5">
-                                  ×
+                                   ×
                                 </span>
                               </span>
                             )
@@ -596,6 +788,7 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                             href={getWhatsAppUrl(
                               lead.name,
                               lead.whatsapp,
+                              leadUnit,
                               currentTags,
                             )}
                             target="_blank"
@@ -635,6 +828,7 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
           ) : (
             filteredLeads.map((lead) => {
               const currentTags = getLeadTags(lead)
+              const leadUnit = getLeadUnit(lead)
               const isTagPickerOpen = activeTagDropdownId === `mobile-${lead.id}`
               const parsedMsg = parseMessage(lead.message)
 
@@ -679,6 +873,38 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                     </select>
                   </div>
 
+                  {/* Empresa / Setor Badge & Quick Switch */}
+                  <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 rounded-xl px-3 py-1.5 border border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                      Empresa / Setor:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
+                          leadUnit === "Loja SJ"
+                            ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30"
+                            : "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/30"
+                        }`}
+                      >
+                        <span>{leadUnit === "Loja SJ" ? "🖨️" : "🎨"}</span>
+                        <span>{leadUnit}</span>
+                      </span>
+                      <select
+                        value={leadUnit}
+                        onChange={(e) =>
+                          void handleSwitchLeadUnit(
+                            lead,
+                            e.target.value as LeadUnit,
+                          )
+                        }
+                        className="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-transparent border border-slate-300 dark:border-slate-700 rounded px-1.5 py-0.5 cursor-pointer"
+                      >
+                        <option value="Loja SJ">Loja SJ</option>
+                        <option value="SJ Distribuidora">SJ Distribuidora</option>
+                      </select>
+                    </div>
+                  </div>
+
                   {/* WhatsApp & Email info */}
                   <div className="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-2.5 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between">
@@ -696,9 +922,9 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                           className="p-1 text-slate-400 hover:text-slate-700"
                         >
                           {copiedId === lead.id ? (
-                            <Check className="w-3 h-3 text-emerald-500" />
+                            <Check className="w-3.5 h-3.5 text-emerald-500" />
                           ) : (
-                            <Copy className="w-3 h-3" />
+                            <Copy className="w-3.5 h-3.5" />
                           )}
                         </button>
                       </div>
@@ -770,7 +996,12 @@ export function LeadsManager({ leads, handleStatusChange }: LeadsManagerProps) {
                   {/* Mobile Actions */}
                   <div className="pt-1 flex gap-2">
                     <a
-                      href={getWhatsAppUrl(lead.name, lead.whatsapp, currentTags)}
+                      href={getWhatsAppUrl(
+                        lead.name,
+                        lead.whatsapp,
+                        leadUnit,
+                        currentTags,
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 py-2.5 rounded-xl bg-[#25D366] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 no-underline shadow-2xs"

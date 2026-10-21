@@ -1,8 +1,13 @@
 import { useState, useEffect, useRef } from "react"
-import { saveLead, updateLeadDetails } from "../services/storeService"
+import {
+  saveLead,
+  updateLeadDetails,
+  type LeadUnit,
+} from "../services/storeService"
 import {
   SJ_STORE_INFO,
   WA_LINKS,
+  buildWhatsAppLink,
   querySJKnowledge,
 } from "../services/sjKnowledgeBase"
 import { IcoWhatsApp, IcoArrow } from "./Icons"
@@ -10,10 +15,14 @@ import { IcoWhatsApp, IcoArrow } from "./Icons"
 interface LeadChatbotProps {
   onClose: () => void
   onSwitchToForm: () => void
+  initialUnit?: LeadUnit | null
+  onUnitChange?: (unit: LeadUnit | null) => void
 }
 
 interface ActionChip {
   label: string
+  desc?: string
+  icon?: string
   action?: () => void
   url?: string
   actionId?: string
@@ -48,16 +57,37 @@ function formatWhatsApp(value: string) {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
 }
 
-export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
+export function LeadChatbot({
+  onClose,
+  onSwitchToForm,
+  initialUnit,
+  onUnitChange,
+}: LeadChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputValue, setInputValue] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [selectedUnit, setSelectedUnit] = useState<LeadUnit | null>(
+    initialUnit || null,
+  )
+
+  useEffect(() => {
+    if (initialUnit !== undefined && initialUnit !== selectedUnit) {
+      setSelectedUnit(initialUnit)
+    }
+  }, [initialUnit])
 
   // Step state
   const [step, setStep] =
-    useState<"welcome" | "chat" | "collect_name" | "collect_whatsapp" | "collect_bairro" | "collect_quantity" | "completed">(
-      "welcome",
-    )
+    useState<
+      | "welcome"
+      | "select_unit"
+      | "chat"
+      | "collect_name"
+      | "collect_whatsapp"
+      | "collect_bairro"
+      | "collect_quantity"
+      | "completed"
+    >("welcome")
 
   // Lead structured data
   const [leadData, setLeadData] = useState<{
@@ -150,132 +180,6 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     }
   }
 
-  // 1. Menu Inicial Enxuto e Limpo (Conversacional)
-  const getInitialChips = (): ActionChip[] => [
-    {
-      label: "⚡ Solicitar um Orçamento",
-      action: () => {
-        addUserMessage("Solicitar um Orçamento")
-        requireContactThen(() => {
-          botReply(
-            "Com certeza! Para qual produto ou linha você gostaria de solicitar orçamento?",
-            [
-              {
-                label: "🛡️ Impermeabilizantes",
-                action: () => handleImpermeabilizacaoFlow(),
-              },
-              {
-                label: "🎨 Tintas e Revestimentos",
-                action: () => handleTintasFlow(),
-              },
-              { label: "🧱 Cola Bloco", action: () => handleColaBlocoFlow() },
-              { label: "Outro produto", action: () => handleBrowseCategories() },
-            ],
-          )
-        }, "Solicitação de Orçamento")
-      },
-    },
-    {
-      label: "📦 Conhecer Produtos e Linhas",
-      action: () => {
-        addUserMessage("Conhecer Produtos e Linhas")
-        requireContactThen(() => handleBrowseCategories(), "Catálogo de Produtos")
-      },
-    },
-    {
-      label: "🚚 Entrega e Retirada",
-      action: () => {
-        addUserMessage("Entrega e Retirada")
-        requireContactThen(() => handleEntregaRetiradaFlow(), "Entrega e Retirada")
-      },
-    },
-    {
-      label: "💬 Falar com um Atendente",
-      action: () => {
-        addUserMessage("Falar com um Atendente")
-        requireContactThen(() => {
-          botReply(
-            "Nosso atendimento comercial funciona das 09h às 17h. Deseja continuar seu atendimento com um vendedor pelo WhatsApp?",
-            [
-              {
-                label: "💬 CONTINUAR NO WHATSAPP",
-                url: WA_LINKS.falarComVendedor,
-              },
-              {
-                label: "🔎 Continuar no Chatbot",
-                action: () => showInitialMenu(true),
-              },
-            ],
-          )
-        }, "Falar com Atendente")
-      },
-    },
-  ]
-
-  // Menu de Categorias (exibido apenas quando solicitado)
-  const handleBrowseCategories = () => {
-    addUserMessage("Conhecer Produtos e Linhas")
-    botReply(
-      "Trabalhamos com diversas soluções para obras, reformas, manutenção e utilidades. Qual categoria você tem interesse em ver?",
-      [
-        {
-          label: "🛡️ Impermeabilização",
-          action: () => handleImpermeabilizacaoFlow(),
-        },
-        {
-          label: "🎨 Tintas e Revestimentos",
-          action: () => handleTintasFlow(),
-        },
-        {
-          label: "🧱 Cola Bloco e Construção",
-          action: () => handleColaBlocoFlow(),
-        },
-        {
-          label: "🔧 Produtos Würth",
-          action: () => handleWurthFlow(),
-        },
-        {
-          label: "🖨️ Impressão 3D e Filamentos",
-          action: () => handleImpressao3DFlow(),
-        },
-        {
-          label: "🏠 Utilidades para Casa",
-          action: () => handleUtilidadesFlow(),
-        },
-      ],
-    )
-  }
-
-  const showInitialMenu = (isReset = false) => {
-    isFinalizingRef.current = false
-    const welcomeText = isReset
-      ? "Como posso ajudar você agora?"
-      : "Olá! 👋 Seja bem-vindo à Loja SJ.\n\nSou o assistente virtual da loja. Para iniciarmos seu atendimento personalizado e tirar suas dúvidas ou passar orçamentos, como posso te chamar? (Digite seu nome abaixo ou escolha uma opção):"
-
-    const initialChips = getInitialChips()
-
-    if (isReset) {
-      botReply(welcomeText, initialChips, undefined, 250)
-      setStep("chat")
-    } else {
-      setIsTyping(false)
-      setMessages([
-        {
-          id: "welcome_init",
-          sender: "bot",
-          text: welcomeText,
-          timestamp: Date.now(),
-          chips: initialChips,
-        },
-      ])
-      setStep(hasCollectedContactRef.current ? "chat" : "collect_name")
-    }
-  }
-
-  useEffect(() => {
-    showInitialMenu(false)
-  }, [])
-
   const addUserMessage = (text: string) => {
     setMessages((prev) => [
       ...prev,
@@ -287,6 +191,330 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
       },
     ])
   }
+
+  // 1. Menu Inicial - Direcionamento de Empresa (Loja SJ vs SJ Distribuidora)
+  const getInitialChips = (): ActionChip[] => [
+    {
+      label: "🖨️ Loja SJ",
+      desc: "Impressoras 3D, Filamentos, Peças & Manutenções",
+      icon: "🖨️",
+      action: () => handleSelectUnit("Loja SJ"),
+    },
+    {
+      label: "🎨 SJ Distribuidora",
+      desc: "Tintas, Impermeabilizantes, Selantes, Pedras Naturais & Grafiato",
+      icon: "🎨",
+      action: () => handleSelectUnit("SJ Distribuidora"),
+    },
+  ]
+
+  const handleSelectUnit = (unit: LeadUnit) => {
+    setSelectedUnit(unit)
+    onUnitChange?.(unit)
+    addUserMessage(unit === "Loja SJ" ? "🖨️ Loja SJ" : "🎨 SJ Distribuidora")
+
+    if (unit === "Loja SJ") {
+      setLeadData((prev) => ({
+        ...prev,
+        product: prev.product || "Loja SJ (Impressão 3D e Filamentos)",
+      }))
+      botReply(
+        "Perfeito! Você está no atendimento da **Loja SJ** 🖨️.\n\nSomos especialistas em Impressoras 3D (Bambu Lab), Filamentos (Maxprint e Bambu Lab com grande variedade de cores), peças de reposição e manutenção técnica.\n\nPara iniciarmos seu atendimento personalizado ou tirar dúvidas, como posso te chamar? (Digite seu nome abaixo ou escolha uma opção):",
+        getLojaSJChips(),
+      )
+    } else {
+      setLeadData((prev) => ({
+        ...prev,
+        product: prev.product || "SJ Distribuidora (Tintas e Obras)",
+      }))
+      botReply(
+        "Excelente! Você está no atendimento da **SJ Distribuidora** 🎨.\n\nTrabalhamos com linhas completas de Tintas, Impermeabilizantes (Blindamix e Maximper), Argamassas Poliméricas (Cola Bloco), Selantes, Pedras Naturais e Grafiato.\n\nPara iniciarmos seu atendimento personalizado ou orçamentos, como posso te chamar? (Digite seu nome abaixo ou escolha uma opção):",
+        getSJDistribuidoraChips(),
+      )
+    }
+    setStep(hasCollectedContactRef.current ? "chat" : "collect_name")
+  }
+
+  const handleSwitchCompany = () => {
+    setSelectedUnit(null)
+    onUnitChange?.(null)
+    addUserMessage("🔄 Trocar Empresa")
+    botReply(
+      "É sobre impressoras ou vai ser a parte de tintas e impermeabilizantes?\n*(Loja SJ ou SJ Distribuidora?)*",
+      getInitialChips(),
+    )
+    setStep("select_unit")
+  }
+
+  const getLojaSJChips = (): ActionChip[] => [
+    {
+      label: "⚡ Solicitar Orçamento 3D",
+      action: () => {
+        addUserMessage("Solicitar Orçamento 3D")
+        requireContactThen(() => {
+          botReply(
+            "Com certeza! Qual item você gostaria de orçar na Loja SJ?",
+            [
+              {
+                label: "🖨️ Impressoras Bambu Lab",
+                action: () => handleBambuLabFlow(),
+              },
+              {
+                label: "🧵 Filamentos (Maxprint & Bambu Lab)",
+                action: () => handleFilamentoFlow(),
+              },
+              {
+                label: "🔧 Peças e Manutenção",
+                action: () => handlePecasFlow(),
+              },
+              {
+                label: "🏠 Utilidades 3D (Vumora)",
+                action: () => handleUtilidadesFlow(),
+              },
+            ],
+          )
+        }, "Orçamento Loja SJ (3D)")
+      },
+    },
+    {
+      label: "🖨️ Impressoras Bambu Lab",
+      action: () => handleBambuLabFlow(),
+    },
+    {
+      label: "🧵 Filamentos (Maxprint & Bambu Lab - Várias Cores)",
+      action: () => handleFilamentoFlow(),
+    },
+    {
+      label: "🔧 Peças e Manutenção Técnica",
+      action: () => handlePecasFlow(),
+    },
+    {
+      label: "💬 Falar com Especialista 3D",
+      action: () => {
+        addUserMessage("Falar com Especialista 3D")
+        requireContactThen(() => {
+          botReply(
+            "Nosso atendimento comercial de impressão 3D funciona das 09h às 17h. Deseja falar com um especialista no WhatsApp?",
+            [
+              {
+                label: "💬 FALAR NO WHATSAPP COM ESPECIALISTA 3D",
+                url: WA_LINKS.produto("Impressão 3D e Filamentos", "duvida"),
+              },
+              {
+                label: "🔎 Continuar no Chatbot",
+                action: () => showInitialMenu(true),
+              },
+            ],
+          )
+        }, "Falar com Especialista 3D")
+      },
+    },
+    {
+      label: "🔄 Trocar para SJ Distribuidora",
+      action: () => handleSwitchCompany(),
+    },
+  ]
+
+  const getSJDistribuidoraChips = (): ActionChip[] => [
+    {
+      label: "⚡ Solicitar Orçamento de Obra",
+      action: () => {
+        addUserMessage("Solicitar Orçamento de Obra")
+        requireContactThen(() => {
+          botReply(
+            "Com certeza! Para qual solução da SJ Distribuidora você precisa de orçamento?",
+            [
+              {
+                label: "🛡️ Impermeabilizantes",
+                action: () => handleImpermeabilizacaoFlow(),
+              },
+              {
+                label: "🎨 Tintas e Revestimentos",
+                action: () => handleTintasFlow(),
+              },
+              {
+                label: "💎 Pedras Naturais & Grafiato",
+                action: () => handlePedrasGrafiatoFlow(),
+              },
+              {
+                label: "🧱 Argamassa / Cola Bloco",
+                action: () => handleColaBlocoFlow(),
+              },
+              {
+                label: "🔧 Linha Técnica Würth",
+                action: () => handleWurthFlow(),
+              },
+            ],
+          )
+        }, "Orçamento SJ Distribuidora (Obra)")
+      },
+    },
+    {
+      label: "🛡️ Impermeabilizantes (Lajes e Piscinas)",
+      action: () => handleImpermeabilizacaoFlow(),
+    },
+    {
+      label: "🎨 Tintas, Pedras Naturais & Grafiato",
+      action: () => handleTintasFlow(),
+    },
+    {
+      label: "🧱 Argamassa Polimérica / Cola Bloco",
+      action: () => handleColaBlocoFlow(),
+    },
+    {
+      label: "🚚 Entrega e Retirada",
+      action: () => handleEntregaRetiradaFlow(),
+    },
+    {
+      label: "💬 Falar com Vendedor Técnico",
+      action: () => {
+        addUserMessage("Falar com Vendedor Técnico")
+        requireContactThen(() => {
+          botReply(
+            "Nosso atendimento comercial da SJ Distribuidora funciona das 09h às 17h. Deseja continuar com um vendedor pelo WhatsApp?",
+            [
+              {
+                label: "💬 CONTINUAR NO WHATSAPP COM VENDEDOR",
+                url: WA_LINKS.falarComVendedor,
+              },
+              {
+                label: "🔎 Continuar no Chatbot",
+                action: () => showInitialMenu(true),
+              },
+            ],
+          )
+        }, "Falar com Vendedor Técnico")
+      },
+    },
+    {
+      label: "🔄 Trocar para Loja SJ",
+      action: () => handleSwitchCompany(),
+    },
+  ]
+
+  // Menu de Categorias (exibido apenas quando solicitado)
+  const handleBrowseCategories = () => {
+    addUserMessage("Conhecer Produtos e Linhas")
+    if (selectedUnit === "Loja SJ") {
+      botReply(
+        "Trabalhamos com impressoras 3D, filamentos, peças de reposição e utilidades. Qual linha você tem interesse em ver?",
+        [
+          {
+            label: "🖨️ Impressoras Bambu Lab",
+            action: () => handleBambuLabFlow(),
+          },
+          {
+            label: "🧵 Filamentos (Maxprint & Bambu Lab)",
+            action: () => handleFilamentoFlow(),
+          },
+          {
+            label: "🔧 Peças de Manutenção",
+            action: () => handlePecasFlow(),
+          },
+          {
+            label: "🏠 Utilidades para Casa",
+            action: () => handleUtilidadesFlow(),
+          },
+          {
+            label: "🔄 Trocar para SJ Distribuidora",
+            action: () => handleSwitchCompany(),
+          },
+        ],
+      )
+    } else if (selectedUnit === "SJ Distribuidora") {
+      botReply(
+        "Trabalhamos com diversas soluções para obras, reformas e impermeabilização. Qual categoria você tem interesse em ver?",
+        [
+          {
+            label: "🛡️ Impermeabilização",
+            action: () => handleImpermeabilizacaoFlow(),
+          },
+          {
+            label: "🎨 Tintas e Revestimentos",
+            action: () => handleTintasFlow(),
+          },
+          {
+            label: "💎 Pedras Naturais & Grafiato",
+            action: () => handlePedrasGrafiatoFlow(),
+          },
+          {
+            label: "🧱 Cola Bloco e Construção",
+            action: () => handleColaBlocoFlow(),
+          },
+          {
+            label: "🔧 Produtos Würth",
+            action: () => handleWurthFlow(),
+          },
+          {
+            label: "🔄 Trocar para Loja SJ",
+            action: () => handleSwitchCompany(),
+          },
+        ],
+      )
+    } else {
+      botReply(
+        "Para te apresentar o catálogo correto, com qual das nossas empresas você gostaria de falar?",
+        getInitialChips(),
+      )
+      setStep("select_unit")
+    }
+  }
+
+  const showInitialMenu = (isReset = false) => {
+    isFinalizingRef.current = false
+    if (selectedUnit) {
+      const activeUnit = selectedUnit
+      const welcomeText = isReset
+        ? `Você está no atendimento da **${activeUnit === "Loja SJ" ? "Loja SJ 🖨️" : "SJ Distribuidora 🎨"}**.\n\nComo posso ajudar você agora? (Digite sua dúvida ou escolha uma opção):`
+        : `Olá! 👋 Bem-vindo ao setor da **${activeUnit === "Loja SJ" ? "Loja SJ 🖨️" : "SJ Distribuidora 🎨"}**.\n\nComo posso te ajudar hoje? (Digite seu nome abaixo ou escolha uma opção):`
+
+      const chips =
+        activeUnit === "Loja SJ"
+          ? getLojaSJChips()
+          : getSJDistribuidoraChips()
+
+      if (isReset) {
+        botReply(welcomeText, chips, undefined, 250)
+        setStep("chat")
+      } else {
+        setIsTyping(false)
+        setMessages([
+          {
+            id: "welcome_init",
+            sender: "bot",
+            text: welcomeText,
+            timestamp: Date.now(),
+            chips,
+          },
+        ])
+        setStep(hasCollectedContactRef.current ? "chat" : "collect_name")
+      }
+    } else {
+      const welcomeText =
+        "Olá! 👋 Seja muito bem-vindo ao **Grupo SJ**!\n\n**É sobre impressoras ou vai ser a parte de tintas e impermeabilizantes?**\n*(Loja SJ ou SJ Distribuidora?)*"
+      const initialChips = getInitialChips()
+      if (isReset) {
+        botReply(welcomeText, initialChips, undefined, 250)
+        setStep("select_unit")
+      } else {
+        setIsTyping(false)
+        setMessages([
+          {
+            id: "welcome_init",
+            sender: "bot",
+            text: welcomeText,
+            timestamp: Date.now(),
+            chips: initialChips,
+          },
+        ])
+        setStep("select_unit")
+      }
+    }
+  }
+
+  useEffect(() => {
+    showInitialMenu(false)
+  }, [])
 
   // ── FLUXOS ESPECÍFICOS DO MANUAL ──────────────────────────────────────────
 
@@ -508,36 +736,38 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     ])
   }
 
+  const handlePedrasGrafiatoFlow = () => {
+    addUserMessage("Pedras Naturais & Grafiato")
+    setLeadData((p) => ({
+      ...p,
+      product: "Textura Pedra Natural / Grafiato RevGold",
+    }))
+    botReply(
+      "Trabalhamos com Textura de Pedra Natural RevGold (5 kg e 20 kg), Grafiato mineral e Primer de aderência para acabamento rústico sofisticado e impermeável em paredes, fachadas e muros.\n\nQual a metragem estimada da sua área?",
+      [
+        {
+          label: "⚡ Solicitar Orçamento de Pedra Natural / Grafiato",
+          action: () =>
+            startLeadCapture("Textura Pedra Natural / Grafiato RevGold"),
+        },
+        {
+          label: "💬 Falar com Vendedor Técnico no WhatsApp",
+          url: WA_LINKS.produto(
+            "Textura Pedra Natural e Grafiato RevGold",
+            "orcamento",
+          ),
+        },
+      ],
+    )
+  }
+
   // Fluxo 2: Tintas e Revestimentos (Itens 10, 18, 19, 20, 21, 61)
   const handleTintasFlow = () => {
     addUserMessage("Tintas e Revestimentos")
     botReply("Qual tipo de acabamento você procura?", [
       {
-        label: "💎 Textura Pedra Natural (RevGold)",
-        action: () => {
-          addUserMessage("Textura Pedra Natural")
-          setLeadData((p) => ({
-            ...p,
-            product: "Textura Pedra Natural RevGold",
-          }))
-          botReply(
-            "Temos Textura Pedra Natural RevGold de 5 kg e 20 kg (rendimento ref: ~4 a 6 m² por balde de 20kg), além de kits com Primer RevGold.\n\nQuantos metros quadrados possui aproximadamente sua área?",
-            [
-              {
-                label: "⚡ Orçamento para minha área",
-                action: () =>
-                  startLeadCapture("Textura Pedra Natural RevGold + Primer"),
-              },
-              {
-                label: "ORÇAMENTO PEDRA NATURAL NO WHATSAPP",
-                url: WA_LINKS.produto(
-                  "Textura Pedra Natural RevGold",
-                  "orcamento",
-                ),
-              },
-            ],
-          )
-        },
+        label: "💎 Textura Pedra Natural & Grafiato (RevGold)",
+        action: () => handlePedrasGrafiatoFlow(),
       },
       {
         label: "🚗 Tinta para Piso Emborrachada",
@@ -797,99 +1027,108 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     )
   }
 
+  const handleBambuLabFlow = () => {
+    addUserMessage("Impressoras Bambu Lab")
+    setLeadData((p) => ({ ...p, product: "Impressora Bambu Lab" }))
+    botReply(
+      "Sim! Trabalhamos com impressoras 3D Bambu Lab (como A1, A1 Mini e outros modelos). Posso ajudar você a verificar os modelos disponíveis e valores no setor de vendas.",
+      [
+        {
+          label: "⚡ Orçamento Impressora Bambu Lab",
+          action: () => startLeadCapture("Impressora Bambu Lab (A1 / A1 Mini)"),
+        },
+        {
+          label: "💬 Falar com Vendas 3D no WhatsApp",
+          url: WA_LINKS.produto("Impressoras 3D Bambu Lab", "orcamento"),
+        },
+      ],
+    )
+  }
+
+  const handleFilamentoFlow = () => {
+    addUserMessage("Filamentos (Cores e Marcas)")
+    setLeadData((p) => ({ ...p, product: "Filamentos (Maxprint & Bambu Lab)" }))
+    botReply(
+      "Trabalhamos com filamentos de alta qualidade das marcas **Maxprint** e **Bambu Lab**! 🧵✨\n\nTemos uma **variação muito grande de cores** disponíveis em pronta entrega (básicas, especiais, silk, translúcidas e metálicas).\n\nComo a variedade de cores e o estoque são muito amplos e dinâmicos, para conferir o catálogo completo e a disponibilidade das cores em tempo real, consulte diretamente nosso WhatsApp:",
+      [
+        {
+          label: "📲 VER TODAS AS CORES NO WHATSAPP",
+          url: WA_LINKS.catalogoCoresFilamento("todas"),
+        },
+        {
+          label: "🧵 Cores Filamentos Bambu Lab",
+          url: WA_LINKS.catalogoCoresFilamento("Bambu Lab"),
+        },
+        {
+          label: "🧵 Cores Filamentos Maxprint",
+          url: WA_LINKS.catalogoCoresFilamento("Maxprint"),
+        },
+        {
+          label: "🚚 Opções de Entrega / Retirada",
+          action: () => handleEntregaRetiradaFlow(),
+        },
+      ],
+    )
+  }
+
+  const handlePecasFlow = () => {
+    addUserMessage("Peças e Manutenção 3D")
+    botReply(
+      "Qual modelo da sua impressora Bambu Lab para verificarmos a peça compatível ou suporte técnico?",
+      [
+        { label: "Bambu Lab A1", action: () => selectBambuModel("A1") },
+        {
+          label: "Bambu Lab A1 Mini",
+          action: () => selectBambuModel("A1 Mini"),
+        },
+        {
+          label: "Outro modelo / Dúvida",
+          action: () => selectBambuModel("Outro modelo"),
+        },
+      ],
+    )
+  }
+
   // Fluxo 5: Impressão 3D (Item 63, 64)
   const handleImpressao3DFlow = () => {
     addUserMessage("Impressão 3D")
     botReply(
-      "Você procura uma impressora 3D, peça de manutenção ou filamento?",
+      "Você procura uma impressora 3D, filamento ou peças de manutenção?",
       [
         {
           label: "🖨️ Impressoras Bambu Lab",
-          action: () => {
-            addUserMessage("Impressoras Bambu Lab")
-            setLeadData((p) => ({ ...p, product: "Impressora Bambu Lab" }))
-            botReply(
-              "Sim. Trabalhamos com impressoras 3D Bambu Lab (como A1 e A1 Mini). Posso ajudar você a verificar os modelos disponíveis e valores no setor de vendas.",
-              [
-                {
-                  label: "ORÇAMENTO IMPRESSORA BAMBU LAB",
-                  url: WA_LINKS.produto(
-                    "Impressora 3D Bambu Lab (A1 / A1 Mini)",
-                    "orcamento",
-                  ),
-                },
-                {
-                  label: "FALAR COM VENDAS 3D",
-                  url: WA_LINKS.produto("Impressoras 3D Bambu Lab", "duvida"),
-                },
-              ],
-            )
-          },
+          action: () => handleBambuLabFlow(),
         },
         {
-          label: "🧵 Filamento PLA Maxprint",
-          action: () => {
-            addUserMessage("Filamento PLA")
-            botReply(
-              "Trabalhamos com filamentos PLA Maxprint nas cores preto, branco, cinza e marrom. Qual cor você procura?",
-              [
-                {
-                  label: "⚫ Preto",
-                  action: () => selectFilamentoCor("Preto"),
-                },
-                {
-                  label: "⚪ Branco",
-                  action: () => selectFilamentoCor("Branco"),
-                },
-                {
-                  label: "🔘 Cinza",
-                  action: () => selectFilamentoCor("Cinza"),
-                },
-                {
-                  label: "🟤 Marrom",
-                  action: () => selectFilamentoCor("Marrom"),
-                },
-              ],
-            )
-          },
+          label: "🧵 Filamentos (Maxprint & Bambu Lab)",
+          action: () => handleFilamentoFlow(),
         },
         {
           label: "🔧 Peças de Manutenção",
-          action: () => {
-            addUserMessage("Peças de Manutenção")
-            botReply(
-              "Qual modelo da sua impressora Bambu Lab para verificarmos a peça compatível?",
-              [
-                { label: "Bambu Lab A1", action: () => selectBambuModel("A1") },
-                {
-                  label: "Bambu Lab A1 Mini",
-                  action: () => selectBambuModel("A1 Mini"),
-                },
-                {
-                  label: "Outro modelo",
-                  action: () => selectBambuModel("Outro modelo"),
-                },
-              ],
-            )
-          },
+          action: () => handlePecasFlow(),
         },
       ],
     )
   }
 
   const selectFilamentoCor = (cor: string) => {
-    addUserMessage(`Filamento PLA ${cor}`)
-    setLeadData((p) => ({ ...p, product: `Filamento PLA Maxprint (${cor})` }))
+    addUserMessage(`Filamento cor ${cor}`)
+    setLeadData((p) => ({
+      ...p,
+      product: `Filamento ${cor} (Maxprint / Bambu Lab)`,
+    }))
     botReply(
-      `Excelente escolha! Filamento PLA Maxprint (${cor}). Posso encaminhar você para nosso setor de vendas confirmar a quantidade e disponibilidade.`,
+      `Temos filamentos na cor **${cor}** e uma grande variação de tonalidades das marcas **Maxprint** e **Bambu Lab**! 🧵✨\n\nClique abaixo para consultar a disponibilidade e valor no WhatsApp da loja:`,
       [
         {
-          label: `COMPRAR FILAMENTO PLA ${cor.toUpperCase()} NO WHATSAPP`,
-          url: WA_LINKS.produto(`Filamento PLA Maxprint (${cor})`, "compra"),
+          label: `📲 CONSULTAR COR ${cor.toUpperCase()} NO WHATSAPP`,
+          url: buildWhatsAppLink(
+            `Olá! Vim pelo site da Loja SJ e gostaria de consultar a disponibilidade do filamento na cor ${cor} (Maxprint / Bambu Lab). Vocês têm em estoque hoje?`,
+          ),
         },
         {
-          label: "PROGRAMAR ENTREGA LOCAL (R$ 15,00)",
-          url: WA_LINKS.produto(`Filamento PLA Maxprint (${cor})`, "entrega"),
+          label: "🎨 VER TODAS AS OUTRAS CORES",
+          url: WA_LINKS.catalogoCoresFilamento("todas"),
         },
       ],
     )
@@ -1114,6 +1353,29 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           },
         }
       }
+      if (
+        c.actionId === "maxprint_filamentos" ||
+        c.actionId === "filamentos_cores" ||
+        c.actionId === "filamento" ||
+        c.actionId === "filamentos"
+      ) {
+        return {
+          label: c.label,
+          action: () => handleFilamentoFlow(),
+        }
+      }
+      if (c.actionId === "bambu_impressoras") {
+        return {
+          label: c.label,
+          action: () => handleBambuLabFlow(),
+        }
+      }
+      if (c.actionId === "bambu_pecas") {
+        return {
+          label: c.label,
+          action: () => handlePecasFlow(),
+        }
+      }
       return {
         label: c.label,
         action: () => showInitialMenu(true),
@@ -1162,13 +1424,40 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     setInputValue("")
     addUserMessage(trimmed)
 
+    // Se o cliente ainda não selecionou a empresa / setor
+    if (!selectedUnit || step === "select_unit") {
+      const lower = trimmed.toLowerCase()
+      const is3D =
+        /\b(3d|impressora|filamento|pla|petg|abs|bambu|bambulab|a1|mini|vumora|pe[çc]a|manuten[çc][aã]o|resina|hotend|extrusora)\b/.test(
+          lower,
+        )
+      const isDistribuidora =
+        /\b(tinta|impermeabiliz|blindamix|maximper|acqua|lona|pedra|grafiato|selante|silicone|cola|argamassa|bloco|wurth|vedacit|piscina|laje|reboco|obra|baldrame)\b/.test(
+          lower,
+        )
+
+      if (is3D && !isDistribuidora) {
+        handleSelectUnit("Loja SJ")
+        return
+      } else if (isDistribuidora && !is3D) {
+        handleSelectUnit("SJ Distribuidora")
+        return
+      } else {
+        botReply(
+          "É sobre impressoras ou vai ser a parte de tintas e impermeabilizantes? (Loja SJ ou SJ Distribuidora?)\n\nPor favor, escolha uma das opções abaixo para falarmos com o especialista certo:",
+          getInitialChips(),
+        )
+        return
+      }
+    }
+
     // Se o cliente ainda não informou nome e contato
     if (!hasCollectedContactRef.current) {
       if (step === "collect_name" || step === "welcome") {
         // Se a mensagem enviada for uma dúvida/pergunta de produto em vez de um nome simples
         const isQuestionOrInquiry =
           trimmed.includes("?") ||
-          /\b(quanto|qual|valor|preco|preço|entrega|frete|orcar|orçar|orcamento|orçamento|comprar|tem|vende|funciona|como|horario|horário|endereco|endereço|onde|rendimento|laje|piscina|parede|wurth|cola|tinta|filamento)\b/i.test(
+          /\b(quanto|qual|valor|preco|preço|entrega|frete|orcar|orçar|orcamento|orçamento|comprar|tem|vende|funciona|como|horario|horário|endereco|endereço|onde|rendimento|laje|piscina|parede|wurth|cola|tinta|filamento|cor|cores|catalogo|tabela)\b/i.test(
             trimmed,
           )
 
@@ -1186,7 +1475,7 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           /^(oi|ol[aá]|bom dia|boa tarde|boa noite|opa|ei|ola)$/i.test(trimmed)
         ) {
           botReply(
-            "Olá! Seja muito bem-vindo(a) à Loja SJ! 👋\n\nPara iniciarmos seu atendimento personalizado, como posso te chamar? (Qual seu nome?)",
+            `Olá! Seja muito bem-vindo(a) à ${selectedUnit || "Loja SJ"}! 👋\n\nPara iniciarmos seu atendimento personalizado, como posso te chamar? (Qual seu nome?)`,
           )
           setStep("collect_name")
           return
@@ -1217,16 +1506,27 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
         setLeadData(currentLead)
         hasCollectedContactRef.current = true
 
+        const currentUnit = selectedUnit || "Loja SJ"
+
         // Salva imediatamente como Lead assim que o número de WhatsApp é informado
         const initialLeadMessage = pendingQueryRef.current
-          ? `[Assistente Chatbot] Dúvida inicial: "${pendingQueryRef.current}" | Produto: ${currentLead.product || "Geral"}`
-          : `[Assistente Chatbot] Produto: ${currentLead.product || "Geral"} | Modalidade: ${currentLead.modalidade || "Atendimento Geral"}`
+          ? `[Assistente ${currentUnit}] Dúvida inicial: "${pendingQueryRef.current}" | Produto: ${currentLead.product || "Geral"}`
+          : `[Assistente ${currentUnit}] Produto: ${currentLead.product || "Geral"} | Modalidade: ${currentLead.modalidade || "Atendimento Geral"}`
 
         saveLead({
-          name: currentLead.name || "Cliente Loja SJ",
+          name:
+            currentLead.name ||
+            (currentUnit === "SJ Distribuidora"
+              ? "Cliente SJ Distribuidora"
+              : "Cliente Loja SJ"),
           whatsapp: formatted,
           email: "",
           message: initialLeadMessage,
+          unit: currentUnit,
+          tags: [currentUnit],
+          product: currentLead.product,
+          modalidade: currentLead.modalidade,
+          bairro: currentLead.bairro,
         })
           .then((saved) => {
             if (saved?.id) {
@@ -1309,20 +1609,32 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
     setLeadData(updatedLead)
     setStep("completed")
 
+    const currentUnit = selectedUnit || "Loja SJ"
+
     // Atualizar ou salvar no banco de dados local / Firestore
-    const finalMessage = `[Assistente Chatbot] Produto: ${updatedLead.product || "Geral"} | Bairro: ${bairroName} | Modalidade: ${updatedLead.modalidade || "Atendimento Geral"}`
+    const finalMessage = `[Assistente ${currentUnit}] Produto: ${updatedLead.product || "Geral"} | Bairro: ${bairroName} | Modalidade: ${updatedLead.modalidade || "Atendimento Geral"}`
     try {
       if (currentLeadIdRef.current) {
         await updateLeadDetails(currentLeadIdRef.current, {
           message: finalMessage,
           bairro: bairroName,
+          unit: currentUnit,
         })
       } else {
         const saved = await saveLead({
-          name: updatedLead.name || "Cliente Loja SJ",
+          name:
+            updatedLead.name ||
+            (currentUnit === "SJ Distribuidora"
+              ? "Cliente SJ Distribuidora"
+              : "Cliente Loja SJ"),
           whatsapp: updatedLead.whatsapp,
           email: "",
           message: finalMessage,
+          unit: currentUnit,
+          tags: [currentUnit],
+          product: updatedLead.product,
+          modalidade: updatedLead.modalidade,
+          bairro: bairroName,
         })
         if (saved?.id) {
           currentLeadIdRef.current = saved.id
@@ -1350,6 +1662,36 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
 
   return (
     <div className="flex flex-col h-[500px] max-h-[75vh] w-full bg-slate-950/30 rounded-2xl overflow-hidden border border-white/[0.06] shadow-xl backdrop-blur-md">
+      {/* Top Company Indicator / Switcher Bar */}
+      <div className="px-3.5 py-2 bg-slate-900/90 border-b border-slate-800/80 flex items-center justify-between gap-2 text-[11px]">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-slate-400">Setor:</span>
+          {selectedUnit ? (
+            <span
+              className={`px-2 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 ${
+                selectedUnit === "Loja SJ"
+                  ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                  : "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
+              }`}
+            >
+              <span>{selectedUnit === "Loja SJ" ? "🖨️" : "🎨"}</span>
+              <span>{selectedUnit}</span>
+            </span>
+          ) : (
+            <span className="text-slate-300 font-medium">Selecione a empresa abaixo</span>
+          )}
+        </div>
+        {selectedUnit && (
+          <button
+            type="button"
+            onClick={handleSwitchCompany}
+            className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer hover:text-[#ff7a59] transition-colors"
+          >
+            Trocar setor
+          </button>
+        )}
+      </div>
+
       {/* Messages Scrollable Area */}
       <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3.5 custom-scrollbar">
         {messages.map((m) => (
@@ -1429,9 +1771,9 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
               </div>
             )}
 
-            {/* Quick Action Chips & WhatsApp direct buttons */}
+            {/* Quick Action Chips & WhatsApp direct buttons & Company selection cards */}
             {m.chips && m.chips.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2.5 max-w-[96%]">
+              <div className="flex flex-wrap gap-2 mt-2.5 max-w-[96%] w-full">
                 {m.chips.map((chip, i) =>
                   chip.url ? (
                     <a
@@ -1444,6 +1786,30 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
                       <IcoWhatsApp s={16} />
                       <span>{chip.label}</span>
                     </a>
+                  ) : chip.desc ? (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={chip.action}
+                      className="w-full p-3 rounded-xl bg-slate-900/95 hover:bg-slate-850 border border-slate-700/80 hover:border-[#e8451f]/50 transition-all text-left flex items-start gap-3 shadow-sm cursor-pointer group active:scale-[0.99]"
+                    >
+                      {chip.icon && (
+                        <div className="text-xl p-2 rounded-lg bg-slate-800 border border-slate-700/60 group-hover:border-[#e8451f]/40 group-hover:bg-[#e8451f]/10 transition-colors flex-shrink-0">
+                          {chip.icon}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-xs text-white group-hover:text-[#ff7a59] transition-colors flex items-center justify-between">
+                          <span>{chip.label}</span>
+                          <span className="text-[10px] text-slate-400 font-semibold group-hover:text-[#ff7a59]">
+                            Acessar →
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                          {chip.desc}
+                        </p>
+                      </div>
+                    </button>
                   ) : (
                     <button
                       key={i}
@@ -1481,13 +1847,17 @@ export function LeadChatbot({ onClose, onSwitchToForm }: LeadChatbotProps) {
           ref={inputRef}
           type={step === "collect_whatsapp" ? "tel" : "text"}
           placeholder={
-            step === "collect_name"
-              ? "Digite seu nome completo..."
-              : step === "collect_whatsapp"
-                ? "Digite seu WhatsApp com DDD..."
-                : step === "collect_bairro"
-                  ? "Digite seu bairro e cidade..."
-                  : "Pergunte sobre produtos, entrega ou valores..."
+            !selectedUnit || step === "select_unit"
+              ? "É sobre impressoras ou tintas? Escolha uma opção acima..."
+              : step === "collect_name"
+                ? "Digite seu nome completo..."
+                : step === "collect_whatsapp"
+                  ? "Digite seu WhatsApp com DDD..."
+                  : step === "collect_bairro"
+                    ? "Digite seu bairro e cidade..."
+                    : selectedUnit === "Loja SJ"
+                      ? "Pergunte sobre impressoras 3D, filamentos, cores ou peças..."
+                      : "Pergunte sobre tintas, impermeabilizantes, lajes ou rendimento..."
           }
           value={
             step === "collect_whatsapp"

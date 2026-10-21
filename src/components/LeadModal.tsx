@@ -1,5 +1,5 @@
 import { useState, useEffect, Suspense } from "react"
-import { saveLead } from "../services/storeService"
+import { saveLead, type LeadUnit } from "../services/storeService"
 import { lazyWithRetry } from "../utils/lazyWithRetry"
 
 const LeadChatbot = lazyWithRetry(
@@ -21,6 +21,7 @@ function formatWhatsApp(value: string) {
 
 export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
   const [viewMode, setViewMode] = useState<"chat" | "form">("chat")
+  const [selectedUnit, setSelectedUnit] = useState<LeadUnit | null>(null)
   const [name, setName] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [email, setEmail] = useState("")
@@ -52,6 +53,7 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
       setModalOpenTime(Date.now())
       setHoneypot("")
       setSuccess(false)
+      setSelectedUnit(null)
     }
   }, [isOpen])
 
@@ -111,13 +113,20 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
       return
     }
 
+    if (!selectedUnit) {
+      setFormError("Por favor, selecione o setor de atendimento (Loja SJ ou SJ Distribuidora).")
+      return
+    }
+
     setLoading(true)
     try {
       await saveLead({
         name: trimmedName,
         whatsapp,
         email: trimmedEmail,
-        message: message.trim() || "Solicitação de contato via Link na Bio",
+        unit: selectedUnit,
+        tags: [selectedUnit],
+        message: `[${selectedUnit}] ` + (message.trim() || "Solicitação de contato via Link na Bio"),
       })
       sessionStorage.setItem("grupo_sj_last_lead_submit", Date.now().toString())
       setSuccess(true)
@@ -231,8 +240,46 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  Assistente Loja SJ
+                  {selectedUnit === "SJ Distribuidora"
+                    ? "Assistente SJ Distribuidora"
+                    : selectedUnit === "Loja SJ"
+                      ? "Assistente Loja SJ"
+                      : "Assistente Grupo SJ"}
                 </h3>
+                <span
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 800,
+                    padding: "2px 6px",
+                    borderRadius: 6,
+                    background:
+                      selectedUnit === "SJ Distribuidora"
+                        ? "rgba(232, 69, 31, 0.16)"
+                        : selectedUnit === "Loja SJ"
+                          ? "rgba(99, 102, 241, 0.16)"
+                          : "rgba(16, 185, 129, 0.16)",
+                    color:
+                      selectedUnit === "SJ Distribuidora"
+                        ? "#ff7a59"
+                        : selectedUnit === "Loja SJ"
+                          ? "#a5b4fc"
+                          : "#34d399",
+                    border:
+                      selectedUnit === "SJ Distribuidora"
+                        ? "1px solid rgba(232, 69, 31, 0.3)"
+                        : selectedUnit === "Loja SJ"
+                          ? "1px solid rgba(99, 102, 241, 0.3)"
+                          : "1px solid rgba(16, 185, 129, 0.3)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.03em",
+                  }}
+                >
+                  {selectedUnit === "SJ Distribuidora"
+                    ? "Tintas & Obras"
+                    : selectedUnit === "Loja SJ"
+                      ? "3D & Filamentos"
+                      : "Atendimento Geral"}
+                </span>
               </div>
             </div>
 
@@ -381,7 +428,11 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                 color: "var(--muted-foreground)",
               }}
             >
-              Av. Portugal, 6759 · Umuarama - PR
+              {selectedUnit === "SJ Distribuidora"
+                ? "Tintas · Impermeabilizantes · Argamassas · Pedras Naturais"
+                : selectedUnit === "Loja SJ"
+                  ? "Impressoras 3D · Filamentos · Peças & Manutenção"
+                  : "Av. Portugal, 6759 - Umuarama - PR · 09h às 17h"}
             </span>
           </div>
         </div>
@@ -421,6 +472,8 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
               <LeadChatbot
                 onClose={onClose}
                 onSwitchToForm={() => setViewMode("form")}
+                initialUnit={selectedUnit}
+                onUnitChange={(u) => setSelectedUnit(u)}
               />
             </Suspense>
           </div>
@@ -503,6 +556,115 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                 ⚠️ {formError}
               </div>
             )}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  marginBottom: 6,
+                  color: "var(--foreground)",
+                }}
+              >
+                Setor de Atendimento *
+              </label>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 8,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setSelectedUnit("Loja SJ")}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: 10,
+                    border:
+                      selectedUnit === "Loja SJ"
+                        ? "2px solid #6366f1"
+                        : "1px solid var(--border)",
+                    background:
+                      selectedUnit === "Loja SJ"
+                        ? "rgba(99, 102, 241, 0.15)"
+                        : "rgba(255, 255, 255, 0.03)",
+                    color: "var(--foreground)",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: 800,
+                      fontSize: 12,
+                      color:
+                        selectedUnit === "Loja SJ"
+                          ? "#a5b4fc"
+                          : "var(--foreground)",
+                    }}
+                  >
+                    🖨️ Loja SJ
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "var(--muted-foreground)",
+                      marginTop: 2,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    Impressão 3D, Filamentos e Peças
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedUnit("SJ Distribuidora")}
+                  style={{
+                    padding: "10px 12px",
+                    borderRadius: 10,
+                    border:
+                      selectedUnit === "SJ Distribuidora"
+                        ? "2px solid #e8451f"
+                        : "1px solid var(--border)",
+                    background:
+                      selectedUnit === "SJ Distribuidora"
+                        ? "rgba(232, 69, 31, 0.15)"
+                        : "rgba(255, 255, 255, 0.03)",
+                    color: "var(--foreground)",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: 800,
+                      fontSize: 12,
+                      color:
+                        selectedUnit === "SJ Distribuidora"
+                          ? "#ff7a59"
+                          : "var(--foreground)",
+                    }}
+                  >
+                    🎨 SJ Distribuidora
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "var(--muted-foreground)",
+                      marginTop: 2,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    Tintas, Impermeabilizantes e Obras
+                  </div>
+                </button>
+              </div>
+            </div>
+
             <div>
               <label
                 style={{
@@ -605,11 +767,21 @@ export default function LeadModal({ isOpen, onClose }: LeadModalProps) {
                   color: "var(--foreground)",
                 }}
               >
-                Como podemos ajudar?
+                {selectedUnit === "Loja SJ"
+                  ? "Dúvida ou produto de Impressão 3D"
+                  : selectedUnit === "SJ Distribuidora"
+                    ? "Dúvida ou produto de Tintas / Impermeabilizantes"
+                    : "Como podemos ajudar?"}
               </label>
               <textarea
                 rows={3}
-                placeholder="Descreva o produto ou linha de interesse..."
+                placeholder={
+                  selectedUnit === "Loja SJ"
+                    ? "Qual impressora 3D, filamento, cor ou peça você precisa?"
+                    : selectedUnit === "SJ Distribuidora"
+                      ? "Qual tinta, impermeabilizante ou produto de obra você precisa?"
+                      : "Descreva o produto ou linha de interesse..."
+                }
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 style={{
