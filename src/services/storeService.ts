@@ -159,7 +159,7 @@ export const DEFAULT_SOCIAL_LINKS: SocialLinks = {
   instagram: "https://instagram.com/gruposj",
   facebook: "https://facebook.com/gruposj",
   youtube: "https://youtube.com/@gruposj",
-  whatsapp: "https://wa.me/5544999159415",
+  whatsapp: "https://wa.me/5544991351318",
   email: "contato@gruposj.com.br",
   maps: "https://www.google.com/maps/place/Loja+SJ/data=!4m2!3m1!1s0x0:0x86d0dc0ba748d699?sa=X&ved=1t:2428&ictx=111",
 }

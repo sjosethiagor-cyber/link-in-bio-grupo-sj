@@ -15,8 +15,8 @@ export const SJ_STORE_INFO = {
   name: "Loja SJ",
   address: "Av. Portugal, 6759 - Zona I-A, Umuarama - PR",
   workingHours: "Das 09h às 17h",
-  phoneDisplay: "(44) 99915-9415",
-  rawPhone: "5544999159415",
+  phoneDisplay: "(44) 99135-1318",
+  rawPhone: "5544991351318",
   deliveryFee: 15.0,
   deliveryFeeDisplay: "R$ 15,00",
 }

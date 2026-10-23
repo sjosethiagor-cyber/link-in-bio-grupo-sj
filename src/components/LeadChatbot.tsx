@@ -1497,7 +1497,7 @@ export function LeadChatbot({
         const raw = trimmed.replace(/\D/g, "")
         if (raw.length < 10 || raw.length > 11) {
           botReply(
-            "⚠️ Por favor, digite um número de WhatsApp válido com DDD (ex: 44 99915-9415).",
+            "⚠️ Por favor, digite um número de WhatsApp válido com DDD (ex: 44 99135-1318).",
           )
           return
         }
