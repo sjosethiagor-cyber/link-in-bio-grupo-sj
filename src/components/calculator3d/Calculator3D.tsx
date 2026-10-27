@@ -52,10 +52,10 @@ export default function Calculator3D() {
     <div className="sj-calc-wrapper">
       {/* ─── Header ─── */}
       <header className="sj-calc-header">
-        <h1 className="sj-calc-brand-title">
+        <div className="sj-calc-brand-title">
           <img
             src={grupoSjLogo}
-            alt="Grupo SJ"
+            alt="Grupo SJ - Calculadora de Impressão 3D"
             style={{
               width: 42,
               height: 42,
@@ -64,10 +64,10 @@ export default function Calculator3D() {
             }}
           />
           <span>Grupo SJ</span>
-        </h1>
-        <p className="sj-calc-brand-subtitle">
+        </div>
+        <h1 className="sj-calc-brand-subtitle">
           CALCULADORA DE CUSTOS DE IMPRESSÃO 3D
-        </p>
+        </h1>
       </header>
 
       {/* ─── Card 1: Filamento ─── */}

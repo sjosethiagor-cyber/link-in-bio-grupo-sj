@@ -1,0 +1,13 @@
+# robots.txt for Grupo SJ (somosgruposj.com.br)
+User-agent: *
+Allow: /
+Allow: /calculadora-3d
+Allow: /calc3d
+Allow: /calculadora
+
+# Disallow private administrative & metrics portals
+Disallow: /admin
+Disallow: /dashboard
+
+# Sitemap location
+Sitemap: https://www.somosgruposj.com.br/sitemap.xml

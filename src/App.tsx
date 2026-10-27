@@ -166,9 +166,12 @@ function SJMark({ size = 96 }: { size?: number }) {
   return (
     <img
       src={grupoSjLogo}
-      alt="Logo Grupo SJ"
+      alt="Logo Grupo SJ - Lojas Oficiais e Distribuição"
       width={size}
       height={size}
+      fetchPriority="high"
+      loading="eager"
+      decoding="async"
       style={{
         display: "block",
         width: size,
@@ -215,6 +218,66 @@ export default function App() {
     setCurrentPath(path)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
+
+  // Dynamic SEO & Open Graph metadata per route
+  useEffect(() => {
+    const isCalc =
+      currentPath === "/calculadora-3d" ||
+      currentPath === "/calc3d" ||
+      currentPath === "/calculadora"
+    const isAdmin = currentPath === "/dashboard" || currentPath === "/admin"
+
+    const setMeta = (attr: "name" | "property", key: string, val: string) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`)
+      if (!el) {
+        el = document.createElement("meta")
+        el.setAttribute(attr, key)
+        document.head.appendChild(el)
+      }
+      el.setAttribute("content", val)
+    }
+
+    const setLink = (rel: string, href: string) => {
+      let el = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null
+      if (!el) {
+        el = document.createElement("link")
+        el.setAttribute("rel", rel)
+        document.head.appendChild(el)
+      }
+      el.setAttribute("href", href)
+    }
+
+    if (isCalc) {
+      const calcTitle = "Calculadora de Custos de Impressão 3D | Grupo SJ"
+      const calcDesc =
+        "Calcule o custo exato de filamento, energia elétrica, embalagem e preço de venda para peças 3D com a calculadora oficial do Grupo SJ."
+      document.title = calcTitle
+      setMeta("name", "description", calcDesc)
+      setMeta("property", "og:title", calcTitle)
+      setMeta("property", "og:description", calcDesc)
+      setMeta("property", "og:url", "https://www.somosgruposj.com.br/calculadora-3d")
+      setMeta("name", "twitter:title", calcTitle)
+      setMeta("name", "twitter:description", calcDesc)
+      setLink("canonical", "https://www.somosgruposj.com.br/calculadora-3d")
+    } else if (isAdmin) {
+      document.title = "Painel Administrativo & Métricas | Grupo SJ"
+    } else {
+      const homeTitle = "Grupo SJ | Lojas Oficiais & Contato"
+      const homeDesc =
+        "Grupo SJ - Lojas oficiais no Mercado Livre e Shopee. Distribuição de tintas, impermeabilizantes, colas especiais, ferramentas e utilidades com envio rápido."
+      document.title = homeTitle
+      setMeta("name", "description", homeDesc)
+      setMeta("property", "og:title", homeTitle)
+      setMeta("property", "og:description", homeDesc)
+      setMeta("property", "og:url", "https://www.somosgruposj.com.br/")
+      setMeta("name", "twitter:title", homeTitle)
+      setMeta("name", "twitter:description", homeDesc)
+      setLink("canonical", "https://www.somosgruposj.com.br/")
+    }
+
+    // Protect administrative routes from crawler indexing
+    setMeta("name", "robots", isAdmin ? "noindex, nofollow" : "index, follow")
+  }, [currentPath])
 
   const [activeStore, setActiveStore] = useState<StoreModalData | null>(null)
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
@@ -369,17 +432,32 @@ export default function App() {
               <h1
                 style={{
                   margin: 0,
-                  fontSize: "clamp(14px, 3.8vw, 16px)",
-                  fontWeight: 600,
+                  fontSize: "clamp(18px, 4.5vw, 22px)",
+                  fontWeight: 800,
+                  color: "var(--foreground)",
+                  lineHeight: 1.25,
+                  maxWidth: 360,
+                  textAlign: "center",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Grupo SJ · Lojas Oficiais
+              </h1>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "clamp(13px, 3.5vw, 14px)",
+                  fontWeight: 500,
                   color: "#d8d4cb",
-                  lineHeight: 1.5,
+                  lineHeight: 1.4,
                   maxWidth: 320,
                   textAlign: "center",
                   letterSpacing: "-0.01em",
                 }}
               >
                 Um grupo. Muitas soluções. A mesma confiança.
-              </h1>
+              </p>
 
               {/* Trust badge */}
               <span className="trust-badge" style={{ marginTop: 2 }}>
